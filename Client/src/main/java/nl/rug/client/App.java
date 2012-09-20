@@ -1,11 +1,12 @@
 package nl.rug.client;
 
+import java.io.*;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.tmatesoft.svn.core.SVNDirEntry;
-import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
@@ -22,13 +23,12 @@ public class App {
 
     public static void main(String[] args) {
         DAVRepositoryFactory.setup();
-        String url = "https://subversion.assembla.com/svn/ReneZ/src/view/";
+        String url = "https://subversion.assembla.com/svn/ReneZ/";
         String name = "anonymous";
         String password = "anonymous";
 
-        SVNRepository repository = null;
         try {
-            repository = SVNRepositoryFactory.create(SVNURL.parseURIDecoded(url));
+            SVNRepository repository = SVNRepositoryFactory.create(SVNURL.parseURIDecoded(url));
             ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager(name, password);
             repository.setAuthenticationManager(authManager);
 
@@ -44,24 +44,38 @@ public class App {
                 System.exit(1);
             }
             
-            listEntries(repository, "/src/view/");
+            for(int i = 1; i <= repository.getLatestRevision(); i++){
+                listEntries(repository, i, "");
+            }
 
-        } catch (SVNException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
 
-    public static void listEntries(SVNRepository repository, String path) throws SVNException {
-        Collection entries = repository.getDir(path, -1, null, (Collection) null);
+    public static void listEntries(SVNRepository repository, int revision, String path) throws Exception {
+        Collection entries = repository.getDir(path, revision, null, (Collection) null);
         Iterator iterator = entries.iterator();
+        String localpath = "svnfiles\\ReneZ\\" + revision + "\\" + path;
+        File svnpath = new File(localpath);
+        svnpath.mkdirs();
+        
         while (iterator.hasNext()) {
             SVNDirEntry entry = (SVNDirEntry) iterator.next();
-            System.out.println("/" + (path.equals("") ? "" : path + "/") + entry.getName()
+            String filePath = (path.equals("") ? "" : path + "/") + entry.getName();
+            System.out.println("/" + filePath
                     + " ( author: '" + entry.getAuthor() + "'; revision: " + entry.getRevision()
                     + "; date: " + entry.getDate() + ")");
             if (entry.getKind() == SVNNodeKind.DIR) {
-                listEntries(repository, (path.equals("")) ? entry.getName() : path + "/" + entry.getName());
+                listEntries(repository, revision, filePath);
+            } else if (entry.getKind() == SVNNodeKind.FILE) {
+                File localsvnfile = new File(localpath + "\\" + entry.getName());
+                localsvnfile.createNewFile();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                OutputStream outputStream = new FileOutputStream(localsvnfile);
+                repository.getFile(entry.getName(), entry.getRevision(), new HashMap(), baos);
+                baos.writeTo(outputStream);
             }
         }
     }
