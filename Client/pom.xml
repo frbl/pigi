@@ -13,6 +13,17 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+  
+  <repositories>
+    <repository>
+      <id>maven.iscpif.fr</id>
+      <url>http://maven.iscpif.fr/snapshots</url>
+    </repository>
+    <repository>
+      <id>maven.iscpif.fr.public</id>
+      <url>http://maven.iscpif.fr/public</url>
+    </repository>
+  </repositories>
 
   <dependencies>
     <dependency>
@@ -26,5 +37,21 @@
       <artifactId>svnkit</artifactId>
       <version>1.1.0</version>
     </dependency>
+    <dependency>
+      <groupId>fr.iscpif</groupId>
+      <artifactId>jogl</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+      <dependency>
+          <groupId>com.almworks.sqlite4java</groupId>
+          <artifactId>sqlite4java</artifactId>
+          <version>0.282</version>
+      </dependency>
+      <dependency>
+          <groupId>com.almworks.sqlite4java</groupId>
+          <artifactId>libsqlite4java-linux-amd64</artifactId>
+          <version>0.282</version>
+          <type>so</type>
+      </dependency>
   </dependencies>
 </project>
