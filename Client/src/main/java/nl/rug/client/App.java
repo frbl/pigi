@@ -26,25 +26,25 @@ public class App {
         JOGLWrapper.init();
         SQLite.setLibraryPath("target/lib/");
 
-        
+
         //TODO Move database stuff away from here, remember to let the database connection run on its own thread as described in the sqlite4java getting started page
         File database = new File("client.db");
-        
+
         SQLiteConnection db = new SQLiteConnection(database);
         try {
             db.open(true);
             // for some reason creating the table from the terminal makes it unreadable: [file is encrypted or is not a database] (?)
-            db.exec("CREATE TABLE orders (order_id INTEGER PRIMARY KEY, quantity INTEGER)"); 
+            db.exec("CREATE TABLE orders (order_id INTEGER PRIMARY KEY, quantity INTEGER)");
         } catch (SQLiteException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, "Could not connect to the database", ex);
         }
-        
+
         SQLiteStatement st = null;
-        
+
         try {
             st = db.prepare("SELECT order_id FROM orders WHERE quantity >= ?");
             // first param replaces the '?' in the statement with the value of the second param
-            st.bind(1,1);
+            st.bind(1, 1);
             while (st.step()) {
                 System.out.println(st.columnLong(0));
             }
@@ -52,11 +52,11 @@ public class App {
         } catch (SQLiteException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, "Error while executing query", ex);
         } finally {
-            
+
             if (st != null) {
                 st.dispose();
-            }   
-            
+            }
+
         }
 
         db.dispose();

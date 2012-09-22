@@ -150,7 +150,7 @@
         <version>6.1.25</version>
         <configuration>
           <contextPath>/</contextPath>
-          <scanIntervalSeconds>5</scanIntervalSeconds>
+          <scanIntervalSeconds>0</scanIntervalSeconds>
         </configuration>
       </plugin>
       <plugin>
@@ -193,6 +193,20 @@
             <classpathContainer>org.eclipse.jdt.launching.JRE_CONTAINER</classpathContainer>
           </classpathContainers>
         </configuration>
+      </plugin>
+      <plugin>
+	<groupId>org.zeroturnaround</groupId>
+	<artifactId>jrebel-maven-plugin</artifactId>
+	<version>1.1.1</version>
+	<executions>
+	  <execution>
+	    <id>generate-rebel-xml</id>
+	    <phase>process-resources</phase>
+	    <goals>
+	      <goal>generate</goal>
+	    </goals>
+	  </execution>
+	</executions>
       </plugin>
     </plugins>
   </build>
