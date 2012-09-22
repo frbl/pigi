@@ -6,13 +6,23 @@ import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
 import fr.iscpif.jogl.JOGLWrapper;
 import java.awt.Color;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import nl.rug.client.gui.MainWindow;
+import org.tmatesoft.svn.core.SVNDirEntry;
+import org.tmatesoft.svn.core.SVNNodeKind;
+import org.tmatesoft.svn.core.io.SVNRepository;
+
 
 /**
  * Hello world!
@@ -21,7 +31,35 @@ import nl.rug.client.gui.MainWindow;
 public class App {
 
     public static void main(String[] args) {
+        /*DAVRepositoryFactory.setup();
+        String url = "https://subversion.assembla.com/svn/ReneZ/";
+        String name = "anonymous";
+        String password = "anonymous";
 
+        try {
+            SVNRepository repository = SVNRepositoryFactory.create(SVNURL.parseURIDecoded(url));
+            ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager(name, password);
+            repository.setAuthenticationManager(authManager);
+
+            System.out.println("Repository Root: " + repository.getRepositoryRoot(true));
+            System.out.println("Repository UUID: " + repository.getRepositoryUUID(true));
+
+            SVNNodeKind nodeKind = repository.checkPath("", -1);
+            if (nodeKind == SVNNodeKind.NONE) {
+                System.err.println("There is no entry at '" + url + "'.");
+                System.exit(1);
+            } else if (nodeKind == SVNNodeKind.FILE) {
+                System.err.println("The entry at '" + url + "' is a file while a directory was expected.");
+                System.exit(1);
+            }
+            
+            for(int i = 1; i <= repository.getLatestRevision(); i++){
+                listEntries(repository, i, "");
+            }
+
+        } catch (Exception ex) {
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+*/
         // These need to be done to make JOGL and SQLite4Java work correctly (Maven/JNI)
         JOGLWrapper.init();
         SQLite.setLibraryPath("target/lib/");
@@ -64,52 +102,32 @@ public class App {
         initializeGUI();
 
     }
-    /*
-     public static void listEntries(SVNRepository repository, String path) throws SVNException {
-     Collection entries = repository.getDir(path, -1, null, (Collection) null);
-     Iterator iterator = entries.iterator();
-     while (iterator.hasNext()) {
-     SVNDirEntry entry = (SVNDirEntry) iterator.next();
-     System.out.println("/" + (path.equals("") ? "" : path + "/") + entry.getName()
-     + " ( author: '" + entry.getAuthor() + "'; revision: " + entry.getRevision()
-     + "; date: " + entry.getDate() + ")");
-     if (entry.getKind() == SVNNodeKind.DIR) {
-     listEntries(repository, (path.equals("")) ? entry.getName() : path + "/" + entry.getName());
-     }
-     }
-     }
 
-     private static void repoStuff() {
-     DAVRepositoryFactory.setup();
-     String url = "https://subversion.assembla.com/svn/ReneZ/src/view/";
-     String name = "anonymous";
-     String password = "anonymous";
-
-     SVNRepository repository = null;
-     try {
-     repository = SVNRepositoryFactory.create(SVNURL.parseURIDecoded(url));
-     ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager(name, password);
-     repository.setAuthenticationManager(authManager);
-
-     System.out.println("Repository Root: " + repository.getRepositoryRoot(true));
-     System.out.println("Repository UUID: " + repository.getRepositoryUUID(true));
-
-     SVNNodeKind nodeKind = repository.checkPath("", -1);
-     if (nodeKind == SVNNodeKind.NONE) {
-     System.err.println("There is no entry at '" + url + "'.");
-     System.exit(1);
-     } else if (nodeKind == SVNNodeKind.FILE) {
-     System.err.println("The entry at '" + url + "' is a file while a directory was expected.");
-     System.exit(1);
-     }
-            
-     listEntries(repository, "/src/view/");
-
-     } catch (SVNException ex) {
-     Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-     }
-     }
-     */
+    public static void listEntries(SVNRepository repository, int revision, String path) throws Exception {
+        Collection entries = repository.getDir(path, revision, null, (Collection) null);
+        Iterator iterator = entries.iterator();
+        String localpath = "svnfiles\\ReneZ\\" + revision + "\\" + path;
+        File svnpath = new File(localpath);
+        svnpath.mkdirs();
+        
+        while (iterator.hasNext()) {
+            SVNDirEntry entry = (SVNDirEntry) iterator.next();
+            String filePath = (path.equals("") ? "" : path + "/") + entry.getName();
+            System.out.println("/" + filePath
+                    + " ( author: '" + entry.getAuthor() + "'; revision: " + entry.getRevision()
+                    + "; date: " + entry.getDate() + ")");
+            if (entry.getKind() == SVNNodeKind.DIR) {
+                listEntries(repository, revision, filePath);
+            } else if (entry.getKind() == SVNNodeKind.FILE) {
+                File localsvnfile = new File(localpath + "\\" + entry.getName());
+                localsvnfile.createNewFile();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                OutputStream outputStream = new FileOutputStream(localsvnfile);
+                repository.getFile(entry.getName(), entry.getRevision(), new HashMap(), baos);
+                baos.writeTo(outputStream);
+            }
+        }
+    }
 
     private static void initializeGUI() {
         final JFrame frame = new MainWindow();
