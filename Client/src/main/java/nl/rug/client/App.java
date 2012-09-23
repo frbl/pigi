@@ -85,7 +85,7 @@ public class App {
     public static void retrieveSVNRepository(){
         DAVRepositoryFactory.setup();
         String url = "https://subversion.assembla.com/svn/ReneZ";
-        String path = "src/view/";
+        String path = "src/";
         //String url = "http://svn.wxwidgets.org/svn/wx/wxWidgets/";
         String name = "anonymous";
         String password = "anonymous";
@@ -132,7 +132,7 @@ public class App {
         svnpath.mkdirs();
         while (iterator.hasNext()) {
             SVNDirEntry entry = (SVNDirEntry) iterator.next();
-            String filePath = path + entry.getName();
+            String filePath = (path.equals("") ? "" : path + "/") + entry.getName();
             System.out.println("/" + filePath
                     + " ( author: '" + entry.getAuthor() + "'; revision: " + entry.getRevision()
                     + "; date: " + entry.getDate() + ")");
