@@ -116,15 +116,9 @@ public class App {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    private static int counter = 0;
     
     public static void listEntries(SVNRepository repository, int revision, String path) throws Exception {
-        if(repository.checkPath(path, revision) == SVNNodeKind.NONE){
-            return;
-        }
-        System.out.println("counter: " + counter++ + " path: " + path + " revision: " + revision);
-        System.out.println("check: " + repository.checkPath(path, revision));
+        if(repository.checkPath(path, revision) == SVNNodeKind.NONE) return;
         Collection entries = repository.getDir(repository.getRepositoryPath(path), revision, null, (Collection) null);
         Iterator iterator = entries.iterator();
         String localpath = "svnfiles\\ReneZ\\" + revision + "\\" + path;
@@ -132,7 +126,7 @@ public class App {
         svnpath.mkdirs();
         while (iterator.hasNext()) {
             SVNDirEntry entry = (SVNDirEntry) iterator.next();
-            String filePath = (path.equals("") ? "" : path + "/") + entry.getName();
+            String filePath = (path.equals("") || path.endsWith("/") ? path : path + "/") + entry.getName();
             System.out.println("/" + filePath
                     + " ( author: '" + entry.getAuthor() + "'; revision: " + entry.getRevision()
                     + "; date: " + entry.getDate() + ")");
