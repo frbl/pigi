@@ -53,5 +53,49 @@
           <version>0.282</version>
           <type>so</type>
       </dependency>
+    <dependency>
+      <groupId>com.almworks.sqlite4java</groupId>
+      <artifactId>libsqlite4java-linux-i386</artifactId>
+      <version>0.282</version>
+      <type>so</type>
+    </dependency>
   </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.almworks.sqlite4java</groupId>
+                  <artifactId>libsqlite4java-linux-i386</artifactId>
+                  <version>${sqlite4java.version}</version>
+                  <type>so</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>com.almworks.sqlite4java</groupId>
+                  <artifactId>libsqlite4java-linux-amd64</artifactId>
+                  <version>${sqlite4java.version}</version>
+                  <type>so</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
