@@ -117,11 +117,15 @@ public class App {
         }
     }
     
+    
+    
     public static void listEntries(SVNRepository repository, int revision, String path) throws Exception {
+        final String FILE_SEPARATOR = System.getProperty("file.separator");
+        
         if(repository.checkPath(path, revision) == SVNNodeKind.NONE) return;
         Collection entries = repository.getDir(repository.getRepositoryPath(path), revision, null, (Collection) null);
         Iterator iterator = entries.iterator();
-        String localpath = "svnfiles\\ReneZ\\" + revision + "\\" + path;
+        String localpath = "svnfiles" + FILE_SEPARATOR + "ReneZ" + FILE_SEPARATOR + revision + FILE_SEPARATOR + path;
         File svnpath = new File(localpath);
         svnpath.mkdirs();
         while (iterator.hasNext()) {
@@ -133,7 +137,7 @@ public class App {
             if (entry.getKind() == SVNNodeKind.DIR) {
                 listEntries(repository, revision, filePath);
             } else if (entry.getKind() == SVNNodeKind.FILE) {
-                File localsvnfile = new File(localpath + "\\" + entry.getName());
+                File localsvnfile = new File(localpath + FILE_SEPARATOR + entry.getName());
                 localsvnfile.createNewFile();
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 OutputStream outputStream = new FileOutputStream(localsvnfile);

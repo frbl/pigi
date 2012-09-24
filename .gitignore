@@ -9,5 +9,9 @@ src_managed/
 project/boot/
 project/plugins/project/
 pigi/ift_proto.db.h2.db
+
 # Scala-IDE specific
 .scala_dependencies
+
+#do not need to keep track of downloaded svn files
+Client/svnfiles/
