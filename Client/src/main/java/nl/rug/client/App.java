@@ -136,7 +136,7 @@ public class App {
                     + "; date: " + entry.getDate() + ")");
             if (entry.getKind() == SVNNodeKind.DIR) {
                 listEntries(repository, revision, filePath);
-            } else if (entry.getKind() == SVNNodeKind.FILE) {
+            } else if (entry.getKind() == SVNNodeKind.FILE && entry.getRevision() == revision) {
                 File localsvnfile = new File(localpath + FILE_SEPARATOR + entry.getName());
                 localsvnfile.createNewFile();
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
