@@ -131,10 +131,8 @@ public class App {
         while (iterator.hasNext()) {
             SVNDirEntry entry = (SVNDirEntry) iterator.next();
             String filePath = (path.equals("") || path.endsWith("/") ? path : path + "/") + entry.getName();
-            System.out.println("/" + filePath
-                    + " ( author: '" + entry.getAuthor() + "'; revision: " + entry.getRevision()
-                    + "; date: " + entry.getDate() + ")");
             if (entry.getKind() == SVNNodeKind.DIR) {
+                System.out.println("Going into " + filePath);
                 listEntries(repository, revision, filePath);
             } else if (entry.getKind() == SVNNodeKind.FILE && entry.getRevision() == revision) {
                 File localsvnfile = new File(localpath + FILE_SEPARATOR + entry.getName());
@@ -143,6 +141,9 @@ public class App {
                 OutputStream outputStream = new FileOutputStream(localsvnfile);
                 repository.getFile(filePath, entry.getRevision(), new HashMap(), baos);
                 baos.writeTo(outputStream);
+                System.out.println("/" + filePath
+                    + " ( author: '" + entry.getAuthor() + "'; revision: " + entry.getRevision()
+                    + "; date: " + entry.getDate() + ")");
             }
         }
     }
