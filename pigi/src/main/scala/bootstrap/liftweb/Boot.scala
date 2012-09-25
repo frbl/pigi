@@ -39,7 +39,8 @@ class Boot {
       Menu("Home") / "index" >> User.AddUserMenusAfter, // Simple menu form
       // Menu with special Link
       Menu(Loc("Static", Link(List("static"), true, "/static/index"), 
-	       "Static Content")))
+	       "Static Content"))
+		)
 
     LiftRules.setSiteMapFunc(() => User.sitemapMutator(sitemap()))
 
@@ -60,6 +61,10 @@ class Boot {
     LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
     S.addAround(DB.buildLoanWrapper)
+		
+		LiftRules.htmlProperties.default.set(
+      (r: Req) => new Html5Properties(r.userAgent))
+
   }
 
   /**
