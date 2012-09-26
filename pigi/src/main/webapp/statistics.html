@@ -1,18 +1,30 @@
 <div class="lift:surround?with=default;at=content">
-  <h2>Welcome to your project!</h2>
+  <h3>Statistics</h3>
   <p>
     <div class="lift:comet?type=UpdateStatistics">
-			<table class="table table-striped">
+			<table class="table table-striped table-hover">
 				<thead>
-			  <tr><th>hoi</th><th>hoi</th><th>hoi</th></tr>
+			  	<tr>
+					<th>#</th>
+					<th>Repository</th>
+					<th>URL</th>
+					<th>Average Complexity</th>
+					</tr>
 				</thead>
 				<tbody>
-			  <tr><td>hoi</td><td>hoi</td><td>hoi</td></tr>
-			  <tr><td>hoi</td><td>hoi</td><td>hoi</td></tr>
-			</tbody>
+			  	<tbody>
+          <tr class="instance">
+            <td class="index">1</td>
+            <td class="name">WebKit</td>
+            <td class="url">svn://webkit.org</td>
+            <td class="complexity">23</td>
+          </tr>
+        </tbody>
 			</table>
-			
+			<div><img id="chart"/></div>
+			<div>
       <span id="time">The current time</span>
+			</div>
     </div>
   </p>
 </div>
