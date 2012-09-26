@@ -36,7 +36,8 @@ class Boot {
 
     // Build SiteMap
     def sitemap() = SiteMap(
-      Menu("Home") / "index" >> User.AddUserMenusAfter, // Simple menu form
+      Menu("Home") / "index", 
+			Menu("Statistics") / "statistics" >> User.AddUserMenusAfter, 
       // Menu with special Link
       Menu(Loc("Static", Link(List("static"), true, "/static/index"), 
 	       "Static Content"))
