@@ -14,20 +14,28 @@
 
 		<link href="/ui/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
 		<link href="/ui/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet"/>
+		<link href="http://twitter.github.com/bootstrap/assets/css/docs.css" rel="stylesheet"/>
    	
 		<style>
-	    body { padding-top: 6em; }
+	    body { padding-top: 0em; }
 	  </style>
 
   </head>
   <body>
-		<div class="navbar navbar-fixed-top">
+		<header class="jumbotron subhead" id="overview">
+		  <div class="container">
+		    <h1>pigi</h1>
+		    <p class="lead">Distributed repository analysis</p>
+		  </div>
+		</header>
+		<div class="navbar navbar-top">
 			<div class="navbar-inner">
 				<div class="container">
 					<ul class="lift:Menu.builder?linkToSelf=true&li_item:class=active&ul:class=nav"></ul>
 				</div>
 			</div>
 		</div>
+		
 
    	<div class="container">
 			<div class = "lift:msgs">
@@ -41,6 +49,9 @@
       <div id="content" >
 	  	<!-- The HTML content will go here -->
 			</div>
+			<footer class="navbar navbar-fixed-bottom pagination-centered">
+				Copyright &copy; 2012 University of Groningen and pigi
+			</footer>
     </div>
   </body>
 </html>
