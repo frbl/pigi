@@ -2,18 +2,16 @@ package nl.rug.client.database;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
+import com.almworks.sqlite4java.SQLiteJob;
 import com.almworks.sqlite4java.SQLiteQueue;
+import com.almworks.sqlite4java.SQLiteStatement;
 import java.io.File;
 
 /**
  * This class handles communication with the SQLite database. It provides some
  * convenient methods to retrieve and store the required information. A
  * SQLiteQueue is used to make access from different threads possible, we use it
- * primarily to prevent the GUI from blocking when accessing the database. Since
- * access is asynchronous, the methods return a proxy object representing the
- * required information when reading, the SQLiteQueue callback will make sure
- * the returned object provides access to the correct information when it is
- * retrieved.
+ * primarily so we can access the database from different threads.
  *
  * @author wesschuitema
  */
@@ -48,6 +46,70 @@ public class Database {
         queue = new SQLiteQueue(databaseFileLocation).start();
 
     }
+    
+    public Repository getRepository(final String location) {
+        
+        return queue.execute(new SQLiteJob<Repository>() {
+            
+            protected Repository job(SQLiteConnection connection) throws SQLiteException {
+                
+                SQLiteStatement st = connection.prepare("SELECT repositoryId, title, location, description FROM Repository WHERE location=?");
+                
+                st.bind(1, location); // bind starts at 1...
+                
+                st.step(); // location is unique so we should have only one result.
+                
+                final int id = st.columnInt(0);
+                final String title = st.columnString(0);
+                final String location = st.columnString(1);
+                final String description = st.columnString(2);                
+                
+                return new Repository() {
+
+                    public String getDescription() {
+                        return description;
+                    }
+
+                    public String getLocation() {
+                        return location;
+                    }
+
+                    public int getRepositoryId() {
+                        return id;
+                    }
+
+                    public String getTitle() {
+                        return title;
+                    }
+                };
+                
+            }
+
+        }).complete(); // complete makes this blocking, see the sqlite4java site for an asynchronous example
+        
+    }
+    
+    public void addRepository(final String title, final String location, final String description /* id is automatically generated (if I did my work right ;)*/) {
+        
+        queue.execute(new SQLiteJob<Object>() {
+            
+            protected Repository job(SQLiteConnection connection) throws SQLiteException {
+                
+                SQLiteStatement st = connection.prepare("INSERT INTO Repository (location, title, description) VALUES (?, ?, ?)");
+                
+                st.bind(1, location); // bind starts at 1...
+                st.bind(2, title);
+                st.bind(3, description);
+                
+                st.step(); // WTF, how do you insert using a prepared statement, like this I guess...
+ 
+                return null;
+                
+            }
+
+        }).complete(); // complete makes this blocking, see the sqlite4java site for an asynchronous example
+        
+    }
 
     /**
      * This method is called after creating the SQLite queue. It checks to see
@@ -55,8 +117,7 @@ public class Database {
      * not present
      *
      * @param databaseFileLocation - The file where the database should be, this
-     * is needed because the queue is not used here. The queue is not used
-     * because we do want to block execution here
+     * is needed because the queue is not used here.
      */
     private void initialize(File databaseFileLocation) throws SQLiteException {
 

@@ -39,6 +39,9 @@ public class App {
             System.exit(-1);
             
         }
+        
+        database.addRepository("test", "svn://test.nl/awesomerepository", "The best repository ever!!1");
+        System.out.println(database.getRepository("svn://test.nl/awesomerepository").getDescription());
 
         initializeGUI();
         
