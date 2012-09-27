@@ -45,75 +45,7 @@ public class App {
         Database database = new Database(new File("client.db"));        
 
         initializeGUI();
-
-        //retrieveSVNRepository();
         
-    }
-    
-    public static void retrieveSVNRepository(){
-        DAVRepositoryFactory.setup();
-        String url = "https://subversion.assembla.com/svn/ReneZ";
-        String path = "src/";
-        //String url = "http://svn.wxwidgets.org/svn/wx/wxWidgets/";
-        String name = "anonymous";
-        String password = "anonymous";
-
-        try {
-            SVNRepository repository = SVNRepositoryFactory.create(SVNURL.parseURIDecoded(url));
-            ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager(name, password);
-            repository.setAuthenticationManager(authManager);
-
-            System.out.println("Repository Root: " + repository.getRepositoryRoot(true));
-            System.out.println("Repository UUID: " + repository.getRepositoryUUID(true));
-
-            SVNNodeKind nodeKind = repository.checkPath("", -1);
-            if (nodeKind == SVNNodeKind.NONE) {
-                System.err.println("There is no entry at '" + url + "'.");
-                System.exit(1);
-            } else if (nodeKind == SVNNodeKind.FILE) {
-                System.err.println("The entry at '" + url + "' is a file while a directory was expected.");
-                System.exit(1);
-            }
-            
-            for(int i = 1; i <= repository.getLatestRevision(); i++){
-                listEntries(repository, i, path);
-                System.out.println("Retrieved revision " + i + " of " + path);
-            }
-
-        } catch (Exception ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    
-    
-    public static void listEntries(SVNRepository repository, int revision, String path) throws Exception {
-        final String FILE_SEPARATOR = System.getProperty("file.separator");
-        
-        if(repository.checkPath(path, revision) == SVNNodeKind.NONE) return;
-        Collection entries = repository.getDir(repository.getRepositoryPath(path), revision, null, (Collection) null);
-        Iterator iterator = entries.iterator();
-        String localpath = "svnfiles" + FILE_SEPARATOR + "ReneZ" + FILE_SEPARATOR + revision + FILE_SEPARATOR + path;
-        File svnpath = new File(localpath);
-        svnpath.mkdirs();
-        while (iterator.hasNext()) {
-            SVNDirEntry entry = (SVNDirEntry) iterator.next();
-            String filePath = (path.equals("") || path.endsWith("/") ? path : path + "/") + entry.getName();
-            if (entry.getKind() == SVNNodeKind.DIR) {
-                System.out.println("Going into " + filePath);
-                listEntries(repository, revision, filePath);
-            } else if (entry.getKind() == SVNNodeKind.FILE && entry.getRevision() == revision) {
-                File localsvnfile = new File(localpath + FILE_SEPARATOR + entry.getName());
-                localsvnfile.createNewFile();
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                OutputStream outputStream = new FileOutputStream(localsvnfile);
-                repository.getFile(filePath, entry.getRevision(), new HashMap(), baos);
-                baos.writeTo(outputStream);
-                System.out.println("/" + filePath
-                    + " ( author: '" + entry.getAuthor() + "'; revision: " + entry.getRevision()
-                    + "; date: " + entry.getDate() + ")");
-            }
-        }
     }
 
     private static void initializeGUI() {
