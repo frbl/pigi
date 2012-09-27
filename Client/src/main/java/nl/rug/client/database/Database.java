@@ -146,7 +146,7 @@ public class Database {
     }
     
     // Maybe change this to use some .sql file with all of this information, not sure if this will work with sqlite4java though.
-    private final static String CREATE_DATABASE_SQL = 
+    private final static String CREATE_DATABASE_SQL =
         "BEGIN TRANSACTION; "
             + "CREATE TABLE Repository "
             + "("
@@ -164,28 +164,27 @@ public class Database {
             + "number UNSIGNED INTEGER NOT NULL,"
             + "logMessage CHARACTER VARYING"
             + ");"
-            + "CREATE TABLE pigi.Path"
+            + "CREATE TABLE Path"
             + "("
-            + "\"value\" CHARACTER VARYING NOT NULL,"
-            + "type CHARACTER(1) NOT NULL,"
-            + "CONSTRAINT Path_PK PRIMARY KEY(\"value\")"
+            + "\"value\" CHARACTER VARYING PRIMARY KEY NOT NULL,"
+            + "type CHARACTER(1) NOT NULL"
             + ");"
-            + "CREATE TABLE pigi.RepositoryHasRevision"
+            + "CREATE TABLE RepositoryHasRevision"
             + "("
             + "repositoryId INTEGER NOT NULL,"
             + "revisionId INTEGER NOT NULL,"
-            + "CONSTRAINT RepositoryHasRevision_PK PRIMARY KEY(revisionId, repositoryId)"
+            + "PRIMARY KEY(revisionId, repositoryId)"
             + ");"
-            + "CREATE TABLE pigi.RevisionHasPath"
+            + "CREATE TABLE RevisionHasPath"
             + "("
             + "revisionId INTEGER NOT NULL,"
             + "path CHARACTER VARYING NOT NULL,"
-            + "CONSTRAINT RevisionHasPath_PK PRIMARY KEY(revisionId, path)"
+            + "PRIMARY KEY(revisionId, path)"
             + ");"
-            + "ALTER TABLE pigi.RepositoryHasRevision ADD CONSTRAINT RepositoryHasRevision_FK1 FOREIGN KEY (repositoryId) REFERENCES pigi.Repository (repositoryId) ON DELETE RESTRICT ON UPDATE RESTRICT;"
-            + "ALTER TABLE pigi.RepositoryHasRevision ADD CONSTRAINT RepositoryHasRevision_FK2 FOREIGN KEY (revisionId) REFERENCES pigi.Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT;"
-            + "ALTER TABLE pigi.RevisionHasPath ADD CONSTRAINT RevisionHasPath_FK1 FOREIGN KEY (revisionId) REFERENCES pigi.Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT;"
-            + "ALTER TABLE pigi.RevisionHasPath ADD CONSTRAINT RevisionHasPath_FK2 FOREIGN KEY (path) REFERENCES pigi.Path (\"value\") ON DELETE RESTRICT ON UPDATE RESTRICT;"
+            + "ALTER TABLE RepositoryHasRevision ADD CONSTRAINT RepositoryHasRevision_FK1 FOREIGN KEY (repositoryId) REFERENCES Repository (repositoryId) ON DELETE RESTRICT ON UPDATE RESTRICT;"
+            + "ALTER TABLE RepositoryHasRevision ADD CONSTRAINT RepositoryHasRevision_FK2 FOREIGN KEY (revisionId) REFERENCES Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT;"
+            + "ALTER TABLE RevisionHasPath ADD CONSTRAINT RevisionHasPath_FK1 FOREIGN KEY (revisionId) REFERENCES Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT;"
+            + "ALTER TABLE RevisionHasPath ADD CONSTRAINT RevisionHasPath_FK2 FOREIGN KEY (path) REFERENCES Path (\"value\") ON DELETE RESTRICT ON UPDATE RESTRICT;"
             + "COMMIT;";
     
 }
