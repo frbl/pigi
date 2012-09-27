@@ -3,10 +3,7 @@ package nl.rug.client.database;
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteQueue;
-import com.almworks.sqlite4java.SQLiteStatement;
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class handles communication with the SQLite database. It provides some
@@ -33,7 +30,7 @@ public class Database {
     /**
      * Default constructor, uses the database file at the default location.
      */
-    public Database() {
+    public Database() throws SQLiteException {
         
         this(DEFAULT_DATABASE_FILE_LOCATION);
         
@@ -46,7 +43,7 @@ public class Database {
      * @param databaseFileLocation - The location of the database file that is 
      *  to be used
      */
-    public Database(File databaseFileLocation) {
+    public Database(File databaseFileLocation) throws SQLiteException {
         
         initialize(databaseFileLocation);
         
@@ -63,92 +60,28 @@ public class Database {
      *  is needed because the queue is not used here. The queue is not used 
      *  because we do want to block execution here
      */
-    private void initialize(File databaseFileLocation) {
+    private void initialize(File databaseFileLocation) throws SQLiteException {
         
         SQLiteConnection db = new SQLiteConnection(databaseFileLocation);
         
         try {
             
             db.open(true);
-            
-        } catch (SQLiteException ex) {
-            
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, 
-                    "Unable to open the database file", ex);
-            
-            System.exit(-1);
-            
-        }
-        
-        // Should change this to use "create table if not exists TableName", I 
-        // am not familiar enough with SQLite yet to do this, but it is a far 
-        // more elegant solution than this. I'm still just trying to get the 
-        // create statements to work, when these work I can add the "if not 
-        // exists" bits.
-        if (tablesArePresent(db) == false) {
-            
-            createTables(db);
-            
-        }
-        
-        db.dispose();
 
-    }
-    
-    private boolean tablesArePresent(SQLiteConnection db) {
-        
-        SQLiteStatement st = null;
-        
-        try {
-            
-            st = db.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;");
-            
-            st.bind(1, "pigi.Repository").step();
-            
-            if (st.columnInt(0) != 1) {
-                
-                return false;
-                
-            }
-            
-        } catch (SQLiteException ex) {
-            
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, "Unable to read from the database", ex);
-            
-            System.exit(-1);
+            db.exec(CREATE_DATABASE_SQL);
             
         } finally {
             
-            if (st != null) {
-                
-                st.dispose();
-                
-            }
+            db.dispose();
             
         }
-        
-        return true;
-        
+
     }
     
-    private void createTables(SQLiteConnection db) {
-        
-        try {
-            
-            db.exec(CREATE_DATABASE_SQL);
-            
-        } catch (SQLiteException ex) {
-            
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, "Unable to create the database tables", ex);
-            
-        }
-        
-    }
-    
-    // Maybe change this to use some .sql file with all of this information, not sure if this will work with sqlite4java though.
+    // Maybe change this to use some .sql file with all of this information
     private final static String CREATE_DATABASE_SQL =
         "BEGIN TRANSACTION; "
-            + "CREATE TABLE Repository "
+            + "CREATE TABLE IF NOT EXISTS Repository"
             + "("
             + "repositoryId INTEGER PRIMARY KEY AUTOINCREMENT,"
             + "location CHARACTER VARYING NOT NULL,"
@@ -156,7 +89,7 @@ public class Database {
             + "description CHARACTER VARYING NOT NULL,"
             + "CONSTRAINT Repository_UC UNIQUE(location)"
             + ");"
-            + "CREATE TABLE Revision"
+            + "CREATE TABLE IF NOT EXISTS Revision"
             + "("
             + "revisionId INTEGER PRIMARY KEY AUTOINCREMENT,"
             + "author CHARACTER(255) NOT NULL,"
@@ -164,27 +97,27 @@ public class Database {
             + "number UNSIGNED INTEGER NOT NULL,"
             + "logMessage CHARACTER VARYING"
             + ");"
-            + "CREATE TABLE Path"
+            + "CREATE TABLE IF NOT EXISTS Path"
             + "("
             + "\"value\" CHARACTER VARYING PRIMARY KEY NOT NULL,"
             + "type CHARACTER(1) NOT NULL"
             + ");"
-            + "CREATE TABLE RepositoryHasRevision"
+            + "CREATE TABLE IF NOT EXISTS RepositoryHasRevision"
             + "("
             + "repositoryId INTEGER NOT NULL,"
             + "revisionId INTEGER NOT NULL,"
-            + "PRIMARY KEY(revisionId, repositoryId)"
+            + "PRIMARY KEY(revisionId, repositoryId),"
+            + "FOREIGN KEY (revisionId) REFERENCES Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT,"
+            + "FOREIGN KEY (repositoryId) REFERENCES Repository (repositoryId) ON DELETE RESTRICT ON UPDATE RESTRICT"
             + ");"
-            + "CREATE TABLE RevisionHasPath"
+            + "CREATE TABLE IF NOT EXISTS RevisionHasPath"
             + "("
             + "revisionId INTEGER NOT NULL,"
             + "path CHARACTER VARYING NOT NULL,"
-            + "PRIMARY KEY(revisionId, path)"
+            + "PRIMARY KEY(revisionId, path),"
+            + "FOREIGN KEY (revisionId) REFERENCES Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT,"
+            + "FOREIGN KEY (path) REFERENCES Path (\"value\") ON DELETE RESTRICT ON UPDATE RESTRICT"
             + ");"
-            + "ALTER TABLE RepositoryHasRevision ADD CONSTRAINT RepositoryHasRevision_FK1 FOREIGN KEY (repositoryId) REFERENCES Repository (repositoryId) ON DELETE RESTRICT ON UPDATE RESTRICT;"
-            + "ALTER TABLE RepositoryHasRevision ADD CONSTRAINT RepositoryHasRevision_FK2 FOREIGN KEY (revisionId) REFERENCES Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT;"
-            + "ALTER TABLE RevisionHasPath ADD CONSTRAINT RevisionHasPath_FK1 FOREIGN KEY (revisionId) REFERENCES Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT;"
-            + "ALTER TABLE RevisionHasPath ADD CONSTRAINT RevisionHasPath_FK2 FOREIGN KEY (path) REFERENCES Path (\"value\") ON DELETE RESTRICT ON UPDATE RESTRICT;"
             + "COMMIT;";
     
 }
