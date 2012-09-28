@@ -15,3 +15,6 @@ pigi/lift_proto.db.*
 
 #do not need to keep track of downloaded svn files
 Client/svnfiles/
+
+#do not keep track of the sqlite database
+Client/client.db

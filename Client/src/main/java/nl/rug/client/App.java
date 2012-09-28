@@ -1,18 +1,10 @@
 package nl.rug.client;
 
 import com.almworks.sqlite4java.SQLite;
-import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
-import com.almworks.sqlite4java.SQLiteStatement;
 import fr.iscpif.jogl.JOGLWrapper;
 import java.awt.Color;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -20,14 +12,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import nl.rug.client.database.Database;
 import nl.rug.client.gui.MainWindow;
-import org.tmatesoft.svn.core.SVNDirEntry;
-import org.tmatesoft.svn.core.SVNNodeKind;
-import org.tmatesoft.svn.core.SVNURL;
-import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
-import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
-import org.tmatesoft.svn.core.io.SVNRepository;
-import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
-import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 
 /**
@@ -41,8 +25,23 @@ public class App {
         // These need to be done to make JOGL and SQLite4Java work correctly (Maven/JNI)
         JOGLWrapper.init();
         SQLite.setLibraryPath("target/lib/");
-
-        Database database = new Database(new File("client.db"));        
+        
+        Database database = null;
+        
+        try {
+            
+            database = new Database(new File("client.db"));
+            
+        } catch (SQLiteException ex) {
+            
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, "Unable to access Database, exiting.", ex);
+            
+            System.exit(-1);
+            
+        }
+        
+        database.addRepository("test", "svn://test.nl/awesomerepository", "The best repository ever!!1");
+        System.out.println(database.getRepository("svn://test.nl/awesomerepository").getDescription());
 
         initializeGUI();
         

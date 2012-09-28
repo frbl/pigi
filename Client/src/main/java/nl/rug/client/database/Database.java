@@ -2,153 +2,144 @@ package nl.rug.client.database;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
+import com.almworks.sqlite4java.SQLiteJob;
 import com.almworks.sqlite4java.SQLiteQueue;
 import com.almworks.sqlite4java.SQLiteStatement;
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class handles communication with the SQLite database. It provides some
- * convenient methods to retrieve and store the required information. A 
+ * convenient methods to retrieve and store the required information. A
  * SQLiteQueue is used to make access from different threads possible, we use it
- * primarily to prevent the GUI from blocking when accessing the database. Since
- * access is asynchronous, the methods return a proxy object representing the 
- * required information when reading, the SQLiteQueue callback will make sure 
- * the returned object provides access to the correct information when it is 
- * retrieved.
- * 
+ * primarily so we can access the database from different threads.
+ *
  * @author wesschuitema
  */
 public class Database {
-    
+
     // this queue is used so that other threads can add a job to the queue.
     private SQLiteQueue queue;
-    
     // this default location is used when an instance is created without 
     // providing a file location
-    private final static File DEFAULT_DATABASE_FILE_LOCATION 
-            = new File("client.db"); // default location
-    
+    private final static File DEFAULT_DATABASE_FILE_LOCATION = new File("client.db"); // default location
+
     /**
      * Default constructor, uses the database file at the default location.
      */
-    public Database() {
-        
+    public Database() throws SQLiteException {
+
         this(DEFAULT_DATABASE_FILE_LOCATION);
-        
+
     }
-    
+
     /**
      * This constructor creates an instance that uses the database file found in
      * the specified location.
-     * 
-     * @param databaseFileLocation - The location of the database file that is 
-     *  to be used
+     *
+     * @param databaseFileLocation - The location of the database file that is
+     * to be used
      */
-    public Database(File databaseFileLocation) {
-        
+    public Database(File databaseFileLocation) throws SQLiteException {
+
         initialize(databaseFileLocation);
-        
+
         queue = new SQLiteQueue(databaseFileLocation).start();
-        
-    }
-    
-    /**
-     * This method is called after creating the SQLite queue. It checks to see 
-     * if the required tables are present in the database and creates them if 
-     * not present
-     * 
-     * @param databaseFileLocation - The file where the database should be, this
-     *  is needed because the queue is not used here. The queue is not used 
-     *  because we do want to block execution here
-     */
-    private void initialize(File databaseFileLocation) {
-        
-        SQLiteConnection db = new SQLiteConnection(databaseFileLocation);
-        
-        try {
-            
-            db.open(true);
-            
-        } catch (SQLiteException ex) {
-            
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, 
-                    "Unable to open the database file", ex);
-            
-            System.exit(-1);
-            
-        }
-        
-        // Should change this to use "create table if not exists TableName", I 
-        // am not familiar enough with SQLite yet to do this, but it is a far 
-        // more elegant solution than this. I'm still just trying to get the 
-        // create statements to work, when these work I can add the "if not 
-        // exists" bits.
-        if (tablesArePresent(db) == false) {
-            
-            createTables(db);
-            
-        }
-        
-        db.dispose();
 
     }
     
-    private boolean tablesArePresent(SQLiteConnection db) {
+    public Repository getRepository(final String location) {
         
-        SQLiteStatement st = null;
-        
-        try {
+        return queue.execute(new SQLiteJob<Repository>() {
             
-            st = db.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;");
-            
-            st.bind(1, "pigi.Repository").step();
-            
-            if (st.columnInt(0) != 1) {
+            protected Repository job(SQLiteConnection connection) throws SQLiteException {
                 
-                return false;
+                SQLiteStatement st = connection.prepare("SELECT repositoryId, title, location, description FROM Repository WHERE location=?");
+                
+                st.bind(1, location); // bind starts at 1...
+                
+                st.step(); // location is unique so we should have only one result.
+                
+                final int id = st.columnInt(0);
+                final String title = st.columnString(0);
+                final String location = st.columnString(1);
+                final String description = st.columnString(2);                
+                
+                return new Repository() {
+
+                    public String getDescription() {
+                        return description;
+                    }
+
+                    public String getLocation() {
+                        return location;
+                    }
+
+                    public int getRepositoryId() {
+                        return id;
+                    }
+
+                    public String getTitle() {
+                        return title;
+                    }
+                };
                 
             }
-            
-        } catch (SQLiteException ex) {
-            
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, "Unable to read from the database", ex);
-            
-            System.exit(-1);
-            
-        } finally {
-            
-            if (st != null) {
-                
-                st.dispose();
-                
-            }
-            
-        }
-        
-        return true;
+
+        }).complete(); // complete makes this blocking, see the sqlite4java site for an asynchronous example
         
     }
     
-    private void createTables(SQLiteConnection db) {
+    public void addRepository(final String title, final String location, final String description /* id is automatically generated (if I did my work right ;)*/) {
         
-        try {
+        queue.execute(new SQLiteJob<Object>() {
             
+            protected Repository job(SQLiteConnection connection) throws SQLiteException {
+                
+                SQLiteStatement st = connection.prepare("INSERT INTO Repository (location, title, description) VALUES (?, ?, ?)");
+                
+                st.bind(1, location); // bind starts at 1...
+                st.bind(2, title);
+                st.bind(3, description);
+                
+                st.step(); // WTF, how do you insert using a prepared statement, like this I guess...
+ 
+                return null;
+                
+            }
+
+        }).complete(); // complete makes this blocking, see the sqlite4java site for an asynchronous example
+        
+    }
+
+    /**
+     * This method is called after creating the SQLite queue. It checks to see
+     * if the required tables are present in the database and creates them if
+     * not present
+     *
+     * @param databaseFileLocation - The file where the database should be, this
+     * is needed because the queue is not used here.
+     */
+    private void initialize(File databaseFileLocation) throws SQLiteException {
+
+        SQLiteConnection db = new SQLiteConnection(databaseFileLocation);
+
+        try {
+
+            db.open(true);
+
             db.exec(CREATE_DATABASE_SQL);
-            
-        } catch (SQLiteException ex) {
-            
-            Logger.getLogger(Database.class.getName()).log(Level.SEVERE, "Unable to create the database tables", ex);
-            
+
+        } finally {
+
+            db.dispose();
+
         }
-        
+
     }
-    
-    // Maybe change this to use some .sql file with all of this information, not sure if this will work with sqlite4java though.
-    private final static String CREATE_DATABASE_SQL = 
-        "BEGIN TRANSACTION; "
-            + "CREATE TABLE Repository "
+    // Maybe change this to use some .sql file with all of this information
+    private final static String CREATE_DATABASE_SQL =
+            "BEGIN TRANSACTION; "
+            + "CREATE TABLE IF NOT EXISTS Repository"
             + "("
             + "repositoryId INTEGER PRIMARY KEY AUTOINCREMENT,"
             + "location CHARACTER VARYING NOT NULL,"
@@ -156,7 +147,7 @@ public class Database {
             + "description CHARACTER VARYING NOT NULL,"
             + "CONSTRAINT Repository_UC UNIQUE(location)"
             + ");"
-            + "CREATE TABLE Revision"
+            + "CREATE TABLE IF NOT EXISTS Revision"
             + "("
             + "revisionId INTEGER PRIMARY KEY AUTOINCREMENT,"
             + "author CHARACTER(255) NOT NULL,"
@@ -164,28 +155,26 @@ public class Database {
             + "number UNSIGNED INTEGER NOT NULL,"
             + "logMessage CHARACTER VARYING"
             + ");"
-            + "CREATE TABLE pigi.Path"
+            + "CREATE TABLE IF NOT EXISTS Path"
             + "("
-            + "\"value\" CHARACTER VARYING NOT NULL,"
-            + "type CHARACTER(1) NOT NULL,"
-            + "CONSTRAINT Path_PK PRIMARY KEY(\"value\")"
+            + "\"value\" CHARACTER VARYING PRIMARY KEY NOT NULL,"
+            + "type CHARACTER(1) NOT NULL"
             + ");"
-            + "CREATE TABLE pigi.RepositoryHasRevision"
+            + "CREATE TABLE IF NOT EXISTS RepositoryHasRevision"
             + "("
             + "repositoryId INTEGER NOT NULL,"
             + "revisionId INTEGER NOT NULL,"
-            + "CONSTRAINT RepositoryHasRevision_PK PRIMARY KEY(revisionId, repositoryId)"
+            + "PRIMARY KEY(revisionId, repositoryId),"
+            + "FOREIGN KEY (revisionId) REFERENCES Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT,"
+            + "FOREIGN KEY (repositoryId) REFERENCES Repository (repositoryId) ON DELETE RESTRICT ON UPDATE RESTRICT"
             + ");"
-            + "CREATE TABLE pigi.RevisionHasPath"
+            + "CREATE TABLE IF NOT EXISTS RevisionHasPath"
             + "("
             + "revisionId INTEGER NOT NULL,"
             + "path CHARACTER VARYING NOT NULL,"
-            + "CONSTRAINT RevisionHasPath_PK PRIMARY KEY(revisionId, path)"
+            + "PRIMARY KEY(revisionId, path),"
+            + "FOREIGN KEY (revisionId) REFERENCES Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT,"
+            + "FOREIGN KEY (path) REFERENCES Path (\"value\") ON DELETE RESTRICT ON UPDATE RESTRICT"
             + ");"
-            + "ALTER TABLE pigi.RepositoryHasRevision ADD CONSTRAINT RepositoryHasRevision_FK1 FOREIGN KEY (repositoryId) REFERENCES pigi.Repository (repositoryId) ON DELETE RESTRICT ON UPDATE RESTRICT;"
-            + "ALTER TABLE pigi.RepositoryHasRevision ADD CONSTRAINT RepositoryHasRevision_FK2 FOREIGN KEY (revisionId) REFERENCES pigi.Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT;"
-            + "ALTER TABLE pigi.RevisionHasPath ADD CONSTRAINT RevisionHasPath_FK1 FOREIGN KEY (revisionId) REFERENCES pigi.Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT;"
-            + "ALTER TABLE pigi.RevisionHasPath ADD CONSTRAINT RevisionHasPath_FK2 FOREIGN KEY (path) REFERENCES pigi.Path (\"value\") ON DELETE RESTRICT ON UPDATE RESTRICT;"
             + "COMMIT;";
-    
 }
