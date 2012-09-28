@@ -1,30 +1,34 @@
 <div class="lift:surround?with=default;at=content">
-  <h3>Statistics</h3>
-  <p>
+  <h2>Statistics</h2>
+	<p class="lead">A world with no statistics, would not have a <em>chance</em> to survive.</p>
     <div class="lift:comet?type=UpdateStatistics">
-			<table class="table table-striped table-hover">
-				<thead>
-			  	<tr>
-					<th>ID</th>
-					<th>Repository</th>
-					<th>URL</th>
-					<th>Average Complexity</th>
-					</tr>
-				</thead>
-				<tbody>
-			  	<tbody>
-          <tr class="instance">
-            <td class="index">1</td>
-            <td class="name">WebKit</td>
-            <td class="url">svn://webkit.org</td>
-            <td class="complexity">23</td>
-          </tr>
-        </tbody>
-			</table>
-			<div style="width:250px; height:100px;"><img width="250px" height="100px" id="chart"/></div>
-			<div>
-      	<small class="muted"><span id="time">The current time</span></small>
+			<div class="row-fluid span12">
+			<div class="span9">
+				<table class="table table-striped table-hover">
+					<thead>
+			  		<tr>
+							<th>ID</th>
+							<th>Repository</th>
+							<th>URL</th>
+							<th>Average Complexity</th>
+						</tr>
+					</thead>
+					<tbody>
+        		<tr class="instance">
+            	<td class="index">1</td>
+            	<td class="name">WebKit</td>
+            	<td class="url">svn://webkit.org</td>
+            	<td class="complexity">23</td>
+          	</tr>
+        	</tbody>
+				</table>
 			</div>
-    </div>
-  </p>
+			<div class="span3">
+				<img id="chart"></img>
+			</div>
+		</div>
+	</div>
+	<div class="pagination-centered">
+  	<small class="muted">Last update was at: <span id="time">The current time</span></small>
+	</div>
 </div>

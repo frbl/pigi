@@ -1,11 +1,13 @@
 package bootstrap.liftweb
 
 import _root_.net.liftweb.util._
+import _root_.net.liftweb.util.Helpers._
 import _root_.net.liftweb.common._
 import _root_.net.liftweb.http._
 import _root_.net.liftweb.http.provider._
 import _root_.net.liftweb.sitemap._
 import _root_.net.liftweb.sitemap.Loc._
+import net.liftweb.mapper.ProtoUser
 import Helpers._
 import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
 import _root_.java.sql.{Connection, DriverManager}
@@ -32,19 +34,27 @@ class Boot {
 
     // where to search snippet
     LiftRules.addToPackages("nl.rug")
-    Schemifier.schemify(true, Schemifier.infoF _, User)
-
+    
+Schemifier.schemify(true, Schemifier.infoF _, User)
+		
+		val MustBeLoggedIn = If(() => User.loggedIn_?, "")
+		
+		def userLinkText = User.currentUser.map(_.shortName).openOr("not logged in").toString
+		
     // Build SiteMap
     def sitemap() = SiteMap(
-      Menu("Home") / "index", 
-			Menu("Statistics") / "statistics" >> User.AddUserMenusAfter, 
-      // Menu with special Link
-      Menu(Loc("Static", Link(List("static"), true, "/static/index"), 
-	       "Static Content"))
-		)
-
-    LiftRules.setSiteMapFunc(() => User.sitemapMutator(sitemap()))
-
+      Menu("Home") / "index" >> LocGroup("main"), 
+			Menu("Statistics") / "statistics" >> MustBeLoggedIn >> LocGroup("main"),
+			User.loginMenuLoc.open_!,
+			User.createUserMenuLoc.open_!,
+			Menu("user",userLinkText)  / "" >> MustBeLoggedIn >> LocGroup("user"), //Howto link to the usermgt pages?
+				User.logoutMenuLoc.open_!,
+				User.editUserMenuLoc.open_!,
+				User.changePasswordMenuLoc.open_!
+			);
+		
+    //LiftRules.setSiteMapFunc(() => User.sitemapMutator(sitemap()))
+		LiftRules.setSiteMap(sitemap)
     /*
      * Show the spinny image when an Ajax call starts
      */
