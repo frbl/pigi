@@ -35,7 +35,6 @@ class UpdateStatistics extends CometActor {
 	
 		// Create random complexities
 		entries.foreach(entry => {
-			println(entry._1.name)
 			entry._1.complexity = r.nextInt(40);
 		})
 		

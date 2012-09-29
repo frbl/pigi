@@ -31,22 +31,38 @@
 		<div class="navbar navbar-top">
 			<div class="navbar-inner">
 				<div class="container">
-					<ul class="lift:Menu.builder?linkToSelf=true&li_item:class=active&ul:class=nav"></ul>
-				</div>
+					<span class="lift:Menu.builder?
+						linkToSelf=true;
+						top:id=nav;
+						li_item:class=active;
+						ul:class=nav;
+						group=main">
+					</span>
+				  <span class="lift:Menu.builder?
+						top:class=nav%20pull-right;
+						top:id=nav;
+						ul:class=menuSection;
+						li_item:class=active;
+						linkToSelf=true;
+						expandAll=true;
+						group=user">
+					</span>
+					<!--<span data-lift="lift:Menu.builder?top:class=nav pull-right;li_item:class=active;linkToSelf=true;expandAll=true;group=user"></span>
+				  <span class="lift:Menu.builder?linkToSelf=true&li_item:class=active&ul:class=nav;"></span>
+					<span class="lift:Menu.builder?top:class=nav pull-right;li_item:class=active;linkToSelf=true;expandAll=true;group=user"></span>-->
+				</div>			
 			</div>
 		</div>
-		
-
-   	<div class="container">
-			<div class = "lift:msgs">
-			  <lift:error_msg>Error:</lift:error_msg>
-			  <lift:error_class>alert alert-error</lift:error_class>
-			  <lift:warning_msg>Whoops, I had a problem:</lift:warning_msg>
-			  <lift:warning_class>warningBox</lift:warning_class>
-			  <lift:notice_msg>Note:</lift:notice_msg>
-			  <lift:notice_class>noticeBox</lift:notice_class>
+   	<div class="container span12">
+			<div class="lift:msgs">
+		  	<lift:error_msg>Error:</lift:error_msg>
+		  	<lift:error_class>alert alert-error</lift:error_class>
+		  	<lift:warning_msg>Whoops, I had a problem:</lift:warning_msg>
+			 	<lift:warning_class>warningBox</lift:warning_class>
+			 	<lift:notice_msg>Note:</lift:notice_msg>
+			 	<lift:notice_class>noticeBox</lift:notice_class>
 			</div>
-      <div id="content" >
+      <div id="content" class="span12">
 	  	<!-- The HTML content will go here -->
 			</div>
 			<footer class="navbar navbar-fixed-bottom pagination-centered">
