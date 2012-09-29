@@ -47,6 +47,20 @@ public class Database {
 
     }
     
+    /**
+     * Executes a SQLiteJob in a blocking way
+     * 
+     * @param <T> Type of the return value, set for the job
+     * @param job implementation for an SQLiteJob, this is query and execution, 
+     *  see the SQLite4Java site for examples
+     * @return The result of the query defined in the job
+     */
+    public <T> T executeJobBlocking(SQLiteJob<T> job) {
+        
+        return queue.execute(job).complete();
+        
+    }
+    
     public Repository getRepository(final String location) {
         
         return queue.execute(new SQLiteJob<Repository>() {
