@@ -30,14 +30,12 @@ public class ClientController {
     
     private boolean running = true;
     private ServerSocket serverSocket; //For new connections
-    private Connection parentConnection = null; //When i am not the root, this is my parent
-    private Map<String, Connection> children = new HashMap<String, Connection>(); //My children
+    //private Connection parentConnection = null; //When i am not the root, this is my parent
+    //private Map<String, Connection> children = new HashMap<String, Connection>(); //My children
     
     private int port = 4040;
     
     private MessageHandlerController messageHandlerController;
-    
-    private static final BlockingQueue<Message> talkQueue = new LinkedBlockingQueue<Message>();
     
     public ClientController(boolean leader){
         messageHandlerController = new MessageHandlerController();
@@ -53,18 +51,15 @@ public class ClientController {
             //TESTESTTESTEST
             Message testMessage = new Message("HALLO!!");
             testMessage.setTargetAddress(parentAddress);
-            talk(testMessage);
+            MessageHandlerController.talk(testMessage);
         }
-        
-        //Takes care of the messages which need to be send
-        new Thread(talkToOthers()).start();
                 
     }
     
     //Connect to my parent
     private void startClient(String host){
         try {
-            parentConnection = new Connection(new Socket(host, port), ConnectionType.PARENT);
+            messageHandlerController.setParent(new Connection(new Socket(host, port), ConnectionType.PARENT));
         } catch (UnknownHostException ex) {
             Logger.getLogger(ClientController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -84,9 +79,6 @@ public class ClientController {
         //Start the message handlers
         new Thread(waitForConnection(type)).start();
         System.out.println("Now waiting for clients!");
-        
-        //Start the handling of incoming messages
-        new Thread(messageHandlerController).start();
     }
     
     private Runnable waitForConnection(final ConnectionType type){
@@ -95,8 +87,8 @@ public class ClientController {
                 try {
                     while(running){
                         Connection newChild = new Connection(serverSocket.accept(), type);
-                        children.put(newChild.getAddress(), newChild);
-                        
+                        //children.put(newChild.getAddress(), newChild);
+                        messageHandlerController.addChild(newChild);
                         Thread thread = new Thread(newChild);
                         thread.start();
                         
@@ -107,38 +99,6 @@ public class ClientController {
                 }
             }
         };
-    }
-    
-    private Runnable talkToOthers(){
-        return new Runnable() {
-            public void run() {
-                while(running){
-                    try {
-                        Message message = talkQueue.take();
-                        
-                        //Find address in children
-                        Connection con = children.get(message.getTargetAddress());
-                        
-                        //If not leader and address is not in children. Check parent
-                        if(con == null && parentConnection != null && message.getTargetAddress().equals(parentConnection.getAddress())){
-                            con = parentConnection;
-                        }
-                        
-                        if(con != null){
-                            con.talk(message);
-                        } else {
-                            System.out.println("Could not find target - " + message.getTargetAddress());   
-                        }
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(ClientController.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            };
-        };
-    }
-
-    public static void talk(Message message){
-        talkQueue.add(message);
     }
     
     public static void main(String args[]){

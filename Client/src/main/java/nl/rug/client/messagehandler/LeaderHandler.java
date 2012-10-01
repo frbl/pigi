@@ -17,7 +17,7 @@ public class LeaderHandler implements MessageHandler {
         System.out.println("Leader: I GOT A MESSAGE! - " + message.getMessage());
         Message replyMessage = new Message("Leader: 'Ik heb het ontvangen!'");
         replyMessage.setTargetAddress(message.getSenderAddress());
-        ClientController.talk(replyMessage);
+        MessageHandlerController.talk(replyMessage);
     }
     
 }

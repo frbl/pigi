@@ -17,7 +17,7 @@ public class ParentHandler implements MessageHandler {
         System.out.println("Parent: I GOT A MESSAGE! - " + message.getMessage());
         Message replyMessage = new Message("Parent: 'Ik heb het ontvangen!'");
         replyMessage.setTargetAddress(message.getSenderAddress());
-        ClientController.talk(replyMessage);
+        MessageHandlerController.talk(replyMessage);
     }
     
 }

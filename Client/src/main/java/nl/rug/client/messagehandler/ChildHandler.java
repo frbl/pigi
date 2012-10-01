@@ -20,7 +20,7 @@ public class ChildHandler implements MessageHandler {
         System.out.println("Child: I GOT A MESSAGE! - " + message.getMessage());
         Message replyMessage = new Message("Child: 'Ik heb het ontvangen!'");
         replyMessage.setTargetAddress(message.getSenderAddress());
-        ClientController.talk(replyMessage);
+        MessageHandlerController.talk(replyMessage);
     }
     
     
