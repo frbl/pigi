@@ -41,13 +41,13 @@ public class ClientController {
     
     public ClientController(boolean leader){
         messageHandlerController = new MessageHandlerController();
-        //Receiving of address of one of the nodes in the cluster
-        //Get to now who is the leader, then ask who should be my parent
-        String parentAddress = "127.0.0.1";
         
         //If leader, pass leaderHandler
         startListeningForChildren(leader ? ConnectionType.LEADER : ConnectionType.CHILD);
         if(!leader){
+            //Receiving of address of one of the nodes in the cluster
+            //TODO Get to now who is the leader, then ask who should be my parent
+            String parentAddress = "127.0.0.1";
             startClient(parentAddress);
             
             //TESTESTTESTEST
