@@ -23,8 +23,10 @@ object User extends User with MetaMegaProtoUser[User] {
   // comment this line out to require email validations
   override def skipEmailValidation = true
 
+	println(User.currentUser.map(_.shortName).openOr("not logged in").toString)
+	
 	override def logoutMenuLocParams = LocGroup("user") :: super.logoutMenuLocParams
-	override def editUserMenuLocParams = LocGroup("user") :: Hidden :: super.editUserMenuLocParams
+	override def editUserMenuLocParams = LocGroup("user") :: super.editUserMenuLocParams
 	override def changePasswordMenuLocParams = LocGroup("user") :: super.changePasswordMenuLocParams
 
 	override def loginMenuLocParams = LocGroup("user") :: super.loginMenuLocParams

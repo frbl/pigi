@@ -8,6 +8,9 @@ import net.liftweb.http.js.JsCmds.SetHtml
 import scala.xml.Text
 import net.liftweb._
 import scala.util.Random
+import net.liftweb.http.js._
+import JsCmds._
+import JE._
 
 case object Tick
 
@@ -20,7 +23,8 @@ class Entry(pname: String, purl: String, pcomplexity: Int) {
 }
 
 class UpdateStatistics extends CometActor {
-  Schedule.schedule(this, Tick, 3 seconds)
+	var j = 0;
+  Schedule.schedule(this, Tick, 1 seconds)
 	
 	val r = new Random()
 	
@@ -30,7 +34,8 @@ class UpdateStatistics extends CometActor {
 			new Entry("WebKit","svn://webkit.com/root", r.nextInt(40)),
 			new Entry("wxWidgets","svn://wxWidgets.org/", r.nextInt(60)),
 			new Entry("ReneZ","svn://assembla/sds", r.nextInt(30)),
-			new Entry("Pigi","svn://pigid/hoi", r.nextInt(30))
+			new Entry("Pigi","svn://pigid/hoi", r.nextInt(30)),
+			new Entry("Pigi","svn://test/hoi", r.nextInt(30))
 		).zipWithIndex
 	
 		// Create random complexities
@@ -38,14 +43,7 @@ class UpdateStatistics extends CometActor {
 			entry._1.complexity = r.nextInt(40);
 		})
 		
-		// prepare the image url to include
-		//val image = ("https://chart.googleapis.com/chart?cht=p3&chd=t:"+entries(0)._1.complexity+","+
-		//																																entries(1)._1.complexity+","+
-		//																																entries(2)._1.complexity+
-		//																																"&chs=250x100&chl=" +
-		//																																entries(0)._1.name+"|"+
-		//																																entries(1)._1.name+"|"+
-		//																																entries(2)._1.name);
+		partialUpdate(Call("addComplexity", j, entries(0)._1.complexity));
 		
 		val image = prepareImage(entries);
 		
@@ -61,7 +59,7 @@ class UpdateStatistics extends CometActor {
 	}
 	
 	def prepareImage(entries:List[(Entry, Int)]):String = {
-		var imageurl = "https://chart.googleapis.com/chart?cht=p3&chd=t:";
+		var imageurl = "https://chart.googleapis.com/chart?cht=p3&amp;chd=t:";
 		
 		entries.foreach(x => {
 			imageurl += x._1.complexity + ","
@@ -70,7 +68,7 @@ class UpdateStatistics extends CometActor {
 		
 		imageurl= imageurl.dropRight(1);
 		
-		imageurl +="&chs=250x100&chl=";
+		imageurl +="&amp;chs=250x100&amp;chl=";
 		
 		entries.foreach(x => {
 			imageurl += x._1.name + "|"
@@ -79,11 +77,11 @@ class UpdateStatistics extends CometActor {
 		return imageurl.dropRight(1);
 	}
 
-  override def highPriority = {
+  override def lowPriority = {
     case Tick =>
-			println("tick");
 			reRender(true)
-			partialUpdate(SetHtml("time", Text(timeNow.toString)))
-      Schedule.schedule(this, Tick, 3 seconds)
+			j+=1;
+			
+      Schedule.schedule(this, Tick, 1 seconds)
   }
 }

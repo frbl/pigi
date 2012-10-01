@@ -47,7 +47,7 @@ Schemifier.schemify(true, Schemifier.infoF _, User)
 			Menu("Statistics") / "statistics" >> MustBeLoggedIn >> LocGroup("main"),
 			User.loginMenuLoc.open_!,
 			User.createUserMenuLoc.open_!,
-			Menu("user",userLinkText)  / "" >> MustBeLoggedIn >> LocGroup("user"), //Howto link to the usermgt pages?
+			Menu("user",userLinkText)  / "" >> MustBeLoggedIn >> LocGroup("user"), 
 				User.logoutMenuLoc.open_!,
 				User.editUserMenuLoc.open_!,
 				User.changePasswordMenuLoc.open_!
