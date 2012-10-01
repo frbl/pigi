@@ -50,10 +50,9 @@ public class ClientController {
         if(!leader){
             startClient(parentAddress);
             
-            
             //TESTESTTESTEST
             Message testMessage = new Message("HALLO!!");
-            testMessage.setTargetAddress("127.0.0.1");
+            testMessage.setTargetAddress(parentAddress);
             talk(testMessage);
         }
         
