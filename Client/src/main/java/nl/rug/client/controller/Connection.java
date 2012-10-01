@@ -43,7 +43,8 @@ public class Connection implements Runnable {
     }
 
     public String getAddress(){
-        return socket.getInetAddress().toString();
+        
+        return socket.getInetAddress().getHostAddress().toString();
     }
     
     public boolean isAlive(){
@@ -54,7 +55,7 @@ public class Connection implements Runnable {
         try {
             message.setSenderAddress(this.getAddress());
             out.writeObject(message);
-            System.out.println("Message send");
+            System.out.println("Message send to " + this.getAddress());
         } catch (IOException ex) {
             running = false;
             System.out.println("OWNOO! the socket closed!! Do something!!!!");
@@ -63,7 +64,7 @@ public class Connection implements Runnable {
     }
     
     public void run() {
-        System.out.println("Child is now listening");
+        System.out.println("Now listening");
         while(running){
             try {
                 Message message = (Message)in.readObject();

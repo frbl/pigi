@@ -43,20 +43,23 @@ public class ClientController {
         messageHandlerController = new MessageHandlerController();
         //Receiving of address of one of the nodes in the cluster
         //Get to now who is the leader, then ask who should be my parent
-        String parentAddress = "localhost";
+        String parentAddress = "127.0.0.1";
         
         //If leader, pass leaderHandler
         startListeningForChildren(leader ? ConnectionType.LEADER : ConnectionType.CHILD);
-        if(!leader)startClient(parentAddress);
+        if(!leader){
+            startClient(parentAddress);
+            
+            
+            //TESTESTTESTEST
+            Message testMessage = new Message("HALLO!!");
+            testMessage.setTargetAddress("127.0.0.1");
+            talk(testMessage);
+        }
         
         //Takes care of the messages which need to be send
         new Thread(talkToOthers()).start();
-        
-        
-        //TESTESTTESTEST
-        //Message testMessage = new Message("HALLO!!");
-        //testMessage.setTargetAddress("localhost");
-        //talk(testMessage);
+                
     }
     
     //Connect to my parent
@@ -114,14 +117,19 @@ public class ClientController {
                     try {
                         Message message = talkQueue.take();
                         
-                        //THIS IS NOT WORKING YET!!
+                        //Find address in children
                         Connection con = children.get(message.getTargetAddress());
                         
-                        //if(con == null && message.getTargetAddress().equals(parentConnection.getAddress())){
+                        //If not leader and address is not in children. Check parent
+                        if(con == null && parentConnection != null && message.getTargetAddress().equals(parentConnection.getAddress())){
                             con = parentConnection;
-                        //}
+                        }
                         
-                        con.talk(message);
+                        if(con != null){
+                            con.talk(message);
+                        } else {
+                            System.out.println("Could not find target - " + message.getTargetAddress());   
+                        }
                     } catch (InterruptedException ex) {
                         Logger.getLogger(ClientController.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -135,6 +143,6 @@ public class ClientController {
     }
     
     public static void main(String args[]){
-        new ClientController(true);
+        new ClientController(false);
     }
 }
