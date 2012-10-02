@@ -14,14 +14,14 @@ CREATE TABLE ORMModel1.ChangedPath
 	path CHARACTER NOT NULL,
 	type ORMModel1.Type NOT NULL,
 	number ORMModel1.Number,
-	repository CHARACTER,
+	repository CHARACTER VARYING,
 	CONSTRAINT ChangedPath_PK PRIMARY KEY(path),
 	CONSTRAINT ChangedPath_Revision_MandatoryGroup CHECK (repository IS NOT NULL AND number IS NOT NULL OR repository IS NULL AND number IS NULL)
 );
 
 CREATE TABLE ORMModel1.Repository
 (
-	URL CHARACTER NOT NULL,
+	URL CHARACTER VARYING NOT NULL,
 	name CHARACTER VARYING NOT NULL,
 	description CHARACTER VARYING,
 	CONSTRAINT Repository_PK PRIMARY KEY(URL)
@@ -30,7 +30,7 @@ CREATE TABLE ORMModel1.Repository
 CREATE TABLE ORMModel1.Revision
 (
 	number ORMModel1.Number NOT NULL,
-	repository CHARACTER NOT NULL,
+	repository CHARACTER VARYING NOT NULL,
 	author CHARACTER VARYING NOT NULL,
 	"date" TIMESTAMP NOT NULL,
 	CONSTRAINT Revision_PK PRIMARY KEY(repository, number)
