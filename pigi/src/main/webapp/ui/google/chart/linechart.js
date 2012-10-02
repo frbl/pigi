@@ -6,7 +6,7 @@ var chartOptions = {
 	min: 0,
 	max: 50,
 	animation:{
-		duration: 1000,
+		duration: 500,
 		easing: 'inandout',
 		}
 	};

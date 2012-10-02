@@ -5,87 +5,46 @@ import net.liftweb.util.Helpers._
 import net.liftweb.http.CometActor
 import net.liftweb.util._
 import net.liftweb.http.js.JsCmds.SetHtml
-import scala.xml.Text
+import nl.rug.snippet._
 import net.liftweb._
-import scala.util.Random
 import net.liftweb.http.js._
 import JsCmds._
 import JE._
 
 case object Tick
 
-class Entry(pname: String, purl: String, pcomplexity: Int) {
-	
-	var name = pname;
-	var url = purl;
-	var complexity = pcomplexity;
-	
-}
 
 class UpdateStatistics extends CometActor {
-	var j = 0;
-  Schedule.schedule(this, Tick, 1 seconds)
+
+  Schedule.schedule(this, Tick, 3 seconds)
 	
-	val r = new Random()
+	statistics.update()
+	
+	var statistics: Statistics = new Statistics;
 	
   def render = {
-		// Fake data from the database
-		val entries = List(
-			new Entry("WebKit","svn://webkit.com/root", r.nextInt(40)),
-			new Entry("wxWidgets","svn://wxWidgets.org/", r.nextInt(60)),
-			new Entry("ReneZ","svn://assembla/sds", r.nextInt(30)),
-			new Entry("Pigi","svn://pigid/hoi", r.nextInt(30)),
-			new Entry("Pigi","svn://test/hoi", r.nextInt(30))
-		).zipWithIndex
+		val entries = statistics.entries
 	
-		var average = 0;
-		// Create random complexities
-		entries.foreach(entry => {
-			entry._1.complexity = r.nextInt(40);
-			average += (entry._1.complexity / entries.length)
-		})
-		
-		
-		partialUpdate(Call("addComplexity", j, average));
-		
-		val image = prepareImage(entries);
-		
 		".instance" #> entries.map { case(entry, id) => {
-				".instance [onClick]" #> "alert('hoi!')" &
-        ".index *" #> id &
+				".instance [onclick]" #> ("document.location='statistics/"+id+"';") &
+	      ".index *" #> id &
 				".name *" #> entry.name &
-        ".url *"  #> entry.url &
+	      ".url *"  #> entry.url &
 				".complexity *" #> entry.complexity
-      }
-    } &
+	    }
+	  } &
 		"#time *" #> timeNow.toString &
-		"#chart [src]" #> image
+		"#chart [src]" #> statistics.image
 	}
 	
-	def prepareImage(entries:List[(Entry, Int)]):String = {
-		var imageurl = "https://chart.googleapis.com/chart?cht=p3&amp;chd=t:";
-		
-		entries.foreach(x => {
-			imageurl += x._1.complexity + ","
-			}
-		)
-		
-		imageurl= imageurl.dropRight(1);
-		
-		imageurl +="&amp;chs=250x100&amp;chl=";
-		
-		entries.foreach(x => {
-			imageurl += x._1.name + "|"
-			}
-		)
-		return imageurl.dropRight(1);
-	}
-
   override def lowPriority = {
     case Tick =>
+			println("Recieved Tick!")
 			reRender(true)
-			j+=1;
 			
-      Schedule.schedule(this, Tick, 1 seconds)
+			statistics.update()
+			
+			partialUpdate(Call("addComplexity", statistics.revision, statistics.average));
+      Schedule.schedule(this, Tick, 3 seconds)
   }
 }

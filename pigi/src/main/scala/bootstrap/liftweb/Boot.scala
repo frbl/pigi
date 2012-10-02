@@ -20,6 +20,7 @@ import _root_.nl.rug.model._
  */
 class Boot {
   def boot {
+	
     if (!DB.jndiJdbcConnAvailable_?) {
       val vendor = 
 	new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
@@ -35,7 +36,17 @@ class Boot {
     // where to search snippet
     LiftRules.addToPackages("nl.rug")
     
-Schemifier.schemify(true, Schemifier.infoF _, User)
+		Schemifier.schemify(true, Schemifier.infoF _, User)
+
+		/*
+		//Stuff to put information in the database
+		val repository: Repository = Repository.create
+		repository.url("svn://test")
+		repository.name("repository")
+		repository.description("description repository")
+		val saved: Boolean = repository.save
+		println(saved);
+		*/
 		
 		val MustBeLoggedIn = If(() => User.loggedIn_?, "You must be logged in to see this page.")
 		
