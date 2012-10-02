@@ -7,7 +7,7 @@ import nl.rug.lib._
 import Helpers._
 import _root_.java.util.Date
 
-class Statistics{
+class Statistics {
 	
 	def update(count: Int) = {
 		

@@ -37,7 +37,7 @@ class Boot {
     
 Schemifier.schemify(true, Schemifier.infoF _, User)
 		
-		val MustBeLoggedIn = If(() => User.loggedIn_?, "")
+		val MustBeLoggedIn = If(() => User.loggedIn_?, "You must be logged in to see this page.")
 		
 		def userLinkText = User.currentUser.map(_.shortName).openOr("not logged in").toString
 		

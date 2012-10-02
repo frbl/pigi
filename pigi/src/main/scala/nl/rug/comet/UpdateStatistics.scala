@@ -38,16 +38,20 @@ class UpdateStatistics extends CometActor {
 			new Entry("Pigi","svn://test/hoi", r.nextInt(30))
 		).zipWithIndex
 	
+		var average = 0;
 		// Create random complexities
 		entries.foreach(entry => {
 			entry._1.complexity = r.nextInt(40);
+			average += (entry._1.complexity / entries.length)
 		})
 		
-		partialUpdate(Call("addComplexity", j, entries(0)._1.complexity));
+		
+		partialUpdate(Call("addComplexity", j, average));
 		
 		val image = prepareImage(entries);
 		
-		".instance *" #> entries.map { case(entry, id) => {
+		".instance" #> entries.map { case(entry, id) => {
+				".instance [onClick]" #> "alert('hoi!')" &
         ".index *" #> id &
 				".name *" #> entry.name &
         ".url *"  #> entry.url &
