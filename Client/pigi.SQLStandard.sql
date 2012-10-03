@@ -11,7 +11,7 @@ CREATE DOMAIN ORMModel1.Type AS CHARACTER(1) CONSTRAINT ValueTypeValueConstraint
 
 CREATE TABLE ORMModel1.ChangedPath
 (
-	path CHARACTER NOT NULL,
+	path CHARACTER VARYING NOT NULL,
 	type ORMModel1.Type NOT NULL,
 	number ORMModel1.Number,
 	repository CHARACTER VARYING,
