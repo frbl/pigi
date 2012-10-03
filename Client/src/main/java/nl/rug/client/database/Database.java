@@ -46,40 +46,38 @@ public class Database {
         queue = new SQLiteQueue(databaseFileLocation).start();
 
     }
-    
+
     /**
      * Executes a SQLiteJob in a blocking way
-     * 
+     *
      * @param <T> Type of the return value, set for the job
-     * @param job implementation for an SQLiteJob, this is query and execution, 
-     *  see the SQLite4Java site for examples
+     * @param job implementation for an SQLiteJob, this is query and execution,
+     * see the SQLite4Java site for examples
      * @return The result of the query defined in the job
      */
     public <T> T executeJobBlocking(SQLiteJob<T> job) {
-        
+
         return queue.execute(job).complete();
-        
+
     }
-    
+
     public Repository getRepository(final String location) {
-        
+
         return queue.execute(new SQLiteJob<Repository>() {
-            
             protected Repository job(SQLiteConnection connection) throws SQLiteException {
-                
+
                 SQLiteStatement st = connection.prepare("SELECT repositoryId, title, location, description FROM Repository WHERE location=?");
-                
+
                 st.bind(1, location); // bind starts at 1...
-                
+
                 st.step(); // location is unique so we should have only one result.
-                
+
                 final int id = st.columnInt(0);
                 final String title = st.columnString(0);
                 final String location = st.columnString(1);
-                final String description = st.columnString(2);                
-                
-                return new Repository() {
+                final String description = st.columnString(2);
 
+                return new Repository() {
                     public String getDescription() {
                         return description;
                     }
@@ -96,33 +94,30 @@ public class Database {
                         return title;
                     }
                 };
-                
-            }
 
+            }
         }).complete(); // complete makes this blocking, see the sqlite4java site for an asynchronous example
-        
+
     }
-    
+
     public void addRepository(final String title, final String location, final String description /* id is automatically generated (if I did my work right ;)*/) {
-        
+
         queue.execute(new SQLiteJob<Object>() {
-            
             protected Repository job(SQLiteConnection connection) throws SQLiteException {
-                
+
                 SQLiteStatement st = connection.prepare("INSERT INTO Repository (location, title, description) VALUES (?, ?, ?)");
-                
+
                 st.bind(1, location); // bind starts at 1...
                 st.bind(2, title);
                 st.bind(3, description);
-                
-                st.step(); // WTF, how do you insert using a prepared statement, like this I guess...
- 
-                return null;
-                
-            }
 
+                st.step(); // WTF, how do you insert using a prepared statement, like this I guess...
+
+                return null;
+
+            }
         }).complete(); // complete makes this blocking, see the sqlite4java site for an asynchronous example
-        
+
     }
 
     /**
@@ -150,45 +145,39 @@ public class Database {
         }
 
     }
+    
     // Maybe change this to use some .sql file with all of this information
-    private final static String CREATE_DATABASE_SQL =
-            "BEGIN TRANSACTION; "
+    private final static String CREATE_DATABASE_SQL = 
+            "BEGIN TRANSACTION;"
+            
+            + "CREATE TABLE IF NOT EXISTS ChangedPath"
+            + "("
+            + "	path CHARACTER VARYING NOT NULL,"
+            + "	type CHARACTER(1) NOT NULL,"
+            + "	number UNSIGNED INTEGER NOT NULL,"
+            + "	repository CHARACTER VARYING,"
+            + "	PRIMARY KEY(path, repository, number),"
+            + " FOREIGN KEY (repository, number) REFERENCES Revision (repository, number) ON DELETE RESTRICT ON UPDATE RESTRICT"
+            + ");"
+
             + "CREATE TABLE IF NOT EXISTS Repository"
             + "("
-            + "repositoryId INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + "location CHARACTER VARYING NOT NULL,"
-            + "title CHARACTER(255) NOT NULL,"
-            + "description CHARACTER VARYING NOT NULL,"
-            + "CONSTRAINT Repository_UC UNIQUE(location)"
+            + "	URL CHARACTER VARYING"
+            + "	name CHARACTER VARYING NOT NULL,"
+            + "	description CHARACTER VARYING,"
+            + " PRIMARY KEY(URL)"
             + ");"
+
             + "CREATE TABLE IF NOT EXISTS Revision"
             + "("
-            + "revisionId INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + "author CHARACTER(255) NOT NULL,"
-            + "date TIMESTAMP NOT NULL,"
-            + "number UNSIGNED INTEGER NOT NULL,"
-            + "logMessage CHARACTER VARYING"
+            + "	number UNSIGNED INTEGER NOT NULL,"
+            + "	repository CHARACTER VARYING NOT NULL,"
+            + "	author CHARACTER VARYING NOT NULL,"
+            + "	\"date\" TIMESTAMP NOT NULL,"
+            + "	PRIMARY KEY(repository, number)"
+            + " FOREIGN KEY (repository) REFERENCES Repository (URL) ON DELETE RESTRICT ON UPDATE RESTRICT,"
             + ");"
-            + "CREATE TABLE IF NOT EXISTS Path"
-            + "("
-            + "\"value\" CHARACTER VARYING PRIMARY KEY NOT NULL,"
-            + "type CHARACTER(1) NOT NULL"
-            + ");"
-            + "CREATE TABLE IF NOT EXISTS RepositoryHasRevision"
-            + "("
-            + "repositoryId INTEGER NOT NULL,"
-            + "revisionId INTEGER NOT NULL,"
-            + "PRIMARY KEY(revisionId, repositoryId),"
-            + "FOREIGN KEY (revisionId) REFERENCES Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT,"
-            + "FOREIGN KEY (repositoryId) REFERENCES Repository (repositoryId) ON DELETE RESTRICT ON UPDATE RESTRICT"
-            + ");"
-            + "CREATE TABLE IF NOT EXISTS RevisionHasPath"
-            + "("
-            + "revisionId INTEGER NOT NULL,"
-            + "path CHARACTER VARYING NOT NULL,"
-            + "PRIMARY KEY(revisionId, path),"
-            + "FOREIGN KEY (revisionId) REFERENCES Revision (revisionId) ON DELETE RESTRICT ON UPDATE RESTRICT,"
-            + "FOREIGN KEY (path) REFERENCES Path (\"value\") ON DELETE RESTRICT ON UPDATE RESTRICT"
-            + ");"
-            + "COMMIT;";
+
+            + "COMMIT WORK;";
+    
 }
