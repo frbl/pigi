@@ -1,3 +1,4 @@
 # Properties in this file will be read when running in dev mode
 db.class=org.postgresql.Driver
 db.url=jdbc:postgresql://evionix.org/pigi
+db.user=test?
