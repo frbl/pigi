@@ -16,7 +16,7 @@ case object Tick
 
 class UpdateStatistics extends CometActor {
 
-  Schedule.schedule(this, Tick, 3 seconds)
+  Schedule.schedule(this, Tick, 3 seconds) 
 	
 	var statistics: Statistics = new Statistics;
 	
