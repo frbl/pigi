@@ -18,9 +18,9 @@ class UpdateStatistics extends CometActor {
 
   Schedule.schedule(this, Tick, 3 seconds)
 	
-	statistics.update()
-	
 	var statistics: Statistics = new Statistics;
+	
+	statistics.update()
 	
   def render = {
 		val entries = statistics.entries

@@ -54,6 +54,7 @@ class Statistics {
 	
 	}
 	
+
 	def prepareImage(entries:List[(Entry, Int)]):String = {
 		var imageurl = "https://chart.googleapis.com/chart?cht=p3&amp;chd=t:";
 		
