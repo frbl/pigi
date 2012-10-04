@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import nl.rug.client.database.Database;
+import nl.rug.client.database.Repository;
 import nl.rug.client.gui.MainWindow;
 
 
@@ -40,8 +41,18 @@ public class App {
             
         }
         
-        database.addRepository("test", "svn://test.nl/awesomerepository", "The best repository ever!!1");
-        System.out.println(database.getRepository("svn://test.nl/awesomerepository").getDescription());
+        Repository repo = new Repository();
+        repo.setURL("svn://devided.nl/wesenfrank");
+        repo.setTitle("Devided.nl");
+        repo.setDescription("The old school repository of Wes and Frank");
+        repo.save();
+        
+        repo = Repository.findByURL("svn://devided.nl/wesenfrank");
+        System.out.println("URL: " + repo.getURL());
+        System.out.println("Name: " + repo.getTitle());
+        System.out.println("Description: " + repo.getDescription());
+        
+        repo.delete();
 
         initializeGUI();
         

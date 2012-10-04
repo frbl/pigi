@@ -156,16 +156,16 @@ public class Database {
             + "	type CHARACTER(1) NOT NULL,"
             + "	number UNSIGNED INTEGER NOT NULL,"
             + "	repository CHARACTER VARYING,"
-            + "	PRIMARY KEY(path, repository, number),"
+            + "	PRIMARY KEY (path, repository, number),"
             + " FOREIGN KEY (repository, number) REFERENCES Revision (repository, number) ON DELETE RESTRICT ON UPDATE RESTRICT"
             + ");"
 
             + "CREATE TABLE IF NOT EXISTS Repository"
             + "("
-            + "	URL CHARACTER VARYING"
-            + "	name CHARACTER VARYING NOT NULL,"
+            + "	URL CHARACTER VARYING,"
+            + "	title CHARACTER VARYING NOT NULL,"
             + "	description CHARACTER VARYING,"
-            + " PRIMARY KEY(URL)"
+            + " PRIMARY KEY (URL)"
             + ");"
 
             + "CREATE TABLE IF NOT EXISTS Revision"
@@ -174,10 +174,10 @@ public class Database {
             + "	repository CHARACTER VARYING NOT NULL,"
             + "	author CHARACTER VARYING NOT NULL,"
             + "	\"date\" TIMESTAMP NOT NULL,"
-            + "	PRIMARY KEY(repository, number)"
-            + " FOREIGN KEY (repository) REFERENCES Repository (URL) ON DELETE RESTRICT ON UPDATE RESTRICT,"
+            + "	PRIMARY KEY (repository, number)"
+            + " FOREIGN KEY (repository) REFERENCES Repository (URL) ON DELETE RESTRICT ON UPDATE RESTRICT"
             + ");"
 
-            + "COMMIT WORK;";
+            + "COMMIT;";
     
 }

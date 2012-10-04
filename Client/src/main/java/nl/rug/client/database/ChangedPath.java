@@ -4,7 +4,7 @@ package nl.rug.client.database;
  *
  * @author wesschuitema
  */
-public class Path {
+public class ChangedPath {
     
     private String value;
     private char type;
