@@ -25,11 +25,12 @@ class UpdateStatistics extends CometActor {
   def render = {
 		val entries = statistics.entries
 	
-		".instance" #> entries.map { case(entry, id) => {
-				".instance [onclick]" #> ("document.location='statistics/"+id+"';") &
-	      ".index *" #> id &
+		".instance" #> entries.map { entry => {
+				".instance [onclick]" #> ("document.location='statistics/repository/"+entry.id+"';") &
+	      ".index *" #> entry.id &
 				".name *" #> entry.name &
 	      ".url *"  #> entry.url &
+				".revision *" #> entry.lastRevision &
 				".complexity *" #> entry.complexity
 	    }
 	  } &

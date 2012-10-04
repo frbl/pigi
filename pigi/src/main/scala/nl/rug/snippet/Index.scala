@@ -8,7 +8,7 @@ import _root_.java.util.Date
 import nl.rug.lib._
 import Helpers._
 
-class HelloWorld {
+class Index {
   lazy val date: Box[Date] = DependencyFactory.inject[Date] // inject the date
 
   // bind the date into the element with id "time"
