@@ -26,8 +26,10 @@ class Revision extends LongKeyedMapper[Revision] with IdPK {
 	object repository extends MappedLongForeignKey(this, Repository)
 
 }
-
-object Revision extends Revision with LongKeyedMetaMapper[Revision]
+//TODO The combination repository + revisionNumber should be unique. Can be 
+//	done using something like: 
+//	override def dbIndexes=UniqueIndex(repository, revisionNumber)::super.dbIndexs
+object Revision extends Revision with LongKeyedMetaMapper[Revision] 
 
 }
 }
