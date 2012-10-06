@@ -5,13 +5,17 @@ import com.almworks.sqlite4java.SQLiteException;
 import fr.iscpif.jogl.JOGLWrapper;
 import java.awt.Color;
 import java.io.File;
+import java.sql.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import nl.rug.client.database.ChangedPath;
 import nl.rug.client.database.Database;
 import nl.rug.client.database.Repository;
+import nl.rug.client.database.Revision;
 import nl.rug.client.gui.MainWindow;
 
 
@@ -27,19 +31,19 @@ public class App {
         JOGLWrapper.init();
         SQLite.setLibraryPath("target/lib/");
         
-        Database database = null;
-        
         try {
             
-            database = new Database(new File("client.db"));
+            Database db = Database.getInstance();
+            
+            db.initialize();
             
         } catch (SQLiteException ex) {
             
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, "Unable to access Database, exiting.", ex);
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, "Unable to initialize Database, exiting.", ex);
             
             System.exit(-1);
             
-        }
+        }        
         
         Repository repo = new Repository();
         repo.setURL("svn://devided.nl/wesenfrank");
@@ -51,6 +55,53 @@ public class App {
         System.out.println("URL: " + repo.getURL());
         System.out.println("Name: " + repo.getTitle());
         System.out.println("Description: " + repo.getDescription());
+        
+        Revision revo = new Revision();
+        revo.setRepository(repo);
+        revo.setNumber(1L);
+        revo.setAuthor("frbl");
+        revo.setDate(new Date(System.currentTimeMillis()));
+        revo.save();
+        
+        List<Revision> revisions = Revision.findByRepository(repo);
+        System.out.println("Number of revisions: " + revisions.size());
+        
+        for (Revision revision : revisions) {
+            
+            System.out.println("Number: " + revision.getNumber());
+            System.out.println("Author: " + revision.getAuthor());
+            System.out.println("Data: " + revision.getDate());
+            
+        }
+        
+        ChangedPath cp = new ChangedPath();
+        cp.setRevision(revo);
+        cp.setPath("/x/y/awesomeclass.java");
+        cp.setType(ChangedPath.Type.ADDED);
+        cp.save();
+        
+        List<ChangedPath> cps = ChangedPath.findByRevision(revo);
+        System.out.println("Number of ChangedPaths: " + cps.size());
+        
+        for (ChangedPath cpath :  cps) {
+            
+            System.out.println("Path: " + cpath.getPath());
+            System.out.println("Type: " + cpath.getType());
+            
+        }
+        
+        System.out.println("Deleting created changed path");
+        cp.delete();
+        
+        cps = ChangedPath.findByRevision(revo);
+        System.out.println("Number of ChangedPaths: " + cps.size());
+        
+        System.out.println("Deleting created revision");
+        
+        revo.delete();
+        
+        revisions = Revision.findByRepository(repo);
+        System.out.println("Number of revisions: " + revisions.size());
         
         repo.delete();
 
