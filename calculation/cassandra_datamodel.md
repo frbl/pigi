@@ -25,21 +25,22 @@ Legend:
 
 ---
       {
-      "ComplexityAnalysis":{
-        "Repository":{
-          "url": "<urloftherepository>",
-          "name": "<nameoftherepository>",
-          "revision":{
-            "file": "<filename>"
-            "revisionnumer": revision,
-            "complexity": complexity
-          },
-          "revision":{
-            "file": "<filename>"
-            "revisionnumer": revision,
-            "complexity": complexity
-          },
-        },
+        "ComplexityAnalysis":{
+          "Repository":{
+            "url": "<urloftherepository>",
+            "name": "<nameoftherepository>",
+            "revision":{
+              "file": "<filename>",
+              "revisionnumer": 1,
+              "complexity": 1
+            },
+            "revision":{
+              "file": "<filename>",
+              "revisionnumer": 2,
+              "complexity": 1
+            }
+          }
+        }
       }
       
 Datamodel v0.x
