@@ -1,6 +1,7 @@
 package nl.rug.calculationservice;
 
 import nl.rug.calculationservice.database.cassandra.Cassandra;
+import nl.rug.calculationservice.hadoop.*;
 
 
 /**
@@ -8,10 +9,23 @@ import nl.rug.calculationservice.database.cassandra.Cassandra;
  *
  */
 public class App {
-
+    
+    
+    IHadoop hadoop;
+    
     public static void main(String[] args) {
         
-        new Cassandra();
+        new App();
 
     }
+    
+    
+    public App() {
+        
+        hadoop = new MockHadoop();
+        
+        hadoop.performCalculation();
+        
+    }
+    
 }

@@ -48,28 +48,6 @@ public class Cassandra {
                 StringSerializer.get(),
                 StringSerializer.get());
 
-        try {
-            ColumnFamilyUpdater<String, String> updater = template.createUpdater("3");
-            updater.setString("name", "Wes");
-            updater.setLong("time", System.currentTimeMillis());
-
-            template.update(updater);
-
-            ColumnFamilyResult<String, String> res;// = template.queryColumns("1");
-            String value;// = res.getString("name");
-            //System.out.println("Value: " + value);
-
-            res = template.queryColumns("3");
-            value = res.getString("name");
-            System.out.println("Value: " + value);
-
-
-        } catch (HectorException e) {
-            
-            System.out.println(e.getMessage());
-            
-        }
-
     }
 
     private void createSchema() {
@@ -85,6 +63,42 @@ public class Cassandra {
 
         cluster.addKeyspace(newKeyspace, true);
 
+    }
+    
+    
+    public boolean testCassandra() {
+        
+         try {
+            ColumnFamilyUpdater<String, String> updater = template.createUpdater("3");
+            updater.setString("name", "Wes");
+            updater.setLong("time", System.currentTimeMillis());
+
+            template.update(updater);
+
+            ColumnFamilyResult<String, String> res;// = template.queryColumns("1");
+            String value;// = res.getString("name");
+            //System.out.println("Value: " + value);
+
+            res = template.queryColumns("3");
+            value = res.getString("name");
+            System.out.println("Value: " + value);
+            
+            return true;
+
+        } catch (HectorException e) {
+            
+            System.out.println(e.getMessage());
+            
+            return false;
+            
+        }
+        
+    }
+    
+    public ColumnFamilyTemplate<String, String> getTemplate() {
+        
+        return template;
+        
     }
     
 }
