@@ -60,11 +60,11 @@ Legend:
           "name": "<nameoftherepository>",
           "description": "<descriptionoftherepository>"
           },
-          "revision":{
-            "url": "<url of the repository>",
-            "file": "<filename>",
-            "revisionnumer": 1,
-            "complexity": 1
+        "revision":{
+          "url": "<url of the repository>",
+          "file": "<filename>",
+          "revisionnumer": 1,
+          "complexity": 1
           }
         }
       }
