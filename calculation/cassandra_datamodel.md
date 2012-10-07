@@ -15,7 +15,7 @@ The cassandra datamodel must cover the following:
 If possible the datamodel should cover the following:
 * The combination of file, revision and complexity is unique
 
-Datamodel v0.1
+Datamodel v0.2
 --------------
 Im not sure if this model is allowed, but lets give it a try :)
 
@@ -29,6 +29,7 @@ Legend:
           "Repository":{
             "url": "<urloftherepository>",
             "name": "<nameoftherepository>",
+            "description": "<descriptionoftherepository>",
             "revision":{
               "file": "<filename>",
               "revisionnumer": 1,
@@ -39,6 +40,31 @@ Legend:
               "revisionnumer": 2,
               "complexity": 1
             }
+          }
+        }
+      }
+      
+Datamodel v0.1
+--------------
+Relational model type.
+
+Legend:  
+* KeySpace: ComplexityAnalysis  
+* Column family: Repository, Revision 
+
+---
+      {
+      "ComplexityAnalysis":{
+        "Repository":{
+          "url": "<urloftherepository>",
+          "name": "<nameoftherepository>",
+          "description": "<descriptionoftherepository>"
+          },
+          "revision":{
+            "url": "<url of the repository>",
+            "file": "<filename>",
+            "revisionnumer": 1,
+            "complexity": 1
           }
         }
       }
