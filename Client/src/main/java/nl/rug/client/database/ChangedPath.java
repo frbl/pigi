@@ -20,7 +20,7 @@ public class ChangedPath {
             @Override
             protected Object job(SQLiteConnection connection) throws Throwable {
                 
-                SQLiteStatement st = connection.prepare("SELECT path, type FROM ChangedPath WHERE repository = ? AND number = ?");
+                SQLiteStatement st = connection.prepare("SELECT path, type, complexity FROM ChangedPath WHERE repository = ? AND number = ?");
                 
                 // bind starts at 1!
                 String URL = revision.getRepository().getURL();
@@ -35,11 +35,13 @@ public class ChangedPath {
                     ChangedPath changedPath = new ChangedPath();
                     
                     changedPath.setRevision(revision);
-                    changedPath.setPath(st.columnString(0));
+                    changedPath.setPath(st.columnString(0));                    
                     
                     // perhaps using an enum was not as elegant as I imagined, 
                     // should change it when I get the chance
                     changedPath.setType(determineType(st.columnString(1)));
+                    
+                    changedPath.setComplexity(st.columnInt(2));
                     
                     changedPaths.add(changedPath);
                     
@@ -72,6 +74,20 @@ public class ChangedPath {
         });
         
     }
+
+    /**
+     * @return the complexity
+     */
+    public int getComplexity() {
+        return complexity;
+    }
+
+    /**
+     * @param complexity the complexity to set
+     */
+    public void setComplexity(int complexity) {
+        this.complexity = complexity;
+    }
     
     /**
      * Type indicates the type of ChangedPath, these are the values that are 
@@ -103,6 +119,7 @@ public class ChangedPath {
     private Revision revision; // first part of PK
     private String path; // second part of PK
     private Type type; // Not null (stored as char in database)
+    private int complexity;
     
     public Revision getRevision() {
         
@@ -171,17 +188,27 @@ public class ChangedPath {
     
     public boolean save() {
         
+        /*
+         * This entity is the only one that is also updated in the application. 
+         * To make it easy to use save for an update, we jsut delete the exiting
+         * one. This method should not be used if the system is extended, it can
+         * only be used here; it shouldn't even be used here!
+         * -=QUICKFIX/DIRTYHACK=-
+         */
+        delete();
+        
         Database.getInstance().executeJobBlocking(new SQLiteJob<Object>() {
 
             @Override
             protected Repository job(SQLiteConnection connection) throws Throwable {
                 
-                SQLiteStatement st = connection.prepare("INSERT INTO ChangedPath (repository, number, path, type) VALUES (?, ?, ?, ?)");
+                SQLiteStatement st = connection.prepare("INSERT INTO ChangedPath (repository, number, path, type, complexity) VALUES (?, ?, ?, ?, ?)");
 
                 st.bind(1, revision.getRepository().getURL()); // bind starts at 1...
                 st.bind(2, revision.getNumber());
                 st.bind(3, path);
                 st.bind(4, type.toString());
+                st.bind(5, complexity);
                 st.step(); // this executes the statement
                 
                 return null;

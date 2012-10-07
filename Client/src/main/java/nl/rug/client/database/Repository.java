@@ -48,6 +48,11 @@ public class Repository {
     
     public Repository() { }
     
+    /**
+     * Saves the Repository entity. DOES NOT WORK FOR UPDATES!
+     * 
+     * @return true if save is successful, false otherwise (TBD)
+     */
     public boolean save() {
         
         Database.getInstance().executeJobBlocking(new SQLiteJob<Object>() {

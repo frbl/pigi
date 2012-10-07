@@ -61,6 +61,7 @@ public class App {
         revo.setNumber(1L);
         revo.setAuthor("frbl");
         revo.setDate(new Date(System.currentTimeMillis()));
+        revo.setLogMessage("Some commit where we did a lot of work but can't be bothered to describe it here");
         revo.save();
         
         List<Revision> revisions = Revision.findByRepository(repo);
@@ -71,6 +72,7 @@ public class App {
             System.out.println("Number: " + revision.getNumber());
             System.out.println("Author: " + revision.getAuthor());
             System.out.println("Data: " + revision.getDate());
+            System.out.println("Message: " + revision.getLogMessage());
             
         }
         
@@ -78,6 +80,10 @@ public class App {
         cp.setRevision(revo);
         cp.setPath("/x/y/awesomeclass.java");
         cp.setType(ChangedPath.Type.ADDED);
+        cp.setComplexity(10);
+        cp.save();
+        
+        cp.setComplexity(6);
         cp.save();
         
         List<ChangedPath> cps = ChangedPath.findByRevision(revo);
@@ -87,6 +93,7 @@ public class App {
             
             System.out.println("Path: " + cpath.getPath());
             System.out.println("Type: " + cpath.getType());
+            System.out.println("Complexity: " + cpath.getComplexity());
             
         }
         

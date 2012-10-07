@@ -25,7 +25,7 @@ public class Revision {
             @Override
             protected Revision job(SQLiteConnection connection) throws Throwable {
                 
-                SQLiteStatement st = connection.prepare("SELECT number, author, date FROM Revision WHERE repository = ? AND number = ?");
+                SQLiteStatement st = connection.prepare("SELECT author, date, logMessage FROM Revision WHERE repository = ? AND number = ?");
                 
                 // bind starts at 1!
                 String URL = repository.getURL();
@@ -46,11 +46,12 @@ public class Revision {
                     /* 
                      * 0 for the first string or 1 for the second column... 
                      */
-                    revision.setAuthor(st.columnString(1));
+                    revision.setAuthor(st.columnString(0));
                     /* 
                      * SQLite returns a Unix timestamp for the date
                      */
-                    revision.setDate(new Date(st.columnLong(2)));
+                    revision.setDate(new Date(st.columnLong(1)));
+                    revision.setLogMessage(st.columnString(2));
                     
                 }
                                
@@ -70,7 +71,7 @@ public class Revision {
             @Override
             protected Object job(SQLiteConnection connection) throws Throwable {
                 
-                SQLiteStatement st = connection.prepare("SELECT number, author, date FROM Revision WHERE repository = ?");
+                SQLiteStatement st = connection.prepare("SELECT number, author, date, logMessage FROM Revision WHERE repository = ?");
                 
                 // bind starts at 1!
                 String URL = repository.getURL();
@@ -95,6 +96,7 @@ public class Revision {
                      * SQLite returns a Unix timestamp for the date
                      */
                     revision.setDate(new Date(st.columnLong(2)));
+                    revision.setLogMessage(st.columnString(3));
                     
                     revisions.add(revision);
                     
@@ -139,6 +141,11 @@ public class Revision {
         
     }
     
+    /**
+     * Saves the Revision entity. DOES NOT WORK FOR UPDATES!
+     * 
+     * @return true if save is successful, false otherwise (TBD)
+     */
     public boolean save() {
         
         Database.getInstance().executeJobBlocking(new SQLiteJob<Object>() {
@@ -146,12 +153,13 @@ public class Revision {
             @Override
             protected Repository job(SQLiteConnection connection) throws Throwable {
                 
-                SQLiteStatement st = connection.prepare("INSERT INTO Revision (repository, number, author, date) VALUES (?, ?, ?, ?)");
+                SQLiteStatement st = connection.prepare("INSERT INTO Revision (repository, number, author, date, logMessage) VALUES (?, ?, ?, ?, ?)");
 
                 st.bind(1, repository.getURL()); // bind starts at 1...
                 st.bind(2, number);
                 st.bind(3, author);
                 st.bind(4, date.getTime());
+                st.bind(5, logMessage);
                 st.step(); // this executes the statement
                 
                 return null;
