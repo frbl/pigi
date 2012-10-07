@@ -17,6 +17,8 @@ import nl.rug.client.database.Database;
 import nl.rug.client.database.Repository;
 import nl.rug.client.database.Revision;
 import nl.rug.client.gui.MainWindow;
+import nl.rug.client.repository.RepositoryImporter;
+import org.tmatesoft.svn.core.SVNException;
 
 
 /**
@@ -43,74 +45,25 @@ public class App {
             
             System.exit(-1);
             
-        }        
-        
-        Repository repo = new Repository();
-        repo.setURL("svn://devided.nl/wesenfrank");
-        repo.setTitle("Devided.nl");
-        repo.setDescription("The old school repository of Wes and Frank");
-        repo.save();
-        
-        repo = Repository.findByURL("svn://devided.nl/wesenfrank");
-        System.out.println("URL: " + repo.getURL());
-        System.out.println("Name: " + repo.getTitle());
-        System.out.println("Description: " + repo.getDescription());
-        
-        Revision revo = new Revision();
-        revo.setRepository(repo);
-        revo.setNumber(1L);
-        revo.setAuthor("frbl");
-        revo.setDate(new Date(System.currentTimeMillis()));
-        revo.setLogMessage("Some commit where we did a lot of work but can't be bothered to describe it here");
-        revo.save();
-        
-        List<Revision> revisions = Revision.findByRepository(repo);
-        System.out.println("Number of revisions: " + revisions.size());
-        
-        for (Revision revision : revisions) {
-            
-            System.out.println("Number: " + revision.getNumber());
-            System.out.println("Author: " + revision.getAuthor());
-            System.out.println("Data: " + revision.getDate());
-            System.out.println("Message: " + revision.getLogMessage());
-            
         }
         
-        ChangedPath cp = new ChangedPath();
-        cp.setRevision(revo);
-        cp.setPath("/x/y/awesomeclass.java");
-        cp.setType(ChangedPath.Type.ADDED);
-        cp.setComplexity(10);
-        cp.save();
-        
-        cp.setComplexity(6);
-        cp.save();
-        
-        List<ChangedPath> cps = ChangedPath.findByRevision(revo);
-        System.out.println("Number of ChangedPaths: " + cps.size());
-        
-        for (ChangedPath cpath :  cps) {
+        String repositoryURL = "svn://devided.nl/wesenfrank";
+        String username = "wes";
+        String password = "xbox360";
+        long startRevision = 0;
+        long endRevision = -1; //HEAD
+        try {
             
-            System.out.println("Path: " + cpath.getPath());
-            System.out.println("Type: " + cpath.getType());
-            System.out.println("Complexity: " + cpath.getComplexity());
+            /* testing if importing works */
+            RepositoryImporter.importRepository(repositoryURL, username, password, startRevision, endRevision);
+        
+        } catch (SVNException ex) {
+            
+            Logger.getLogger(RepositoryImporter.class.getName()).log(Level.SEVERE, "error while creating an SVNRepository for the location '" + repositoryURL, ex);
+            
+            System.exit(-1);
             
         }
-        
-        System.out.println("Deleting created changed path");
-        cp.delete();
-        
-        cps = ChangedPath.findByRevision(revo);
-        System.out.println("Number of ChangedPaths: " + cps.size());
-        
-        System.out.println("Deleting created revision");
-        
-        revo.delete();
-        
-        revisions = Revision.findByRepository(repo);
-        System.out.println("Number of revisions: " + revisions.size());
-        
-        repo.delete();
 
         initializeGUI();
         
