@@ -15,6 +15,27 @@ The cassandra datamodel must cover the following:
 If possible the datamodel should cover the following:
 * The combination of file, revision and complexity is unique
 
+Datamodel v0.2.alternative
+There are two options we can try. 
+1. The SuperColumns etc... which will be DataModel v0.2
+2. The relational kind, which will be DataModel v0.1 or the one below
+
+Repositories :{ // Column Family
+	https://subversion.assembla.com/svn/ReneZ/ : { //row key - svn url
+		Name: ReneZ
+		Description: Spelletje
+	}
+}
+
+Files : { // Column Family
+	Controller.java : { //row key - FileName
+		Repository: https://subversion.assembla.com/svn/ReneZ/  //row key into Repositories
+		Revision: 1
+		Complexity: 12
+	}
+}
+
+
 Datamodel v0.2
 --------------
 Im not sure if this model is allowed, but lets give it a try :)
