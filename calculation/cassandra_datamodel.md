@@ -16,35 +16,38 @@ If possible the datamodel should cover the following:
 * The combination of file, revision and complexity is unique
 
 Datamodel v0.1.1
-There are two options we can try. 
-1. The SuperColumns etc... which will be DataModel v0.2
-2. The relational kind, which will be DataModel v0.1 or the one below
+----------------
 
-Repositories :{ // Column Family
-	https://subversion.assembla.com/svn/ReneZ/ : { //row key - svn url
-		Name: ReneZ
-		Description: Spelletje
-	}
-}
+There are two options we can try.   
+1. The SuperColumns etc... which will be DataModel v0.2  
+2. The relational kind, which will be DataModel v0.1 or the one below  
 
-Files : { // Column Family
-	Controller/Controller.java : { //row key - FilePath + Name
-		//Columns
-		1 : { // Columnname (Revision)
-			//Columnvalues
-			Repository: https://subversion.assembla.com/svn/ReneZ/,  //row key into Repositories
-			Complexity: 2
+---
+		Repositories :{ // Column Family
+			https://subversion.assembla.com/svn/ReneZ/ : { //row key - svn url
+			Name: ReneZ
+			Description: Spelletje
+			}
 		}
-		3 : {
-			Repository: https://subversion.assembla.com/svn/ReneZ/,
-			Complexity: 4
-		}
-		16 : {
-			Repository: https://subversion.assembla.com/svn/ReneZ/,
-			Complexity: 9
+
+		Files : { // Column Family
+			Controller/Controller.java : { //row key - FilePath + Name
+			//Columns
+			1 : { // Columnname (Revision)
+				//Columnvalues
+				Repository: https://subversion.assembla.com/svn/ReneZ/,  //row key into Repositories
+				Complexity: 2
+			}
+			3 : {
+				Repository: https://subversion.assembla.com/svn/ReneZ/,
+				Complexity: 4
+			}
+			16 : {
+				Repository: https://subversion.assembla.com/svn/ReneZ/,
+				Complexity: 9
+			}
 		}
 	}
-}
 
 
 Datamodel v0.2
