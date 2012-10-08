@@ -4,7 +4,6 @@
  */
 package nl.rug.client.messagehandler;
 
-import nl.rug.client.controller.ClientController;
 import nl.rug.client.model.Message;
 import nl.rug.client.repository.MySVNRepository;
 
@@ -12,7 +11,7 @@ import nl.rug.client.repository.MySVNRepository;
  *
  * @author Rene
  */
-public class ChildHandler implements MessageHandler {
+public class ChildHandler extends MessageHandler {
 
     MySVNRepository repository;
     
@@ -20,9 +19,7 @@ public class ChildHandler implements MessageHandler {
         System.out.println("Child: I GOT A MESSAGE! - " + message.getMessage());
         Message replyMessage = new Message("Child: 'Ik heb het ontvangen!'");
         replyMessage.setTargetAddress(message.getSenderAddress());
-        MessageHandlerController.talk(replyMessage);
+        MessageController.talk(replyMessage);
     }
-    
-    
     
 }

@@ -13,7 +13,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import nl.rug.client.messagehandler.MessageHandlerController;
+import nl.rug.client.messagehandler.MessageController;
 import nl.rug.client.model.Message;
 
 /**
@@ -43,8 +43,11 @@ public class Connection implements Runnable {
     }
 
     public String getAddress(){
-        
         return socket.getInetAddress().getHostAddress().toString();
+    }
+    
+    public int getPort(){
+        return socket.getPort();
     }
     
     public boolean isAlive(){
@@ -54,8 +57,9 @@ public class Connection implements Runnable {
     public void talk(Message message){
         try {
             message.setSenderAddress(this.getAddress());
+            message.setSenderPort(this.getPort());
             out.writeObject(message);
-            System.out.println("Message send to " + this.getAddress());
+            System.out.println("Message send to " + this.getAddress() + ":" + this.getPort());
         } catch (IOException ex) {
             running = false;
             System.out.println("OWNOO! the socket closed!! Do something!!!!");
@@ -72,7 +76,7 @@ public class Connection implements Runnable {
                 message.setType(type);
                 System.out.println("Received message");
                 //messageQueue.add(ob);
-                MessageHandlerController.queueMessage(message);
+                MessageController.queueMessage(message);
             } catch(IOException e){
               running = false;
               System.out.println("OWNOO! the socket closed!! Do something!!!!");  
