@@ -28,10 +28,21 @@ Repositories :{ // Column Family
 }
 
 Files : { // Column Family
-	Controller.java : { //row key - FileName
-		Repository: https://subversion.assembla.com/svn/ReneZ/  //row key into Repositories
-		Revision: 1
-		Complexity: 12
+	Controller/Controller.java : { //row key - FilePath + Name
+		//Columns
+		1 : { // Columnname (Revision)
+			//Columnvalues
+			Repository: https://subversion.assembla.com/svn/ReneZ/,  //row key into Repositories
+			Complexity: 2
+		}
+		3 : {
+			Repository: https://subversion.assembla.com/svn/ReneZ/,
+			Complexity: 4
+		}
+		16 : {
+			Repository: https://subversion.assembla.com/svn/ReneZ/,
+			Complexity: 9
+		}
 	}
 }
 
