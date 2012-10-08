@@ -15,7 +15,7 @@ The cassandra datamodel must cover the following:
 If possible the datamodel should cover the following:
 * The combination of file, revision and complexity is unique
 
-Datamodel v0.2.alternative
+Datamodel v0.1.1
 There are two options we can try. 
 1. The SuperColumns etc... which will be DataModel v0.2
 2. The relational kind, which will be DataModel v0.1 or the one below
