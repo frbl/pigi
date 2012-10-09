@@ -19,6 +19,8 @@ public interface RepositoryDAO {
  	public void update(int repositoryPK, Repository repository) throws SQLException;
 
  	public void delete(int repositoryPK) throws SQLException;
+        
+        public void delete(String url) throws SQLException;
 
  	public List<Repository> findAll() throws SQLException;
 

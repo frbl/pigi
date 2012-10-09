@@ -7,7 +7,7 @@ public class CassandraSettings {
    
     public static final String CLUSTER_NAME ="Pigi Cluster";
     
-    public static final String CLUSTER_ADDRESS = "10.0.0.100:9160";
+    public static final String CLUSTER_ADDRESS = "192.168.10.210:9160";
     
     public static final int REPLICATION_FACTOR = 1;
     

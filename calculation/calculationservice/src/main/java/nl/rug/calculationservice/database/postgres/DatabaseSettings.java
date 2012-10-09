@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.rug.calculationservice.database.postgres;
 
 /**
@@ -13,7 +9,7 @@ public class DatabaseSettings {
     
     public static final String DB_TYPE = "postgresql";
     
-    public static final String DB_HOST = "evionix.org";
+    public static final String DB_HOST = "192.168.1.20";
     
     public static final String DB_PORT = "5432";
     

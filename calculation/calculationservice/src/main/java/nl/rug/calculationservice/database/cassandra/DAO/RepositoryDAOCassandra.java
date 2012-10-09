@@ -11,6 +11,7 @@ import me.prettyprint.cassandra.service.template.ColumnFamilyTemplate;
 import me.prettyprint.cassandra.service.template.ColumnFamilyUpdater;
 import nl.rug.calculationservice.database.DAO.RepositoryDAO;
 import nl.rug.calculationservice.database.cassandra.Cassandra;
+import nl.rug.calculationservice.database.cassandra.CassandraSettings;
 import nl.rug.calculationservice.database.model.Repository;
 
 /**
@@ -41,12 +42,22 @@ public class RepositoryDAOCassandra implements RepositoryDAO {
 
     @Override
     public void update(int repositoryPK, Repository repository) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        repository.setId(repositoryPK);
+        // Inserting for now the same as updating
+        insert(repository);
+        
     }
 
     @Override
     public void delete(int repositoryPK) throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet.");
+       throw new UnsupportedOperationException("Not supported.");
+    }
+    
+    @Override
+    public void delete(String url) throws SQLException {
+        
+        Cassandra.getTemplate().deleteRow(url);
+        
     }
 
     @Override

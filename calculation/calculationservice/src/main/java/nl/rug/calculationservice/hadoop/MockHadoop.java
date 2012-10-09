@@ -32,7 +32,7 @@ public class MockHadoop implements IHadoop {
         
         String url ="svn://renezRepository.org/repo";
         
-        Repository repository = null;
+        Repository repository = new Repository();
 
         //Cassandra DAO for reading
         RepositoryDAO cassandraRepositoryDAO = new RepositoryDAOCassandra();
@@ -41,11 +41,18 @@ public class MockHadoop implements IHadoop {
         RepositoryDAO postgresRepositoryDAO = new RepositoryDAOPostgres();
         try {
             
+            repository.setDescription("Repository description in cassandra");
+            repository.setName("ReneZdad Repository");
+            repository.setUrl(url);
+            
+            cassandraRepositoryDAO.update(0,repository);
+            
             repository = cassandraRepositoryDAO.findByUrl(url);
             
             System.out.println(repository);
             
-            postgresRepositoryDAO.insert(repository);
+            
+            
             
         } catch (SQLException ex) {
             

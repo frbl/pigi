@@ -95,6 +95,19 @@ public class RepositoryDAOPostgres implements RepositoryDAO {
         close();
 
     }
+    
+    @Override
+    public void delete(String url) throws SQLException {
+       
+        execute("DELETE FROM repository WHERE url=?");
+
+        preparedStatement.setString(1, url);
+
+        preparedStatement.executeUpdate();
+
+        close();
+        
+    }
 
     @Override
     public List<Repository> findAll() throws SQLException {
@@ -187,4 +200,5 @@ public class RepositoryDAOPostgres implements RepositoryDAO {
         return repository;
 
     }
+
 }
