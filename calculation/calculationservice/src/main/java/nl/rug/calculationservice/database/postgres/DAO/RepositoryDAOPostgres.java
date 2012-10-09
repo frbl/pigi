@@ -4,6 +4,8 @@
  */
 package nl.rug.calculationservice.database.postgres.DAO;
 
+import nl.rug.calculationservice.database.DAO.RepositoryDAO;
+import nl.rug.calculationservice.database.DAO.RevisionDAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,13 +13,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import nl.rug.calculationservice.database.postgres.Database;
-import nl.rug.calculationservice.database.postgres.model.Repository;
+import nl.rug.calculationservice.database.model.Repository;
 
 /**
  *
  * @author frbl
  */
-public class RepositoryDAOImpl implements RepositoryDAO {
+public class RepositoryDAOPostgres implements RepositoryDAO {
 
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
@@ -73,7 +75,7 @@ public class RepositoryDAOImpl implements RepositoryDAO {
 
         preparedStatement.setString(3, repository.getDescription());
 
-        preparedStatement.setInt(4, repository.getId());
+        preparedStatement.setInt(4, repositoryPK);
 
         preparedStatement.executeUpdate();
 
@@ -104,7 +106,7 @@ public class RepositoryDAOImpl implements RepositoryDAO {
 
         List<Repository> repositories = new ArrayList<Repository>();
 
-        RevisionDAO revisionDao = new RevisionDAOImpl();
+        RevisionDAO revisionDao = new RevisionDAOPostgres();
 
         while (resultSet.next()) {
 
@@ -138,7 +140,7 @@ public class RepositoryDAOImpl implements RepositoryDAO {
 
         preparedStatement.setInt(1, repositoryPK);
 
-        RevisionDAO revisionDao = new RevisionDAOImpl();
+        RevisionDAO revisionDao = new RevisionDAOPostgres();
 
         Repository repository = new Repository();
 
@@ -167,7 +169,7 @@ public class RepositoryDAOImpl implements RepositoryDAO {
 
         preparedStatement.setString(1, url);
 
-        RevisionDAO revisionDao = new RevisionDAOImpl();
+        RevisionDAO revisionDao = new RevisionDAOPostgres();
 
         Repository repository = new Repository();
 

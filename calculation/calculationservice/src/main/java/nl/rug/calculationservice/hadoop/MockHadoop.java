@@ -4,41 +4,56 @@
  */
 package nl.rug.calculationservice.hadoop;
 
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import me.prettyprint.cassandra.service.template.ColumnFamilyResult;
+import nl.rug.calculationservice.database.DAO.RepositoryDAO;
 import nl.rug.calculationservice.database.cassandra.Cassandra;
+import nl.rug.calculationservice.database.cassandra.DAO.RepositoryDAOCassandra;
+import nl.rug.calculationservice.database.postgres.DAO.RepositoryDAOPostgres;
+import nl.rug.calculationservice.database.model.Repository;
 
 /**
  *
  * @author frbl
  */
 public class MockHadoop implements IHadoop {
-    Cassandra cassandra;
+
     /**
-     * Get data from Cassandra
-     * Do something with the data
-     * Push it to postgres.
+     * Get data from Cassandra Do something with the data Push it to postgres.
      */
     public MockHadoop() {
-    
-        cassandra = new Cassandra();
-        
+
     }
 
     @Override
     public void performCalculation() {
         
-        cassandra.getTemplate();
+        String url ="svn://renezRepository.org/repo";
         
-        ColumnFamilyResult<String, String> res;// = template.queryColumns("1");
-        String value;
+        Repository repository = null;
+
+        //Cassandra DAO for reading
+        RepositoryDAO cassandraRepositoryDAO = new RepositoryDAOCassandra();
         
-        res = cassandra.getTemplate().queryColumns("3");
+        //Postgres DAO for writing
+        RepositoryDAO postgresRepositoryDAO = new RepositoryDAOPostgres();
+        try {
+            
+            repository = cassandraRepositoryDAO.findByUrl(url);
+            
+            System.out.println(repository);
+            
+            postgresRepositoryDAO.insert(repository);
+            
+        } catch (SQLException ex) {
+            
+            Logger.getLogger(MockHadoop.class.getName()).log(Level.SEVERE, null, ex);
+            
+        }
         
-        value = res.getString("name");
         
-        System.out.println("Value: " + value);
-        
+
     }
-    
-    
 }

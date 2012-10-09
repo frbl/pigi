@@ -19,8 +19,8 @@ public class DatabaseSettings {
     
     public static final String DB_NAME = "pigi";
     
-    public static final String DB_USER = "****";
+    public static final String DB_USER = "**";
     
-    public static final String DB_PASSWORD = "****";
+    public static final String DB_PASSWORD = "**";
     
 }

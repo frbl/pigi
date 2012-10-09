@@ -4,6 +4,7 @@
  */
 package nl.rug.calculationservice.database.postgres.DAO;
 
+import nl.rug.calculationservice.database.DAO.RevisionDAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,13 +12,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import nl.rug.calculationservice.database.postgres.Database;
-import nl.rug.calculationservice.database.postgres.model.Revision;
+import nl.rug.calculationservice.database.model.Revision;
 
 /**
  *
  * @author frbl
  */
-public class RevisionDAOImpl implements RevisionDAO{
+public class RevisionDAOPostgres implements RevisionDAO{
 
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;

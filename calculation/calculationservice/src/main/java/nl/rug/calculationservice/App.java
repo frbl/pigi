@@ -1,6 +1,5 @@
 package nl.rug.calculationservice;
 
-import nl.rug.calculationservice.database.cassandra.Cassandra;
 import nl.rug.calculationservice.hadoop.*;
 
 

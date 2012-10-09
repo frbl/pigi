@@ -2,11 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.rug.calculationservice.database.postgres.DAO;
+package nl.rug.calculationservice.database.DAO;
 
 import java.sql.SQLException;
 import java.util.List;
-import nl.rug.calculationservice.database.postgres.model.Revision;
+import nl.rug.calculationservice.database.model.Revision;
 
 /**
  *

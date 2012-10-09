@@ -5,6 +5,8 @@
 package nl.rug.calculationservice.database.cassandra;
 
 import java.util.Arrays;
+import me.prettyprint.cassandra.model.BasicColumnDefinition;
+import me.prettyprint.cassandra.model.BasicColumnFamilyDefinition;
 import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.cassandra.service.ThriftKsDef;
 import me.prettyprint.cassandra.service.template.ColumnFamilyResult;
@@ -24,13 +26,14 @@ import me.prettyprint.hector.api.factory.HFactory;
  * @author frbl
  */
 public class Cassandra {
-    
-    Cluster cluster = HFactory.getOrCreateCluster(CassandraSettings.CLUSTER_NAME, CassandraSettings.CLUSTER_ADDRESS);
-    
-    private ColumnFamilyTemplate<String, String> template;
 
-    public Cassandra() {
-        
+    private static Cluster cluster = HFactory.getOrCreateCluster(CassandraSettings.CLUSTER_NAME, CassandraSettings.CLUSTER_ADDRESS);
+    private static ColumnFamilyTemplate<String, String> template;
+
+    private static Cassandra instance;
+    
+    private Cassandra() {
+
         KeyspaceDefinition keyspaceDef = cluster.describeKeyspace(CassandraSettings.KEYSPACE_NAME);
 
         // If keyspace does not exist, the Column Families don't exist either.
@@ -49,9 +52,23 @@ public class Cassandra {
                 StringSerializer.get());
 
     }
+    
+    public static ColumnFamilyTemplate<String, String> getTemplate() {
+        
+        if(instance == null) {
+            
+           instance = new Cassandra();
+           
+        }
+        
+        return template;
+        
+    }
 
     private void createSchema() {
 
+
+        // Create Keyspace
         ColumnFamilyDefinition cfDef = HFactory.createColumnFamilyDefinition(CassandraSettings.KEYSPACE_NAME,
                 CassandraSettings.COLUMN_FAMILY_NAME,
                 ComparatorType.BYTESTYPE);
@@ -63,17 +80,20 @@ public class Cassandra {
 
         cluster.addKeyspace(newKeyspace, true);
 
-    }
-    
-    
-    public boolean testCassandra() {
-        
-         try {
-            ColumnFamilyUpdater<String, String> updater = template.createUpdater("3");
-            updater.setString("name", "Wes");
-            updater.setLong("time", System.currentTimeMillis());
 
-            template.update(updater);
+        //Create columnfamily
+        BasicColumnFamilyDefinition columnFamilyDefinition = new BasicColumnFamilyDefinition();
+        columnFamilyDefinition.setKeyspaceName(CassandraSettings.KEYSPACE_NAME);
+        columnFamilyDefinition.setName(CassandraSettings.COLUMN_FAMILY_NAME);
+        columnFamilyDefinition.setKeyValidationClass(ComparatorType.UTF8TYPE.getClassName());
+        columnFamilyDefinition.setComparatorType(ComparatorType.UTF8TYPE);
+
+    }
+
+    public boolean testCassandra() {
+
+        try {
+            
 
             ColumnFamilyResult<String, String> res;// = template.queryColumns("1");
             String value;// = res.getString("name");
@@ -82,23 +102,17 @@ public class Cassandra {
             res = template.queryColumns("3");
             value = res.getString("name");
             System.out.println("Value: " + value);
-            
+
             return true;
 
         } catch (HectorException e) {
-            
+
             System.out.println(e.getMessage());
-            
+
             return false;
-            
+
         }
-        
+
     }
-    
-    public ColumnFamilyTemplate<String, String> getTemplate() {
-        
-        return template;
-        
-    }
-    
+
 }
