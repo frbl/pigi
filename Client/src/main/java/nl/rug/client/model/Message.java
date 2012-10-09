@@ -15,7 +15,9 @@ public class Message implements Serializable {
     
     private String message;
     private String senderAddress;
+    private int senderPort;
     private String targetAddress;
+    private int targetPort;
     
     private ConnectionType type = null;
     
@@ -45,6 +47,22 @@ public class Message implements Serializable {
     
     public void setTargetAddress(String address){
         targetAddress = address;
+    }
+    
+    public int getTargetPort(){
+        return targetPort;
+    }
+    
+    public void setTargetPort(int port){
+        targetPort = port;
+    }
+    
+    public int getSenderPort(){
+        return senderPort;
+    }
+    
+    public void setSenderPort(int port){
+        senderPort = port;
     }
     
     public String getSenderAddress(){

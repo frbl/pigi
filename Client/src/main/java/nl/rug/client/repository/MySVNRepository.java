@@ -17,6 +17,7 @@ import nl.rug.client.App;
 import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNNodeKind;
+import org.tmatesoft.svn.core.SVNProperties;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
@@ -97,7 +98,7 @@ public final class MySVNRepository implements Repository {
                     localsvnfile.createNewFile();
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     OutputStream outputStream = new FileOutputStream(localsvnfile);
-                    repository.getFile(filePath, entry.getRevision(), new HashMap(), baos);
+                    repository.getFile(filePath, entry.getRevision(), new SVNProperties(), baos);
                     baos.writeTo(outputStream);
                     System.out.println("/" + filePath
                         + " ( author: '" + entry.getAuthor() + "'; revision: " + entry.getRevision()

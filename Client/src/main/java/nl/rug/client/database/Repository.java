@@ -2,9 +2,7 @@ package nl.rug.client.database;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteJob;
-import com.almworks.sqlite4java.SQLiteQueue;
 import com.almworks.sqlite4java.SQLiteStatement;
-import java.io.File;
 
 /**
  * Repository database entity, uses a simplified Active Record pattern. Should 
@@ -15,19 +13,16 @@ import java.io.File;
  * 
  * @author wesschuitema
  */
-public class Repository {
-    
-    private final static File DEFAULT_DATABASE_FILE_LOCATION = new File("client.db"); // default location
-    private final static SQLiteQueue queue = new SQLiteQueue(DEFAULT_DATABASE_FILE_LOCATION).start();
+public class Repository {    
     
     public static Repository findByURL(final String URL) {
         
-        return queue.execute(new SQLiteJob<Repository>() {
+        return Database.getInstance().executeJobBlocking(new SQLiteJob<Repository>() {
 
             @Override
             protected Repository job(SQLiteConnection connection) throws Throwable {
                 
-                SQLiteStatement st = connection.prepare("SELECT URL, name, description FROM Repository WHERE URL = ?");
+                SQLiteStatement st = connection.prepare("SELECT URL, title, description FROM Repository WHERE URL = ?");
                 
                 // bind starts at 1!
                 st.bind(1, URL); 
@@ -43,7 +38,7 @@ public class Repository {
                 
             }
             
-        }).complete();
+        });
         
     }
     
@@ -53,9 +48,14 @@ public class Repository {
     
     public Repository() { }
     
+    /**
+     * Saves the Repository entity. DOES NOT WORK FOR UPDATES!
+     * 
+     * @return true if save is successful, false otherwise (TBD)
+     */
     public boolean save() {
         
-        queue.execute(new SQLiteJob<Object>() {
+        Database.getInstance().executeJobBlocking(new SQLiteJob<Object>() {
 
             @Override
             protected Repository job(SQLiteConnection connection) throws Throwable {
@@ -71,7 +71,7 @@ public class Repository {
                 
             }
             
-        }).complete();
+        });
         
         // TODO: Find a way to determine if save was successfull!
         return true;
@@ -80,7 +80,7 @@ public class Repository {
     
     public boolean delete() {
         
-        queue.execute(new SQLiteJob<Object>() {
+        Database.getInstance().executeJobBlocking(new SQLiteJob<Object>() {
 
             @Override
             protected Repository job(SQLiteConnection connection) throws Throwable {
@@ -94,7 +94,7 @@ public class Repository {
                 
             }
             
-        }).complete();
+        });
         
         // TODO: Find a way to determine if delete was successfull!
         return true;

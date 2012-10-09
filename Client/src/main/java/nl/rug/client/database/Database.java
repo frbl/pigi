@@ -11,41 +11,40 @@ import java.io.File;
  * This class handles communication with the SQLite database. It provides some
  * convenient methods to retrieve and store the required information. A
  * SQLiteQueue is used to make access from different threads possible, we use it
- * primarily so we can access the database from different threads.
+ * primarily so we can access the database from different threads. This class is
+ * implemented as a singleton to the database can be reached from everywhere in 
+ * the program, we have to make sure this is only done where needed and prevent 
+ * that the whole application becomes dependant on this class.
  *
  * @author wesschuitema
  */
 public class Database {
+    
+    private static Database INSTANCE;
+    
+    public static Database getInstance() {
+            
+        if (INSTANCE == null) {
 
+            INSTANCE = new Database();
+
+        }
+        
+        return INSTANCE;
+        
+    }
+    
     // this queue is used so that other threads can add a job to the queue.
     private SQLiteQueue queue;
-    // this default location is used when an instance is created without 
-    // providing a file location
-    private final static File DEFAULT_DATABASE_FILE_LOCATION = new File("client.db"); // default location
+    
+    // actual location of the SQLite database file (if not set this will befome 
+    // the default defined above
+    private File databaseFileLocation = new File("client.db");
 
     /**
-     * Default constructor, uses the database file at the default location.
+     * Default constructor, private because this is a singleton
      */
-    public Database() throws SQLiteException {
-
-        this(DEFAULT_DATABASE_FILE_LOCATION);
-
-    }
-
-    /**
-     * This constructor creates an instance that uses the database file found in
-     * the specified location.
-     *
-     * @param databaseFileLocation - The location of the database file that is
-     * to be used
-     */
-    public Database(File databaseFileLocation) throws SQLiteException {
-
-        initialize(databaseFileLocation);
-
-        queue = new SQLiteQueue(databaseFileLocation).start();
-
-    }
+    private Database() { }
 
     /**
      * Executes a SQLiteJob in a blocking way
@@ -61,80 +60,20 @@ public class Database {
 
     }
 
-    public Repository getRepository(final String location) {
-
-        return queue.execute(new SQLiteJob<Repository>() {
-            protected Repository job(SQLiteConnection connection) throws SQLiteException {
-
-                SQLiteStatement st = connection.prepare("SELECT repositoryId, title, location, description FROM Repository WHERE location=?");
-
-                st.bind(1, location); // bind starts at 1...
-
-                st.step(); // location is unique so we should have only one result.
-
-                final int id = st.columnInt(0);
-                final String title = st.columnString(0);
-                final String location = st.columnString(1);
-                final String description = st.columnString(2);
-
-                return new Repository() {
-                    public String getDescription() {
-                        return description;
-                    }
-
-                    public String getLocation() {
-                        return location;
-                    }
-
-                    public int getRepositoryId() {
-                        return id;
-                    }
-
-                    public String getTitle() {
-                        return title;
-                    }
-                };
-
-            }
-        }).complete(); // complete makes this blocking, see the sqlite4java site for an asynchronous example
-
-    }
-
-    public void addRepository(final String title, final String location, final String description /* id is automatically generated (if I did my work right ;)*/) {
-
-        queue.execute(new SQLiteJob<Object>() {
-            protected Repository job(SQLiteConnection connection) throws SQLiteException {
-
-                SQLiteStatement st = connection.prepare("INSERT INTO Repository (location, title, description) VALUES (?, ?, ?)");
-
-                st.bind(1, location); // bind starts at 1...
-                st.bind(2, title);
-                st.bind(3, description);
-
-                st.step(); // WTF, how do you insert using a prepared statement, like this I guess...
-
-                return null;
-
-            }
-        }).complete(); // complete makes this blocking, see the sqlite4java site for an asynchronous example
-
-    }
-
     /**
      * This method is called after creating the SQLite queue. It checks to see
      * if the required tables are present in the database and creates them if
      * not present
-     *
-     * @param databaseFileLocation - The file where the database should be, this
-     * is needed because the queue is not used here.
      */
-    private void initialize(File databaseFileLocation) throws SQLiteException {
-
+    public void initialize() throws SQLiteException {
+        
         SQLiteConnection db = new SQLiteConnection(databaseFileLocation);
 
         try {
-
-            db.open(true);
+            
+            // using the sqliteconnection here to create the file if it doesn't 
+            // exist
+            db.open(true); 
 
             db.exec(CREATE_DATABASE_SQL);
 
@@ -143,7 +82,9 @@ public class Database {
             db.dispose();
 
         }
-
+        
+        queue = new SQLiteQueue(databaseFileLocation).start();
+        
     }
     
     // Maybe change this to use some .sql file with all of this information
@@ -154,6 +95,7 @@ public class Database {
             + "("
             + "	path CHARACTER VARYING NOT NULL,"
             + "	type CHARACTER(1) NOT NULL,"
+            + " complexity INTEGER,"
             + "	number UNSIGNED INTEGER NOT NULL,"
             + "	repository CHARACTER VARYING,"
             + "	PRIMARY KEY (path, repository, number),"
@@ -174,6 +116,7 @@ public class Database {
             + "	repository CHARACTER VARYING NOT NULL,"
             + "	author CHARACTER VARYING NOT NULL,"
             + "	\"date\" TIMESTAMP NOT NULL,"
+            + " logMessage CHARACTER VARYING,"
             + "	PRIMARY KEY (repository, number)"
             + " FOREIGN KEY (repository) REFERENCES Repository (URL) ON DELETE RESTRICT ON UPDATE RESTRICT"
             + ");"

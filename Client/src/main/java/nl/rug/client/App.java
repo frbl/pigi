@@ -5,14 +5,20 @@ import com.almworks.sqlite4java.SQLiteException;
 import fr.iscpif.jogl.JOGLWrapper;
 import java.awt.Color;
 import java.io.File;
+import java.sql.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import nl.rug.client.database.ChangedPath;
 import nl.rug.client.database.Database;
 import nl.rug.client.database.Repository;
+import nl.rug.client.database.Revision;
 import nl.rug.client.gui.MainWindow;
+import nl.rug.client.repository.RepositoryImporter;
+import org.tmatesoft.svn.core.SVNException;
 
 
 /**
@@ -27,32 +33,37 @@ public class App {
         JOGLWrapper.init();
         SQLite.setLibraryPath("target/lib/");
         
-        Database database = null;
-        
         try {
             
-            database = new Database(new File("client.db"));
+            Database db = Database.getInstance();
+            
+            db.initialize();
             
         } catch (SQLiteException ex) {
             
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, "Unable to access Database, exiting.", ex);
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, "Unable to initialize Database, exiting.", ex);
             
             System.exit(-1);
             
         }
         
-        Repository repo = new Repository();
-        repo.setURL("svn://devided.nl/wesenfrank");
-        repo.setTitle("Devided.nl");
-        repo.setDescription("The old school repository of Wes and Frank");
-        repo.save();
+        String repositoryURL = "svn://devided.nl/wesenfrank";
+        String username = "wes";
+        String password = "xbox360";
+        long startRevision = 0;
+        long endRevision = -1; //HEAD
+        try {
+            
+            /* testing if importing works */
+            RepositoryImporter.importRepository(repositoryURL, username, password, startRevision, endRevision);
         
-        repo = Repository.findByURL("svn://devided.nl/wesenfrank");
-        System.out.println("URL: " + repo.getURL());
-        System.out.println("Name: " + repo.getTitle());
-        System.out.println("Description: " + repo.getDescription());
-        
-        repo.delete();
+        } catch (SVNException ex) {
+            
+            Logger.getLogger(RepositoryImporter.class.getName()).log(Level.SEVERE, "error while creating an SVNRepository for the location '" + repositoryURL, ex);
+            
+            System.exit(-1);
+            
+        }
 
         initializeGUI();
         

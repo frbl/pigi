@@ -33,31 +33,32 @@ public class ClientController {
     //private Connection parentConnection = null; //When i am not the root, this is my parent
     //private Map<String, Connection> children = new HashMap<String, Connection>(); //My children
     
-    private int port = 4040;
+    private int myPort;
     
-    private MessageHandlerController messageHandlerController;
+    private MessageController messageHandlerController;
     
-    public ClientController(boolean leader){
-        messageHandlerController = new MessageHandlerController();
-        
+    public ClientController(boolean leader, int port){
+        messageHandlerController = new MessageController();
+        myPort = port;
         //If leader, pass leaderHandler
         startListeningForChildren(leader ? ConnectionType.LEADER : ConnectionType.CHILD);
         if(!leader){
             //Receiving of address of one of the nodes in the cluster
             //TODO Get to now who is the leader, then ask who should be my parent
             String parentAddress = "127.0.0.1";
-            startClient(parentAddress);
+            int parentPort = 4040;
+            startClient(parentAddress, parentPort);
             
             //TESTESTTESTEST
             Message testMessage = new Message("HALLO!!");
             testMessage.setTargetAddress(parentAddress);
-            MessageHandlerController.talk(testMessage);
+            MessageController.talk(testMessage);
         }
                 
     }
     
     //Connect to my parent
-    private void startClient(String host){
+    private void startClient(String host, int port){
         try {
             messageHandlerController.setParent(new Connection(new Socket(host, port), ConnectionType.PARENT));
         } catch (UnknownHostException ex) {
@@ -71,7 +72,7 @@ public class ClientController {
         try {
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
-            serverSocket.bind(new InetSocketAddress(port));
+            serverSocket.bind(new InetSocketAddress(myPort));
                     } catch (IOException ex) {
             Logger.getLogger(ClientController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -95,13 +96,13 @@ public class ClientController {
                         System.out.println("New child!");
                     }
                 } catch (IOException e) {
-                    System.out.println("Accept failed: " + port);
+                    System.out.println("Accept failed: " + myPort);
                 }
             }
         };
     }
     
     public static void main(String args[]){
-        new ClientController(false);
+        new ClientController(false, 4040);
     }
 }

@@ -18,7 +18,7 @@ import nl.rug.client.model.Message;
  *
  * @author Rene
  */
-public class MessageHandlerController {
+public class MessageController {
         
     private static BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<Message>();
     private static final BlockingQueue<Message> talkQueue = new LinkedBlockingQueue<Message>();
@@ -30,16 +30,21 @@ public class MessageHandlerController {
     private Connection parentConnection = null; //When i am not the root, this is my parent
     private Map<String, Connection> children = new HashMap<String, Connection>(); //My children
     
-    public MessageHandlerController(){
+    public MessageController(){
         childHandler = new ChildHandler();
         parentHandler = new ParentHandler();
         leaderHandler = new LeaderHandler();
         
-        //Takes care of incomming messages
+        //Using threads so messages will be handled per Handler
+        new Thread(childHandler).start();
+        new Thread(childHandler).start();
+        new Thread(childHandler).start();
+        
+        //Takes care of incoming messages
         new Thread(handleMessages()).start();
         
         //Takes care of the messages which need to be send
-        new Thread(talkToOthers()).start();
+        new Thread(sendMessages()).start();
     }
     
     public static void queueMessage(Message message) {
@@ -74,7 +79,7 @@ public class MessageHandlerController {
         };
     }
     
-    private Runnable talkToOthers(){
+    private Runnable sendMessages(){
         return new Runnable() {
             public void run() {
                 while(true){
