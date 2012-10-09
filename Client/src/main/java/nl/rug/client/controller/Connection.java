@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.rug.client.messagehandler.MessageController;
+import nl.rug.client.model.Address;
 import nl.rug.client.model.Message;
 
 /**
@@ -22,48 +23,40 @@ import nl.rug.client.model.Message;
  */
 public class Connection implements Runnable {
     
-    public static enum ConnectionType { PARENT, CHILD, LEADER }
-    
-    private Socket socket;
+    private Address address;
     private ObjectOutputStream out = null;
     private ObjectInputStream in = null;
-    
-    private ConnectionType type;
+        
     private boolean running = true;
         
-    public Connection(Socket socket, ConnectionType type){
-        this.type = type;
-        this.socket = socket;
-        try {
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());         
-        } catch (Exception ex) {
-            Logger.getLogger(Connection.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public Connection(Socket socket) throws IOException{
+        address = new Address();
+        address.ip = socket.getInetAddress().getHostAddress();
+        address.port = socket.getPort();
+        out = new ObjectOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
     }
 
-    public String getAddress(){
-        return socket.getInetAddress().getHostAddress().toString();
-    }
-    
-    public int getPort(){
-        return socket.getPort();
+    public Address getAddress(){
+        return address;
     }
     
     public boolean isAlive(){
         return running;
     }
     
+    public void kill(){
+        running = false;
+    }
+    
     public void talk(Message message){
         try {
             message.setSenderAddress(this.getAddress());
-            message.setSenderPort(this.getPort());
             out.writeObject(message);
-            System.out.println("Message send to " + this.getAddress() + ":" + this.getPort());
+            System.out.println("Message send to " + this.getAddress());
         } catch (IOException ex) {
             running = false;
             System.out.println("OWNOO! the socket closed!! Do something!!!!");
-            //Logger.getLogger(Child.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -72,10 +65,7 @@ public class Connection implements Runnable {
         while(running){
             try {
                 Message message = (Message)in.readObject();
-                //message.setSenderAddress(this.getAddress());
-                message.setType(type);
                 System.out.println("Received message");
-                //messageQueue.add(ob);
                 MessageController.queueMessage(message);
             } catch(IOException e){
               running = false;

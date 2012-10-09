@@ -7,18 +7,15 @@ package nl.rug.client.controller;
 import nl.rug.client.messagehandler.MessageHandler;
 import java.io.File;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import nl.rug.client.controller.Connection.ConnectionType;
 import nl.rug.client.messagehandler.*;
 import nl.rug.client.model.Message;
+import nl.rug.client.model.Message.MessageType;
 
 /**
  *
@@ -32,43 +29,64 @@ public class ClientController {
     private ServerSocket serverSocket; //For new connections
     //private Connection parentConnection = null; //When i am not the root, this is my parent
     //private Map<String, Connection> children = new HashMap<String, Connection>(); //My children
-    
-    private int myPort;
+        
+    private int myPort = 4040;
     
     private MessageController messageHandlerController;
     
-    public ClientController(boolean leader, int port){
+    public ClientController(){
         messageHandlerController = new MessageController();
-        myPort = port;
-        //If leader, pass leaderHandler
-        startListeningForChildren(leader ? ConnectionType.LEADER : ConnectionType.CHILD);
-        if(!leader){
-            //Receiving of address of one of the nodes in the cluster
-            //TODO Get to now who is the leader, then ask who should be my parent
-            String parentAddress = "127.0.0.1";
-            int parentPort = 4040;
-            startClient(parentAddress, parentPort);
-            
-            //TESTESTTESTEST
-            Message testMessage = new Message("HALLO!!");
-            testMessage.setTargetAddress(parentAddress);
-            MessageController.talk(testMessage);
+        
+        getPosition();
+
+        //TESTESTTESTEST
+        //Message testMessage = new Message("HALLO!!");
+        //testMessage.setTargetAddress(parentAddress);
+        //MessageController.talk(testMessage);
+              
+    }
+    
+    private void getPosition(){
+        /*
+            String leaderIp = Server.getLeader();
+        */
+        String leaderIp = "127.0.0.1";
+        try {
+            Connection con = new Connection(new Socket(leaderIp, myPort));
+            con.talk(new Message(MessageType.POSITION_REQUEST));
+        } catch (IOException ex) {
+            //Something went wrong while connecting to leader
+            //Leader is dead? lets assume. Then now set myself as leader
+            //leaderIp = Server.setLeader(leaderIp, myIp); //will return the new leader ip (But might not be myIp)
         }
-                
+        boolean leader = false;
+        try {
+            leader = leaderIp.equals(InetAddress.getLocalHost().getHostAddress());
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(ClientController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        if(!leader){
+            
+            //LeaderConnection.requestPosition();
+            String parentAddress = "127.0.0.1:4040";
+            String[] splitted = parentAddress.split(":");
+            boolean started = startClient(splitted[0], Integer.parseInt(splitted[1]));
+        }
+        startListeningForChildren();        
     }
     
     //Connect to my parent
-    private void startClient(String host, int port){
+    private boolean startClient(String host, int port){
         try {
-            messageHandlerController.setParent(new Connection(new Socket(host, port), ConnectionType.PARENT));
-        } catch (UnknownHostException ex) {
-            Logger.getLogger(ClientController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(ClientController.class.getName()).log(Level.SEVERE, null, ex);
+            messageHandlerController.setParent(new Connection(new Socket(host, port)));
+        } catch (Exception ex) {
+            return false;
         }
+        return true;
     }
     
-    private void startListeningForChildren(ConnectionType type) {
+    private void startListeningForChildren() {
         try {
             serverSocket = new ServerSocket();
             serverSocket.setReuseAddress(true);
@@ -78,16 +96,16 @@ public class ClientController {
         }
         
         //Start the message handlers
-        new Thread(waitForConnection(type)).start();
+        new Thread(waitForConnection()).start();
         System.out.println("Now waiting for clients!");
     }
     
-    private Runnable waitForConnection(final ConnectionType type){
+    private Runnable waitForConnection(){
         return new Runnable() {
             public void run() {
                 try {
                     while(running){
-                        Connection newChild = new Connection(serverSocket.accept(), type);
+                        Connection newChild = new Connection(serverSocket.accept());
                         //children.put(newChild.getAddress(), newChild);
                         messageHandlerController.addChild(newChild);
                         Thread thread = new Thread(newChild);
@@ -103,6 +121,6 @@ public class ClientController {
     }
     
     public static void main(String args[]){
-        new ClientController(false, 4040);
+        new ClientController();
     }
 }

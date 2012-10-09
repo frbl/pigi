@@ -14,18 +14,27 @@ import nl.rug.client.model.Message;
  *
  * @author Rene
  */
-public abstract class MessageHandler implements Runnable {
+public class MessageHandler implements Runnable {
     
     protected BlockingDeque<Message> messageQueue = new LinkedBlockingDeque<Message>();
-    public abstract void handleMessage(Message message);
 
     public void run(){
         while(true){
             try {
                 handleMessage(messageQueue.take());
             } catch (InterruptedException ex) {
-                Logger.getLogger(ChildHandler.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+    }
+    
+    public void handleMessage(Message message) {
+        switch(message.getMessageType()){
+            case POSITION_REQUEST:
+                Message reply = new Message(Message.MessageType.STRING);
+                break;
+            case CALC_FILE:
+                break;
         }
     }
 }

@@ -5,7 +5,6 @@
 package nl.rug.client.model;
 
 import java.io.Serializable;
-import nl.rug.client.controller.Connection.ConnectionType;
 
 /**
  *
@@ -13,63 +12,52 @@ import nl.rug.client.controller.Connection.ConnectionType;
  */
 public class Message implements Serializable {
     
+    public static enum MessageType {POSITION_REQUEST, CALC_FILE, STRING }
+    
     private String message;
-    private String senderAddress;
-    private int senderPort;
-    private String targetAddress;
-    private int targetPort;
+    private Address senderAddress;
+    private Address targetAddress;
     
-    private ConnectionType type = null;
+    private MessageType messageType;
     
-    public Message(String message){
-        this.message = message;
+    public Message(String message, MessageType messageType){
+        setMessage(message);
+        setMessageType(messageType);
     }
     
-    public Message(){
-        this("Ik heb nog niet zo veel te vertellen :(");
+    public Message(MessageType messageType){
+        this("Ik heb nog niet zo veel te vertellen :(", messageType);
+    }
+    
+    public void setMessage(String message){
+        this.message = message;
     }
     
     public String getMessage(){
         return message;
     }
     
-    public void setType(ConnectionType type){
-        this.type = type;
+    public void setMessageType(MessageType type){
+        this.messageType = type;
     }
     
-    public ConnectionType getType(){
-        return type;
+    public MessageType getMessageType(){
+        return messageType;
     }
     
-    public String getTargetAddress(){
+    public Address getTargetAddress(){
         return targetAddress;
     }
     
-    public void setTargetAddress(String address){
+    public void setTargetAddress(Address address){
         targetAddress = address;
     }
     
-    public int getTargetPort(){
-        return targetPort;
-    }
-    
-    public void setTargetPort(int port){
-        targetPort = port;
-    }
-    
-    public int getSenderPort(){
-        return senderPort;
-    }
-    
-    public void setSenderPort(int port){
-        senderPort = port;
-    }
-    
-    public String getSenderAddress(){
+    public Address getSenderAddress(){
         return senderAddress;
     }
     
-    public void setSenderAddress(String address){
+    public void setSenderAddress(Address address){
         senderAddress = address;
     }
     

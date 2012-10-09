@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.rug.client.controller.ClientController;
 import nl.rug.client.controller.Connection;
+import nl.rug.client.model.Address;
 import nl.rug.client.model.Message;
 
 /**
@@ -23,22 +24,14 @@ public class MessageController {
     private static BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<Message>();
     private static final BlockingQueue<Message> talkQueue = new LinkedBlockingQueue<Message>();
     
-    private MessageHandler childHandler;
-    private MessageHandler leaderHandler;
-    private MessageHandler parentHandler;
+    private MessageHandler messageHandler;
     
     private Connection parentConnection = null; //When i am not the root, this is my parent
-    private Map<String, Connection> children = new HashMap<String, Connection>(); //My children
+    private Map<Address, Connection> children = new HashMap<Address, Connection>(); //My children
     
     public MessageController(){
-        childHandler = new ChildHandler();
-        parentHandler = new ParentHandler();
-        leaderHandler = new LeaderHandler();
-        
-        //Using threads so messages will be handled per Handler
-        new Thread(childHandler).start();
-        new Thread(childHandler).start();
-        new Thread(childHandler).start();
+        messageHandler = new MessageHandler();
+        new Thread(messageHandler).start();
         
         //Takes care of incoming messages
         new Thread(handleMessages()).start();
@@ -66,11 +59,7 @@ public class MessageController {
                 while(true){
                     try {
                         Message message = messageQueue.take();
-                        switch(message.getType()){
-                            case CHILD: childHandler.handleMessage(message); break;
-                            case PARENT: parentHandler.handleMessage(message); break;
-                            case LEADER: leaderHandler.handleMessage(message); break;
-                        }
+                        messageHandler.handleMessage(message);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
                     }
