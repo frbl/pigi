@@ -15,6 +15,35 @@ The cassandra datamodel must cover the following:
 If possible the datamodel should cover the following:
 * The combination of file, revision and complexity is unique
 
+Datamodel v0.1.2
+----------------
+Looks alot like v0.1.1, however, this case it is easier to select all complexities per revision (i.e. grab a column with revision number x, and take all complexities.    
+
+---
+		Repositories :{ // Column Family
+			https://subversion.assembla.com/svn/ReneZ/ : { //row key - svn url
+				Name: ReneZ
+				Description: Spelletje
+			}
+		}
+		https://subvcersion.assembla.com/svn/ReneZ/ : { //super column family
+			Files : { // Column Family
+				Controller/Controller.java : { //row key - FilePath + Name
+					//Columns
+					1 : { // Columnname (Revision)
+						//Columnvalues
+						Complexity: 2
+					}
+					2 : {
+						Complexity: 4
+					}
+					3 : {
+						Complexity: 4
+					}
+				}
+			}
+		}
+
 Datamodel v0.1.1
 ----------------
 
