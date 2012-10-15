@@ -4,7 +4,6 @@
  */
 package nl.rug.client.controller;
 
-import nl.rug.client.messagehandler.MessageHandler;
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
@@ -14,8 +13,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.rug.client.messagehandler.*;
-import nl.rug.client.model.Message;
-import nl.rug.client.model.Message.MessageType;
+import nl.rug.client.model.Address;
+import nl.rug.client.model.Request;
+import nl.rug.client.model.Request.RequestType;
 
 /**
  *
@@ -48,38 +48,38 @@ public class ClientController {
     
     private void getPosition(){
         /*
-            String leaderIp = Server.getLeader();
+            Address leader = Server.getLeader();
         */
-        String leaderIp = "127.0.0.1";
+        
         try {
-            Connection con = new Connection(new Socket(leaderIp, myPort));
-            con.talk(new Message(MessageType.POSITION_REQUEST));
-        } catch (IOException ex) {
+            Address leaderAddress = new Address("127.0.0.1", 4040);
+            Address myAddress = new Address(InetAddress.getLocalHost().getHostAddress(), myPort);
+            Connection con = new Connection(new Socket(leaderAddress.ip, leaderAddress.port));
+            con.talk(new Request(leaderAddress, myAddress,RequestType.POSITION));
+        
+            boolean leader = false;
+            leader = leaderAddress.ip.equals(myAddress.ip);
+        
+        
+            if(!leader){
+                //Address parentAddress = LeaderConnection.requestPosition();
+                Address parentAddress = new Address("127.0.0.1", 4040);
+                boolean started = startClient(parentAddress);
+            }
+            startListeningForChildren();     
+        } catch (IOException e1) {
             //Something went wrong while connecting to leader
             //Leader is dead? lets assume. Then now set myself as leader
             //leaderIp = Server.setLeader(leaderIp, myIp); //will return the new leader ip (But might not be myIp)
+        } catch (UnknownHostException e2) {
+            Logger.getLogger(ClientController.class.getName()).log(Level.SEVERE, null, e2);
         }
-        boolean leader = false;
-        try {
-            leader = leaderIp.equals(InetAddress.getLocalHost().getHostAddress());
-        } catch (UnknownHostException ex) {
-            Logger.getLogger(ClientController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        if(!leader){
-            
-            //LeaderConnection.requestPosition();
-            String parentAddress = "127.0.0.1:4040";
-            String[] splitted = parentAddress.split(":");
-            boolean started = startClient(splitted[0], Integer.parseInt(splitted[1]));
-        }
-        startListeningForChildren();        
     }
     
     //Connect to my parent
-    private boolean startClient(String host, int port){
+    private boolean startClient(Address address){
         try {
-            messageHandlerController.setParent(new Connection(new Socket(host, port)));
+            messageHandlerController.setParent(new Connection(new Socket(address.ip, address.port)));
         } catch (Exception ex) {
             return false;
         }

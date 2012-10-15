@@ -4,7 +4,6 @@
  */
 package nl.rug.client.controller;
 
-import nl.rug.client.messagehandler.MessageHandler;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -30,9 +29,7 @@ public class Connection implements Runnable {
     private boolean running = true;
         
     public Connection(Socket socket) throws IOException{
-        address = new Address();
-        address.ip = socket.getInetAddress().getHostAddress();
-        address.port = socket.getPort();
+        address = new Address(socket.getInetAddress().getHostAddress(), socket.getPort());
         out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
     }
