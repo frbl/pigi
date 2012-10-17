@@ -15,6 +15,26 @@ The cassandra datamodel must cover the following:
 If possible the datamodel should cover the following:
 * The combination of file, revision and complexity is unique
 
+Datamodel v1.0
+----------------
+This model is totaly different than the others. It has a row for each repository and adds a column for each Revision or file added to the system. Note that this might not be the best datamodel for this system, as the number of columns will grow very rapidly, and only one measure for each file+revision can be used.
+
+Revisions:
+
+	Key		|(R#1,file)	|(R#2,file)	|(R#1,file2)|
+	_____________________________________________
+	| URL	| 	C32		| 	C12		| 	C20		|
+	| URL	| 	C22		| 	C62		| 	C60		|
+	| URL	| 	C51		| 	C15		| 	C21		|
+
+Repository:
+
+	Key		| name		| description	|
+	_________________________________________
+	| URL0	| <name>	| <description>	|
+	| URL1	| <name>	| <description>	|
+	| URL2	| <name>	| <description>	|
+
 Datamodel v0.1.2
 ----------------
 Looks alot like v0.1.1, however, this case it is easier to select all complexities per revision (i.e. grab a column with revision number x, and take all complexities.    
