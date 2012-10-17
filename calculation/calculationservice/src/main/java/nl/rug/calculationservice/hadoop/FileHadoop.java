@@ -23,7 +23,7 @@ import org.apache.hadoop.mapred.TextOutputFormat;
  *
  * @author frbl
  */
-public class Hadoop implements IHadoop{
+public class FileHadoop implements IHadoop{
 
     String input = "";
 
@@ -31,14 +31,21 @@ public class Hadoop implements IHadoop{
     
     public static void main(String[] args) {
 
-        Hadoop hadoopApp = new Hadoop(args[0], args[1]);
+        FileHadoop hadoopApp = new FileHadoop(args[0], args[1]);
 
     }
     
-    // Empty constructor is needed for hadoop/jar
-    public Hadoop() {}
+    /**
+     * Empty constructor is needed for hadoop/jar
+     */
+    public FileHadoop() {}
     
-    public Hadoop(String input, String output) {
+    /**
+     *
+     * @param input
+     * @param output
+     */
+    public FileHadoop(String input, String output) {
 
         this.input = input;
         
@@ -49,7 +56,7 @@ public class Hadoop implements IHadoop{
     @Override
     public void performCalculation() {
         
-        JobConf conf = new JobConf(Hadoop.class);
+        JobConf conf = new JobConf(FileHadoop.class);
         conf.setJobName("wordcount");
 
         conf.setOutputKeyClass(Text.class);
@@ -71,7 +78,7 @@ public class Hadoop implements IHadoop{
             
         } catch (IOException ex) {
             
-            Logger.getLogger(Hadoop.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FileHadoop.class.getName()).log(Level.SEVERE, null, ex);
             
         }
         

@@ -12,6 +12,10 @@ public class App {
     
     IHadoop hadoop;
     
+    /**
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         
         new App();
@@ -19,6 +23,9 @@ public class App {
     }
     
     
+    /**
+     *
+     */
     public App() {
         
         hadoop = new MockHadoop();

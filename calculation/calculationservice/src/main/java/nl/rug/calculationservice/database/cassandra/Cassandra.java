@@ -5,20 +5,17 @@
 package nl.rug.calculationservice.database.cassandra;
 
 import java.util.Arrays;
-import me.prettyprint.cassandra.model.BasicColumnDefinition;
+import java.util.HashMap;
+import java.util.Map;
 import me.prettyprint.cassandra.model.BasicColumnFamilyDefinition;
-import me.prettyprint.cassandra.serializers.StringSerializer;
+import me.prettyprint.cassandra.model.ConfigurableConsistencyLevel;
 import me.prettyprint.cassandra.service.ThriftKsDef;
-import me.prettyprint.cassandra.service.template.ColumnFamilyResult;
-import me.prettyprint.cassandra.service.template.ColumnFamilyTemplate;
-import me.prettyprint.cassandra.service.template.ColumnFamilyUpdater;
-import me.prettyprint.cassandra.service.template.ThriftColumnFamilyTemplate;
 import me.prettyprint.hector.api.Cluster;
+import me.prettyprint.hector.api.HConsistencyLevel;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.ddl.ColumnFamilyDefinition;
 import me.prettyprint.hector.api.ddl.ComparatorType;
 import me.prettyprint.hector.api.ddl.KeyspaceDefinition;
-import me.prettyprint.hector.api.exceptions.HectorException;
 import me.prettyprint.hector.api.factory.HFactory;
 
 /**
@@ -27,11 +24,13 @@ import me.prettyprint.hector.api.factory.HFactory;
  */
 public class Cassandra {
 
-    private static Cluster cluster = HFactory.getOrCreateCluster(CassandraSettings.CLUSTER_NAME, CassandraSettings.CLUSTER_ADDRESS);
-    private static ColumnFamilyTemplate<String, String> template;
-
-    private static Cassandra instance;
+    private static Cluster cluster = HFactory.getOrCreateCluster(
+            CassandraSettings.CLUSTER_NAME,
+            CassandraSettings.CLUSTER_ADDRESS);
     
+    private static Cassandra instance;
+    private static Keyspace keyspace;
+
     private Cassandra() {
 
         KeyspaceDefinition keyspaceDef = cluster.describeKeyspace(CassandraSettings.KEYSPACE_NAME);
@@ -44,75 +43,76 @@ public class Cassandra {
 
         }
 
-        Keyspace ksp = HFactory.createKeyspace(CassandraSettings.KEYSPACE_NAME, cluster);
+        ConfigurableConsistencyLevel configurableConsistencyLevel = new ConfigurableConsistencyLevel();
+        Map<String, HConsistencyLevel> clmap = new HashMap<String, HConsistencyLevel>();
 
-        template = new ThriftColumnFamilyTemplate<String, String>(ksp,
-                CassandraSettings.COLUMN_FAMILY_NAME,
-                StringSerializer.get(),
-                StringSerializer.get());
+        // Define CL.ONE for ColumnFamily "MyColumnFamily"
+        clmap.put(CassandraSettings.REPOSITORY_COLUMN_FAMILY_NAME, HConsistencyLevel.ONE);
+        clmap.put(CassandraSettings.REVISION_COLUMN_FAMILY_NAME, HConsistencyLevel.ONE);
+
+        // In this we use CL.ONE for read and writes. But you can use different CLs if needed.
+        configurableConsistencyLevel.setReadCfConsistencyLevels(clmap);
+        configurableConsistencyLevel.setWriteCfConsistencyLevels(clmap);
+
+        keyspace = HFactory.createKeyspace(CassandraSettings.KEYSPACE_NAME, cluster);
+
+
 
     }
-    
-    public static ColumnFamilyTemplate<String, String> getTemplate() {
-        
-        if(instance == null) {
-            
-           instance = new Cassandra();
-           
+
+    /**
+     * Singleton-like approach to get the keyspace to the other classes.
+     *
+     * @return the connection to the keyspace
+     */
+    public static Keyspace getKeyspace() {
+
+        if (instance == null) {
+
+            instance = new Cassandra();
+
         }
-        
-        return template;
-        
+
+        return keyspace;
+
     }
 
+    /**
+     * This function creates the basic schema of the cassandra database. It is
+     * only called whenever there is no schema detected on boot.
+     */
     private void createSchema() {
 
 
         // Create Keyspace
-        ColumnFamilyDefinition cfDef = HFactory.createColumnFamilyDefinition(CassandraSettings.KEYSPACE_NAME,
-                CassandraSettings.COLUMN_FAMILY_NAME,
+        ColumnFamilyDefinition repositoryCf = HFactory.createColumnFamilyDefinition(CassandraSettings.KEYSPACE_NAME,
+                CassandraSettings.REPOSITORY_COLUMN_FAMILY_NAME,
+                ComparatorType.BYTESTYPE);
+
+        ColumnFamilyDefinition revisionCf = HFactory.createColumnFamilyDefinition(CassandraSettings.KEYSPACE_NAME,
+                CassandraSettings.REVISION_COLUMN_FAMILY_NAME,
                 ComparatorType.BYTESTYPE);
 
         KeyspaceDefinition newKeyspace = HFactory.createKeyspaceDefinition(CassandraSettings.KEYSPACE_NAME,
                 ThriftKsDef.DEF_STRATEGY_CLASS,
                 CassandraSettings.REPLICATION_FACTOR,
-                Arrays.asList(cfDef));
+                Arrays.asList(repositoryCf, revisionCf));
 
         cluster.addKeyspace(newKeyspace, true);
 
 
-        //Create columnfamily
-        BasicColumnFamilyDefinition columnFamilyDefinition = new BasicColumnFamilyDefinition();
-        columnFamilyDefinition.setKeyspaceName(CassandraSettings.KEYSPACE_NAME);
-        columnFamilyDefinition.setName(CassandraSettings.COLUMN_FAMILY_NAME);
-        columnFamilyDefinition.setKeyValidationClass(ComparatorType.UTF8TYPE.getClassName());
-        columnFamilyDefinition.setComparatorType(ComparatorType.UTF8TYPE);
 
+        //Create both columnfamilies
+        BasicColumnFamilyDefinition repositoryColumnFamilyDefinition = new BasicColumnFamilyDefinition();
+        repositoryColumnFamilyDefinition.setKeyspaceName(CassandraSettings.KEYSPACE_NAME);
+        repositoryColumnFamilyDefinition.setName(CassandraSettings.REPOSITORY_COLUMN_FAMILY_NAME);
+        repositoryColumnFamilyDefinition.setKeyValidationClass(ComparatorType.UTF8TYPE.getClassName());
+        repositoryColumnFamilyDefinition.setComparatorType(ComparatorType.UTF8TYPE);
+
+        BasicColumnFamilyDefinition revisionColumnFamilyDefinition = new BasicColumnFamilyDefinition();
+        revisionColumnFamilyDefinition.setKeyspaceName(CassandraSettings.KEYSPACE_NAME);
+        revisionColumnFamilyDefinition.setName(CassandraSettings.REVISION_COLUMN_FAMILY_NAME);
+        revisionColumnFamilyDefinition.setKeyValidationClass(ComparatorType.UTF8TYPE.getClassName());
+        revisionColumnFamilyDefinition.setComparatorType(ComparatorType.COMPOSITETYPE);
     }
-
-    public boolean testCassandra() {
-
-        try {
-            
-
-            ColumnFamilyResult<String, String> res;// = template.queryColumns("1");
-            String value;// = res.getString("name");
-            //System.out.println("Value: " + value);
-
-            res = template.queryColumns("3");
-            value = res.getString("name");
-            System.out.println("Value: " + value);
-
-            return true;
-
-        } catch (HectorException e) {
-
-            System.out.println(e.getMessage());
-
-            return false;
-
-        }
-
-    }
-
 }

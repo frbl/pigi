@@ -8,11 +8,23 @@ package nl.rug.calculationservice.database.model;
  *
  * @author frbl
  */
-public class Revision {
+public class RevisionRelational{
     
+    /**
+     *
+     */
     public static final int ID_LOC = 1;
+    /**
+     *
+     */
     public static final int REPOSITORY_ID_LOC = 2;
+    /**
+     *
+     */
     public static final int REVISION_NUMBER_LOC = 3;
+    /**
+     *
+     */
     public static final int AVERAGE_COMPLEXITY_LOC = 4;
     
     private int id = 0;
@@ -20,6 +32,10 @@ public class Revision {
     private int revisionNumber = 0;
     private int averageComplexity = 0;
 
+    /**
+     *
+     * @return
+     */
     @Override
     public String toString() {
         return "ID: " + getId() +

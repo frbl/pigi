@@ -10,18 +10,34 @@ import java.util.List;
  *
  * @author frbl
  */
-public class Repository {
+public class RepositoryRelational {
 
+    /**
+     *
+     */
     public static final int NAME_LOC = 1;
+    /**
+     *
+     */
     public static final int ID_LOC = 2;
+    /**
+     *
+     */
     public static final int URL_LOC = 3;
+    /**
+     *
+     */
     public static final int DESCRIPTION_LOC = 4;
     private int id = 0;
     private String name = "";
     private String url = "";
     private String description = "";
-    private List<Revision> revisions = null;
+    private List<RevisionRelational> revisions = null;
 
+    /**
+     *
+     * @return
+     */
     @Override
     public String toString() {
         String string = "ID: " + getId()
@@ -32,7 +48,7 @@ public class Repository {
         
         if (revisions != null) {
             
-            for (Revision revision : getRevisions()) {
+            for (RevisionRelational revision : getRevisions()) {
 
                 string += revision.toString() + "\n\t\t\t";
 
@@ -103,14 +119,14 @@ public class Repository {
     /**
      * @return the revisions
      */
-    public List<Revision> getRevisions() {
+    public List<RevisionRelational> getRevisions() {
         return revisions;
     }
 
     /**
      * @param revisions the revisions to set
      */
-    public void setRevisions(List<Revision> revisions) {
+    public void setRevisions(List<RevisionRelational> revisions) {
         this.revisions = revisions;
     }
 }

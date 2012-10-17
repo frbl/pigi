@@ -4,15 +4,30 @@ package nl.rug.calculationservice.database.cassandra;
  * DatabaseSettings class. Should be replaced by the Maven settings
  */
 public class CassandraSettings {
-   
-    public static final String CLUSTER_NAME ="Pigi Cluster";
-    
+
+    /**
+     * The name of the cluster the application should connect to.
+     */
+    public static final String CLUSTER_NAME = "Pigi Cluster";
+    /**
+     * The IP of one of the nodes in this cluster.
+     */
     public static final String CLUSTER_ADDRESS = "192.168.10.210:9160";
-    
-    public static final int REPLICATION_FACTOR = 1;
-    
+    /**
+     * The replication factor used in the cluster.
+     */
+    public static final int REPLICATION_FACTOR = 2;
+    /**
+     * The name of the keyspace used (in a relational world this is your
+     * database name)
+     */
     public static final String KEYSPACE_NAME = "ComplexityAnalysis";
-    
-    public static final String COLUMN_FAMILY_NAME = "Repositories";
-    
+    /**
+     * The column family name of the repositories 'table'/column family
+     */
+    public static final String REPOSITORY_COLUMN_FAMILY_NAME = "Repositories";
+    /**
+     * The column family name of the revisions 'table'/column family
+     */
+    public static final String REVISION_COLUMN_FAMILY_NAME = "Revisions";
 }

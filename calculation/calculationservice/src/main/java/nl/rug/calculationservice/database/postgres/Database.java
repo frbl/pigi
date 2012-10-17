@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 public class Database {
 
     private static Database instance = new Database();
-    
     private static String dbUrl = "jdbc:" + DatabaseSettings.DB_TYPE
             + "://" + DatabaseSettings.DB_HOST
             + ":" + DatabaseSettings.DB_PORT
@@ -31,9 +30,13 @@ public class Database {
 
         }
 
-
     }
 
+    /**
+     *
+     * @return connection The connection to the database
+     * @throws SQLException
+     */
     public static Connection getConnection() throws SQLException {
 
         Connection connection = DriverManager.getConnection(dbUrl, DatabaseSettings.DB_USER, DatabaseSettings.DB_PASSWORD);
