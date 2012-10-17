@@ -19,6 +19,21 @@ Datamodel v0.1.2
 ----------------
 Looks alot like v0.1.1, however, this case it is easier to select all complexities per revision (i.e. grab a column with revision number x, and take all complexities.    
 
+Revisions:
+
+	Composite Key	| R#1 | R#2 | R#3 |
+	___________________________________
+	|(URL	|File)	| C32 | C12 | C20 |
+	|(URL	|File)	| C22 | C62 | C60 |
+	|(URL	|File)	| C51 | C15 | C21 |
+  
+Repository:
+
+	Key		| name		| description	|
+	_________________________________________
+	| URL0	| <name>	| <description>	|
+	| URL1	| <name>	| <description>	|
+	| URL2	| <name>	| <description>	|
 ---
 		Repositories :{ // Column Family
 			https://subversion.assembla.com/svn/ReneZ/ : { //row key - svn url

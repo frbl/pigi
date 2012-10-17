@@ -14,6 +14,8 @@ import nl.rug.client.controller.ClientController;
 import nl.rug.client.controller.Connection;
 import nl.rug.client.model.Address;
 import nl.rug.client.model.Message;
+import nl.rug.client.model.Request;
+import nl.rug.client.model.Response;
 
 /**
  *
@@ -24,20 +26,68 @@ public class MessageController {
     private static BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<Message>();
     private static final BlockingQueue<Message> talkQueue = new LinkedBlockingQueue<Message>();
     
-    private MessageHandler messageHandler;
+    //private MessageHandler messageHandler;
     
     private Connection parentConnection = null; //When i am not the root, this is my parent
     private Map<Address, Connection> children = new HashMap<Address, Connection>(); //My children
     
     public MessageController(){
-        messageHandler = new MessageHandler();
-        new Thread(messageHandler).start();
+        //messageHandler = new MessageHandler();
+        //new Thread(messageHandler).start();
         
         //Takes care of incoming messages
         new Thread(handleMessages()).start();
         
         //Takes care of the messages which need to be send
         new Thread(sendMessages()).start();
+    }
+    
+    public void handleMessage(Message message) {
+        if(message instanceof Request){
+            handleRequest((Request)message);
+        } else if(message instanceof Response) {
+            handleResponse((Response)message);
+        } else {
+            System.out.println("received unknown object");
+        }
+    }
+    
+    public void handleRequest(Request request){
+        switch(request.type){
+            case POSITION:
+                
+                break;
+            case FILE_COMPLEXITY:
+                
+                break;
+            case LEADER_ELECTION:
+                
+                break;
+            case ROOT:
+                if(parentConnection == null){
+                    
+                } else {
+                    
+                }
+                break;
+        }
+    }
+    
+    public void handleResponse(Response response){
+        switch(response.request.type){
+            case POSITION:
+                
+                break;
+            case FILE_COMPLEXITY:
+                
+                break;
+            case LEADER_ELECTION:
+                
+                break;
+            case ROOT:
+                
+                break;
+        }
     }
     
     public static void queueMessage(Message message) {
@@ -59,9 +109,10 @@ public class MessageController {
                 while(true){
                     try {
                         Message message = messageQueue.take();
-                        messageHandler.handleMessage(message);
+                        //messageHandler.handleMessage(message);
+                        handleMessage(message);
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(MessageHandler.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(MessageController.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
