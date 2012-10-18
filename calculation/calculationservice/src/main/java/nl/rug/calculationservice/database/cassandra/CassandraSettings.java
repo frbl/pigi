@@ -10,9 +10,13 @@ public class CassandraSettings {
      */
     public static final String CLUSTER_NAME = "Pigi Cluster";
     /**
+     * The RPC port of the cluster to connect to
+     */
+    public static final String CLUSTER_RPCPORT = "9160";
+    /**
      * The IP of one of the nodes in this cluster.
      */
-    public static final String CLUSTER_ADDRESS = "192.168.10.210:9160";
+    public static final String CLUSTER_ADDRESS = "192.168.10.210";
     /**
      * The replication factor used in the cluster.
      */
@@ -30,4 +34,12 @@ public class CassandraSettings {
      * The column family name of the revisions 'table'/column family
      */
     public static final String REVISION_COLUMN_FAMILY_NAME = "Revisions";
+
+    /**
+     * TEST column family name
+     */
+    public static String TEST_COLUMN_FAMILY_NAME() {
+        System.out.println("[DEBUG] Using test column family..");
+        return "Test";
+    }
 }

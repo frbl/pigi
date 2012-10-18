@@ -55,32 +55,32 @@ public class FileHadoop implements IHadoop{
 
     @Override
     public void performCalculation() {
-        
-        JobConf conf = new JobConf(FileHadoop.class);
-        conf.setJobName("wordcount");
-
-        conf.setOutputKeyClass(Text.class);
-        conf.setOutputValueClass(IntWritable.class);
-
-        conf.setMapperClass(AverageMapper.class); //map.class
-        conf.setCombinerClass(AverageReducer.class); //reduce.class
-        conf.setReducerClass(AverageReducer.class); //reduce.class
-
-        conf.setInputFormat(TextInputFormat.class);
-        conf.setOutputFormat(TextOutputFormat.class);
-        
-        FileInputFormat.setInputPaths(conf, new Path(input));
-        FileOutputFormat.setOutputPath(conf, new Path(output));
-        
-        try {
-            
-            JobClient.runJob(conf);
-            
-        } catch (IOException ex) {
-            
-            Logger.getLogger(FileHadoop.class.getName()).log(Level.SEVERE, null, ex);
-            
-        }
+//        
+//        JobConf conf = new JobConf(FileHadoop.class);
+//        conf.setJobName("wordcount");
+//
+//        conf.setOutputKeyClass(Text.class);
+//        conf.setOutputValueClass(IntWritable.class);
+//
+//        conf.setMapperClass(AverageMapper.class); //map.class
+//        conf.setCombinerClass(AverageReducer.class); //reduce.class
+//        conf.setReducerClass(AverageReducer.class); //reduce.class
+//
+//        conf.setInputFormat(TextInputFormat.class);
+//        conf.setOutputFormat(TextOutputFormat.class);
+//        
+//        FileInputFormat.setInputPaths(conf, new Path(input));
+//        FileOutputFormat.setOutputPath(conf, new Path(output));
+//        
+//        try {
+//            
+//            JobClient.runJob(conf);
+//            
+//        } catch (IOException ex) {
+//            
+//            Logger.getLogger(FileHadoop.class.getName()).log(Level.SEVERE, null, ex);
+//            
+//        }
         
     }
     

@@ -5,27 +5,24 @@
 package nl.rug.calculationservice.hadoop.mapreduce;
 
 import java.io.IOException;
-import java.util.Iterator;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapreduce.Reducer;
 
 /**
  *
  * @author frbl
  */
-public class AverageReducer extends MapReduceBase implements Reducer<Text, IntWritable, Text, IntWritable> {
+public class AverageReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
-    @Override
-    public void reduce(Text key, Iterator<IntWritable> values, OutputCollector<Text, IntWritable> output, Reporter reporter) throws IOException {
+    public void reduce(Text key, Iterable<IntWritable> values, Context context, Reporter reporter) throws IOException, InterruptedException {
+        
+        System.out.println(reporter.getCounter("numberOfRows", ""));
         int sum = 0;
-        while (values.hasNext()) {
-            sum += values.next().get();
+        for (IntWritable val : values) {
+            sum += val.get();
         }
-        output.collect(key, new IntWritable(sum));
+        context.write(key, new IntWritable(sum));
     }
 }

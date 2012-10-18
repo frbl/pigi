@@ -26,7 +26,7 @@ public class Cassandra {
 
     private static Cluster cluster = HFactory.getOrCreateCluster(
             CassandraSettings.CLUSTER_NAME,
-            CassandraSettings.CLUSTER_ADDRESS);
+            CassandraSettings.CLUSTER_ADDRESS + ":" + CassandraSettings.CLUSTER_RPCPORT);
     
     private static Cassandra instance;
     private static Keyspace keyspace;
