@@ -16,9 +16,9 @@ import org.apache.hadoop.mapreduce.Reducer;
  */
 public class AverageReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
 
-    public void reduce(Text key, Iterable<IntWritable> values, Context context, Reporter reporter) throws IOException, InterruptedException {
+    @Override
+    public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
         
-        System.out.println(reporter.getCounter("numberOfRows", ""));
         int sum = 0;
         for (IntWritable val : values) {
             sum += val.get();
