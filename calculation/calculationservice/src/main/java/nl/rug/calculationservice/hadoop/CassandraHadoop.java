@@ -10,11 +10,14 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.rug.calculationservice.database.cassandra.CassandraSettings;
+import nl.rug.calculationservice.database.cassandra.Generator;
 import nl.rug.calculationservice.hadoop.mapreduce.AverageMapper;
 import nl.rug.calculationservice.hadoop.mapreduce.AverageReducer;
 import org.apache.cassandra.hadoop.ColumnFamilyInputFormat;
 import org.apache.cassandra.hadoop.ConfigHelper;
+import org.apache.cassandra.thrift.KeyRange;
 import org.apache.cassandra.thrift.SlicePredicate;
+import org.apache.cassandra.thrift.SliceRange;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -38,6 +41,10 @@ public class CassandraHadoop extends Configured implements IHadoop, Tool {
     private final String REVISION = "1"; // The revision to perform the calculation on
 
     public static void main(String[] args) throws Exception {
+        Generator generator = new Generator();
+        
+        generator.populate();
+        
         // Let ToolRunner handle generic command-line options
         ToolRunner.run(new Configuration(), new CassandraHadoop(), args);
         
@@ -75,12 +82,19 @@ public class CassandraHadoop extends Configured implements IHadoop, Tool {
 
             job.setInputFormatClass(ColumnFamilyInputFormat.class);  
 
-            SlicePredicate predicate = new SlicePredicate().setColumn_names(Arrays.asList(ByteBufferUtil.bytes(REVISION)));
-
+            SlicePredicate predicate = new SlicePredicate();//.setColumn_names(Arrays.asList(ByteBufferUtil.bytes(REVISION)));
+            SliceRange range = new SliceRange();
+            
+            range.setStart(ByteBufferUtil.EMPTY_BYTE_BUFFER);
+            range.setFinish(ByteBufferUtil.EMPTY_BYTE_BUFFER);
+            
+            predicate.setSlice_range(range);
+           
+            
             ConfigHelper.setRpcPort(job.getConfiguration(), CassandraSettings.CLUSTER_RPCPORT);
             ConfigHelper.setInitialAddress(job.getConfiguration(), CassandraSettings.CLUSTER_ADDRESS);
-            ConfigHelper.setPartitioner(job.getConfiguration(), "RandomPartitioner"); //TODO what is this?
-            ConfigHelper.setInputColumnFamily(job.getConfiguration(), CassandraSettings.KEYSPACE_NAME, CassandraSettings.TEST_COLUMN_FAMILY_NAME());
+            ConfigHelper.setPartitioner(job.getConfiguration(), "OrderPreservingPartitioner");
+            ConfigHelper.setInputColumnFamily(job.getConfiguration(), CassandraSettings.KEYSPACE_NAME, CassandraSettings.REVISION_COLUMN_FAMILY_NAME);
             ConfigHelper.setInputSlicePredicate(job.getConfiguration(), predicate);
 
             job.waitForCompletion(true);
@@ -110,7 +124,7 @@ public class CassandraHadoop extends Configured implements IHadoop, Tool {
         
         performCalculation();
         
-        System.out.println("Job finished...");
+        System.out.println("Job finished.");
         
         return 0;
         
