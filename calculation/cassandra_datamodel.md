@@ -27,6 +27,33 @@ Revisions:
 	| URL	| 	C22		| 	C62		| 	C60		|
 	| URL	| 	C51		| 	C15		| 	C21		|
 
+Commands for cassandra-cli:
+ 
+Keyspace with some simple defaults
+
+	create keyspace PIGI
+	with strategy_options = {replication_factor:1}
+	and placement_strategy = 'org.apache.cassandra.locator.SimpleStrategy';
+
+Composite made out of revision (long) and /path/to/file.extension (text) 
+
+	create column family Repository
+	with comparator = 'CompositeType(LongType,UTF8Type)'
+	and key_validation_class = 'UTF8Type'
+	and default_validation_class = 'UTF8Type';
+
+Values to use for testing:
+
+	set Repository['svn.devided.nl']['1:/a/b/c.java'] = 5;
+	set Repository['svn.devided.nl']['1:/a/b/d.java'] = 10;
+	set Repository['svn.devided.nl']['2:/a/b/c.java'] = 11;
+	set Repository['svn.devided.nl']['2:/a/b/d.java'] = 4;
+	set Repository['svn.devided.nl']['2:/a/b/e.java'] = 8;
+
+Get command example:
+
+	get Repository['svn.devided.nl']
+
 Repository:
 
 	Key		| name		| description	|
