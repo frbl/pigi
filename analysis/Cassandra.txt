@@ -1,0 +1,37 @@
+# Keyspace with some simple defaults. Replication factor of two to 
+# make sure that we can shutdown a node and have everything still
+# working. The chosen strategy should work for out three nodes. The 
+# RackUnawareStrategy is good enugh for us, it stores a replica on 
+# the next node in the ring.
+create keyspace PIGI
+with strategy_options = {replication_factor:2}
+and placement_strategy = 'org.apache.cassandra.locator.RackUnawareStrategy';
+
+#Create the column family that will store the complexity information. 
+# The composite made out of revision (long) and 
+# /path/to/file.extension (text) 
+create column family Repository
+with comparator = 'CompositeType(LongType,UTF8Type)'
+and key_validation_class = 'UTF8Type'
+and default_validation_class = 'UTF8Type';
+
+# values to use for testing. Revision 1 should have average 
+# complexity of (5+10)/2. # Revision 2 should have average complexity
+# of (11+4+8)/3
+set Repository['svn.devided.nl']['1:/a/b/c.java'] = 5;
+set Repository['svn.devided.nl']['1:/a/b/d.java'] = 10;
+set Repository['svn.devided.nl']['2:/a/b/c.java'] = 11;
+set Repository['svn.devided.nl']['2:/a/b/d.java'] = 4;
+set Repository['svn.devided.nl']['2:/a/b/e.java'] = 8;
+
+# get command example
+get Repository['svn.devided.nl'];
+
+# columnfamily to store average complexities
+create column family AverageComplexities
+with comparator = 'LongType'
+and key_validation_class = 'UTF8Type'
+and default_validation_class = 'UTF8Type';
+
+# example average complexity
+set AverageComplexities['svn.devided.nl'][1] = 7.5;
