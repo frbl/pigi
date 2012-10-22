@@ -2,23 +2,9 @@ package nl.rug.client;
 
 import com.almworks.sqlite4java.SQLite;
 import com.almworks.sqlite4java.SQLiteException;
-import fr.iscpif.jogl.JOGLWrapper;
-import java.awt.Color;
-import java.io.File;
-import java.sql.Date;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFrame;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import nl.rug.client.database.ChangedPath;
 import nl.rug.client.database.Database;
-import nl.rug.client.database.Repository;
-import nl.rug.client.database.Revision;
-import nl.rug.client.gui.MainWindow;
-import nl.rug.client.repository.RepositoryImporter;
-import org.tmatesoft.svn.core.SVNException;
 
 
 /**
@@ -28,11 +14,21 @@ import org.tmatesoft.svn.core.SVNException;
 public class App {
 
     public static void main(String[] args) {
-               
-        // These need to be done to make JOGL and SQLite4Java work correctly (Maven/JNI)
-        JOGLWrapper.init();
+        
+        // This call is needed to make the Maven supplied SQLite4Java library 
+        // work. This is needed because of the Maven/JNI comination.
         SQLite.setLibraryPath("target/lib/");
         
+        /*
+        if (args.length != 3) {
+            
+            System.out.println("No repository specified. Usage: java -jar App.jar repository_address username password");
+            
+            System.exit(1);
+            
+        }
+        */
+        // Initialize the database
         try {
             
             Database db = Database.getInstance();
@@ -46,52 +42,25 @@ public class App {
             System.exit(-1);
             
         }
+            
+        // initialize repository object
+        String repositoryAddress = "svn.devided.nl";//args[0];
+        String repositoryUsername = "wes";//args[1];
+        String repositoryPassword = "xbox360";//args[2];
+        RepositoryModel repositoryModel = new RepositoryModel(repositoryAddress, repositoryUsername, repositoryPassword);
+        // update the repository object (fetch missing and insert it into the database)
+        repositoryModel.initialize();
         
-        String repositoryURL = "svn://devided.nl/wesenfrank";
-        String username = "wes";
-        String password = "xbox360";
-        long startRevision = 0;
-        long endRevision = -1; //HEAD
-        try {
-            
-            /* testing if importing works */
-            RepositoryImporter.importRepository(repositoryURL, username, password, startRevision, endRevision);
         
-        } catch (SVNException ex) {
-            
-            Logger.getLogger(RepositoryImporter.class.getName()).log(Level.SEVERE, "error while creating an SVNRepository for the location '" + repositoryURL, ex);
-            
-            System.exit(-1);
-            
-        }
-
-        initializeGUI();
+        
+        // load working set information (file/revision hashes and complexity values)
+        
+        // connect to the Chord network (fetch address from webservice and initilize network)
+             
+        // sort working set based on what work remains to be done (with a priority for own work, based on chord range)
+        
+        // start working (get next item from working set and retrieve from chord
         
     }
-
-    private static void initializeGUI() {
-        final JFrame frame = new MainWindow();
-        frame.setSize(700, 700);
-        frame.setBackground(Color.WHITE);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnsupportedLookAndFeelException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                frame.setVisible(true);
-            }
-        });
-    }
+    
 }
