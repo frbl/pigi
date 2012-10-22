@@ -13,6 +13,7 @@ import java.io.Serializable;
 public abstract class Response extends Message implements Serializable {
     
     public Request request;
+    public Object object;
     
     public Response(Address target, Address sender, Request request){
         super(target, sender);

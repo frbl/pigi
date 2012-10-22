@@ -13,11 +13,12 @@ import java.io.Serializable;
 public class Request extends Message implements Serializable {
     
     public RequestType type;
+    public Object object;
     
-    //POSITION = To leader: What should be my position in the tree
-    //FILE_COMPLEXITY: From leader: What is the complexity of this file
-    //ROOT: What is the current root of your local tree (When things crash/leader election)
-    public static enum RequestType {POSITION, FILE_COMPLEXITY, ROOT, LEADER_ELECTION }
+    //CPN = Closest Preceding Node
+    //FS = Find Successor
+    //CP = Check predecessor
+    public static enum RequestType {CPN, FS, CP, PING, SUCCESSOR, PREDECESSOR, JOIN, STABALIZE, NOTIFY, FILE }
     
     public Request(Address target, Address sender, RequestType type){
         super(target, sender);
