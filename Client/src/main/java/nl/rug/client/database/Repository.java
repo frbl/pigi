@@ -22,18 +22,21 @@ public class Repository {
             @Override
             protected Repository job(SQLiteConnection connection) throws Throwable {
                 
-                SQLiteStatement st = connection.prepare("SELECT URL, title, description FROM Repository WHERE URL = ?");
+                SQLiteStatement st = connection.prepare("SELECT title, description FROM Repository WHERE URL = ?");
                 
                 // bind starts at 1!
-                st.bind(1, URL); 
+                st.bind(1, URL);
                 
-                // URL is the primary key so we should have only one result.
-                st.step(); 
+                Repository repository = null;
                 
-                Repository repository = new Repository();
-                repository.setURL(st.columnString(0));
-                repository.setTitle(st.columnString(1));
-                repository.setDescription(st.columnString(2));                
+                // should only happe once
+                while (st.step()) {
+                    repository = new Repository();
+                    repository.setURL(URL);
+                    repository.setTitle(st.columnString(0));
+                    repository.setDescription(st.columnString(1));    
+                }               
+                            
                 return repository;
                 
             }
