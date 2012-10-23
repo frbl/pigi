@@ -5,6 +5,7 @@
 package nl.rug.client.model;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  *
@@ -14,6 +15,8 @@ public class Request extends Message implements Serializable {
     
     public RequestType type;
     public Object object;
+    
+    public String UID = UUID.randomUUID().toString();
     
     //CPN = Closest Preceding Node
     //FS = Find Successor

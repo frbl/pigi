@@ -10,7 +10,7 @@ import java.io.Serializable;
  *
  * @author Rene
  */
-public abstract class Response extends Message implements Serializable {
+public class Response extends Message implements Serializable {
     
     public Request request;
     public Object object;

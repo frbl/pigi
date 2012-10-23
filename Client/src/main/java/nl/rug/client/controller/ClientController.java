@@ -23,12 +23,12 @@ public class ClientController {
     private boolean running = true;
     private ServerSocket serverSocket; //For new connections
     
-    private ChordNode node;
+    private static ChordNode node;
     
     public ClientController(int port){
         node = new ChordNode(port);
         node.create();
-        startListeningForChildren();
+        startListeningForChildren(port);
         
         //TEST!
         if(port != 4040){
@@ -37,11 +37,15 @@ public class ClientController {
         }
     }
     
-    private void startListeningForChildren() {
+    public static ChordNode getChordNode(){
+        return node;
+    }
+    
+    private void startListeningForChildren(int port) {
         try {
-            serverSocket = new ServerSocket();
-            serverSocket.setReuseAddress(true);
-            serverSocket.bind(new InetSocketAddress(node.getAddress().getPort()));
+            serverSocket = new ServerSocket(port);
+            //serverSocket.setReuseAddress(true);
+            //serverSocket.bind(new InetSocketAddress(node.getAddress().getPort()));
         } catch (IOException ex) {
             Logger.getLogger(ClientController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -78,5 +82,6 @@ public class ClientController {
      */
     public static void main(String args[]){
         new ClientController(4040);
+        new ClientController(4041);
     }
 }

@@ -12,8 +12,35 @@ import java.io.Serializable;
  */
 public class FileComplexity implements Serializable {
     
-    public String hash;
-    public String filepath;
-    public int revision;
+    private String hash;
+    private String filepath;
+    private int revision;
+    private double complexity;
+    
+    public FileComplexity(String filepath, int revision){
+        hash = Util.getHash(filepath + ":" + revision);
+        this.filepath = filepath;
+        this.revision = revision;
+    }
+    
+    public void setComplexity(double complexity){
+        this.complexity = complexity;
+    }
+    
+    public String getHash(){
+        return hash;
+    }
+    
+    public String getFilePath(){
+        return filepath;
+    }
+    
+    public int getRevision(){
+        return revision;
+    }
+    
+    public double getComplexity(){
+        return complexity;
+    }
     
 }

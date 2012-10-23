@@ -5,20 +5,14 @@
 package nl.rug.client.controller;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.stream.events.EndDocument;
 import nl.rug.client.model.*;
-import nl.rug.client.model.Request.RequestType;
 
 /**
  *
@@ -26,15 +20,22 @@ import nl.rug.client.model.Request.RequestType;
  */
 public class ChordNode implements IChordNode {
     
-    private Map<Address, IChordNode> connections = new HashMap<Address, IChordNode>();
+    private Map<String, IChordNode> connections = new HashMap<String, IChordNode>();
     
     private Address myAddress;
     
     private IChordNode predecessor;
     private IChordNode successor;
     
-    private List<Address> fingers = new LinkedList<Address>();
-        
+    private Map<Integer, Address> fingers = new HashMap<Integer, Address>();
+    
+    private int fingerIndex = 1;
+    
+    private BigInteger myHash;
+    private BigInteger maxHash = new BigInteger("ffffffffffffffffffffffffffffffffffffffff", 16);
+    private BigDecimal maxHashDec = new BigDecimal(maxHash);
+    //private BigDecimal one = new BigDecimal(1);
+    
     public ChordNode(int port) {
         String ip = null;
         try {
@@ -43,7 +44,7 @@ public class ChordNode implements IChordNode {
             Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
         }
         myAddress = new Address(ip, port);
-        
+        myHash = new BigInteger(myAddress.getHash(), 16);
         addConnection(this);
         
         scheduleTasks();
@@ -51,7 +52,7 @@ public class ChordNode implements IChordNode {
     
     private void scheduleTasks(){
         Timer timer = new Timer();
-        timer.schedule(scheduleFixFingers(), 0, 10000);
+        timer.schedule(scheduleFixFingers(), 1000, 100);
     }
     
     private TimerTask scheduleFixFingers(){
@@ -66,20 +67,22 @@ public class ChordNode implements IChordNode {
     }
     
     public void addConnection(IChordNode connection){
-        connections.put(connection.getAddress(), connection);
+        connections.put(connection.getAddress().getHash(), connection);
     }
     
     public IChordNode getConnection(Address address){
-        if(connections.containsKey(address)){
-            return connections.get(address);
+        if(connections.containsKey(address.getHash())){
+            return connections.get(address.getHash());
         } else {
-            IChordNode connection = null;
+            ChordConnection connection = null;
             try {
                 connection = new ChordConnection(address);
+                Thread thread = new Thread(connection);
+                thread.start();
             } catch (IOException ex) {
                 Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
             }
-            connections.put(address, connection);
+            connections.put(address.getHash(), connection);
             return connection;
         }
     }
@@ -90,12 +93,10 @@ public class ChordNode implements IChordNode {
     }
     
     @Override
-    public Address findSuccessor(String id){        
+    public Address findSuccessor(String id){ 
         if(Util.isBetween(id, myAddress.getHash(), successor.getAddress().getHash())){
             return successor.getAddress();
         } else {
-            //n0 = closestPrecedingNode(id)
-            //Request cpnr = new Request(successor.getAddress(), myAddress, Request.RequestType.CPN);
             Address n0Address = closestPrecedingNode(id);
             IChordNode cpn = getConnection(n0Address);
             return cpn.findSuccessor(id);
@@ -104,10 +105,11 @@ public class ChordNode implements IChordNode {
 
     @Override
     public Address closestPrecedingNode(String id){
-        Iterator<Address> it = fingers.iterator();
+        Collection<Address> fingerCol = fingers.values();
+        Iterator<Address> it = fingerCol.iterator();
         while(it.hasNext()){
             Address finger = it.next();
-            if(finger.isBetween(myAddress.getHash(), id)){
+            if(Util.isBetween(finger.getHash(), myAddress.getHash(), id)) {
                 return finger;
             }
         }
@@ -125,7 +127,7 @@ public class ChordNode implements IChordNode {
     public void stabalize(){
         Address x = successor.getPredecessor();
         
-        if(x != null && x.isBetween(this.getAddress().getHash(), successor.getAddress().getHash())){
+        if(x != null && Util.isBetween(x.getHash(), this.getAddress().getHash(), successor.getAddress().getHash())){
             successor = getConnection(x);
         }
         
@@ -134,34 +136,33 @@ public class ChordNode implements IChordNode {
     
     @Override
     public void notify(Address address){
-        if(predecessor == null || address.isBetween(predecessor.getAddress().getHash(), this.getAddress().getHash())){
+        if(predecessor == null || Util.isBetween(address.getHash(), predecessor.getAddress().getHash(), this.getAddress().getHash())){
             predecessor = getConnection(address);
         }
     }
     
-    int index = 0;
-    
     @Override
     public void fixFingers(){
-        BigInteger maxHash = new BigInteger("ffffffffffffffffffffffffffffffffffffffff", 16);
-        BigInteger myHash = new BigInteger(myAddress.getHash(), 16);
+        BigDecimal bigPart = maxHashDec.divide(new BigDecimal(Math.pow(2, fingerIndex++)));
         
-        BigInteger lookupIndex = myHash.add(BigInteger.valueOf((int)Math.pow(2, index)).divide(maxHash));
+        //BigInteger lookupIndex = myHash.add(one.divide(bigPart, 0, RoundingMode.HALF_DOWN).toBigInteger());
+        BigInteger lookupIndex = myHash.add(maxHashDec.subtract(bigPart).toBigInteger());
         if(lookupIndex.compareTo(maxHash) > 0){
-            index = 0;
+            fingerIndex = 1;
             lookupIndex = lookupIndex.subtract(maxHash);
         }
+        fingers.put(fingerIndex, findSuccessor(lookupIndex.toString(16)));
         
-        fingers.add(index, findSuccessor(lookupIndex.toString(16)));
+        
         //Print fingers
-        Iterator<Address> it = fingers.iterator();
+        Iterator<Address> it = fingers.values().iterator();
         System.out.println("------- Fingers -------");
         while(it.hasNext()){
             Address a = it.next();
             System.out.println(a.toString());
         }
-        System.out.println("------- End fingers -------");
-        index++;
+        System.out.println("------- End fingers " + fingers.size() + "-------");
+        fingerIndex++;
     }
     
     @Override

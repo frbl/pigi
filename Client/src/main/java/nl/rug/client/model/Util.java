@@ -4,7 +4,9 @@
  */
 package nl.rug.client.model;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
@@ -37,6 +39,15 @@ public class Util {
     }
     
     public static boolean isBetween(String compareTo, String compareLow, String compareHigh){
-        return compareTo.compareTo(compareLow) >= 0 && compareTo.compareTo(compareHigh) <= 0;
+        
+        if(compareLow.compareTo(compareHigh) < 0){ //Low is lower then high (expected most of the time)
+            return compareTo.compareTo(compareLow) >= 0 && compareTo.compareTo(compareHigh) < 0;
+        } else if(compareLow.compareTo(compareHigh) > 0){ //Low is higher then high
+            return compareTo.compareTo(compareHigh) > 0 || compareTo.compareTo(compareLow) < 0;
+        }
+        
+        //low and high are the same. return true
+        return true;
     }
+    
 }

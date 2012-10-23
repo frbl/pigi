@@ -46,8 +46,4 @@ public class Address implements Serializable {
     public String toString(){
         return ip + ":" + port;
     }
-    
-    public boolean isBetween(String compareLeft, String compareRight){
-        return hash.compareTo(compareLeft) >= 0 && hash.compareTo(compareRight) < 0;
-    }
 }
