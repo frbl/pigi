@@ -98,6 +98,7 @@ public class ChordConnection implements IChordNode, Runnable {
                 System.out.println("Not needed. STABALIZE at handleRequest - ChordConnection");
                 break;
             case NOTIFY:
+                System.out.println("Recieved notify!!!!!!");
                 address = (Address)request.object;
                 ClientController.getChordNode().notify(address);
                 break;

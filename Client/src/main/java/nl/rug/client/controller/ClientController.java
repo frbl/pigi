@@ -27,12 +27,13 @@ public class ClientController {
     
     public ClientController(int port){
         node = new ChordNode(port);
+        
         node.create();
         startListeningForChildren(port);
         
         //TEST!
         if(port != 4040){
-            Address address = new Address("192.168.1.4", 4040);
+            Address address = new Address("10.0.0.2", 4040);
             node.join(address);
         }
     }
@@ -81,7 +82,7 @@ public class ClientController {
      * @param args
      */
     public static void main(String args[]){
-        new ClientController(4040);
-        new ClientController(4041);
+        new ClientController(4042);
+        
     }
 }
