@@ -33,7 +33,7 @@ public class ChordNode implements IChordNode {
     
     private BigInteger myHash;
     private BigInteger maxHash = new BigInteger("ffffffffffffffffffffffffffffffffffffffff", 16);
-    private BigDecimal maxHashDec = new BigDecimal(maxHash);
+    private BigInteger onePartHash = maxHash.divide(BigInteger.valueOf(160));
     //private BigDecimal one = new BigDecimal(1);
     
     public ChordNode(int port) {
@@ -94,7 +94,7 @@ public class ChordNode implements IChordNode {
     
     @Override
     public Address findSuccessor(String id){ 
-        if(Util.isBetween(id, myAddress.getHash(), successor.getAddress().getHash())){
+        if(Util.isBetween(id, myAddress.getHash(), successor.getAddress().getHash()) || myAddress.equals(successor.getAddress())){
             return successor.getAddress();
         } else {
             Address n0Address = closestPrecedingNode(id);
@@ -121,6 +121,7 @@ public class ChordNode implements IChordNode {
         predecessor = null;
         IChordNode node = getConnection(address);
         successor = getConnection(node.findSuccessor(this.getAddress().getHash()));
+        System.out.println(myAddress + ". Successor is: " + successor.getAddress());
     }
     
     @Override
@@ -131,7 +132,8 @@ public class ChordNode implements IChordNode {
             successor = getConnection(x);
         }
         
-        successor.notify(this.getAddress());
+        successor.notify(myAddress);
+        System.out.println(myAddress + ". Successor is: " + successor.getAddress());
     }
     
     @Override
@@ -143,16 +145,14 @@ public class ChordNode implements IChordNode {
     
     @Override
     public void fixFingers(){
-        BigDecimal bigPart = maxHashDec.divide(new BigDecimal(Math.pow(2, fingerIndex++)));
+        int maxBitLenth = 160; //hex number with length 40
         
-        //BigInteger lookupIndex = myHash.add(one.divide(bigPart, 0, RoundingMode.HALF_DOWN).toBigInteger());
-        BigInteger lookupIndex = myHash.add(maxHashDec.subtract(bigPart).toBigInteger());
-        if(lookupIndex.compareTo(maxHash) > 0){
+        if(Math.pow(2, fingerIndex) > maxBitLenth){
             fingerIndex = 1;
-            lookupIndex = lookupIndex.subtract(maxHash);
         }
-        fingers.put(fingerIndex, findSuccessor(lookupIndex.toString(16)));
+        BigInteger lookupIndex = myHash.add(onePartHash.multiply(new BigInteger("" + ((int)Math.pow(2, fingerIndex)), 10)));
         
+        fingers.put(fingerIndex, findSuccessor(lookupIndex.toString(16)));
         
         //Print fingers
         Iterator<Address> it = fingers.values().iterator();

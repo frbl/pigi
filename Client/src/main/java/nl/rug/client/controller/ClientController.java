@@ -82,6 +82,5 @@ public class ClientController {
      */
     public static void main(String args[]){
         new ClientController(4040);
-        new ClientController(4041);
     }
 }

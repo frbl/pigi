@@ -47,7 +47,7 @@ public class Util {
         }
         
         //low and high are the same. return true
-        return true;
+        return false;
     }
     
 }
