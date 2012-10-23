@@ -12,7 +12,9 @@ import java.util.List;
  */
 public class ChangedPath {
     
-    // this will return all the changed paths records for a repository
+    // this will return all the changed paths records for a repository, unless 
+    // it regards a deleted value, in that case there is no complexity to 
+    // calculate
     public static List<ChangedPath> getWorkingSet(final Repository repository) {
         
         // probably not _the_ way to do this, but good enough for now
@@ -21,7 +23,12 @@ public class ChangedPath {
             @Override
             protected Object job(SQLiteConnection connection) throws Throwable {
                 
-                SQLiteStatement st = connection.prepare("SELECT number, path, type, complexity, hash FROM ChangedPath WHERE repository = ? AND path LIKE ?");
+                SQLiteStatement st = connection.prepare(""
+                        + "SELECT number, path, type, complexity, hash "
+                        + "FROM ChangedPath "
+                        + "WHERE repository = ? "
+                        + "AND path LIKE ?"
+                        + "AND type <> ?");
        
                 // bind starts at 1!
                 String URL = repository.getURL();
@@ -29,6 +36,7 @@ public class ChangedPath {
                 // only get the java files
                 String like = "%.java";
                 st.bind(2, like);
+                st.bind(3, DELETED);
                 
                 List<ChangedPath> changedPaths = new ArrayList<ChangedPath>();
                 
@@ -36,7 +44,11 @@ public class ChangedPath {
                     
                     long number = st.columnLong(0);
                     String path = st.columnString(1);
-                    char type = st.columnString(2).charAt(0);
+                    
+                    // TODO: Fix another hack... reading it as a string gets a 
+                    // number.
+                    char type = (char)Integer.parseInt(st.columnString(2));
+                    
                     int complexity = st.columnInt(3);
                     String hash = st.columnString(4);
                     
@@ -125,6 +137,10 @@ public class ChangedPath {
     public void setComplexity(int complexity) {
         this.complexity = complexity;
     }
+    
+    private final static char ADDED = 'A';
+    private final static char DELETED = 'D';
+    private final static char MODIFIED = 'M';
     
     private Revision revision; // first part of PK
     private String path; // second part of PK
