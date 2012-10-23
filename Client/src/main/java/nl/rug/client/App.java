@@ -92,7 +92,9 @@ public class App {
             
             // give job to chord network and retrieve value
             
-            // update workingset with retrieved value
+            // if retrieved value is -1, calculate it ourselves and put value in chord to update the node that is responsible for it
+            
+            // update workingset with retrieved (or calculated) value
             
             finishedNumberOfJobs = workingSet.getFinishedNumberOfJobs();
             
