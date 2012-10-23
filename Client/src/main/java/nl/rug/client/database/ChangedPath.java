@@ -12,6 +12,74 @@ import java.util.List;
  */
 public class ChangedPath {
     
+    // this will return all the changed paths records for a repository, unless 
+    // it regards a deleted value, in that case there is no complexity to 
+    // calculate
+    public static List<ChangedPath> getWorkingSet(final Repository repository) {
+        
+        // probably not _the_ way to do this, but good enough for now
+        return (List<ChangedPath>) Database.getInstance().executeJobBlocking(new SQLiteJob<Object>() {
+
+            @Override
+            protected Object job(SQLiteConnection connection) throws Throwable {
+                
+                SQLiteStatement st = connection.prepare(""
+                        + "SELECT number, path, type, complexity, hash "
+                        + "FROM ChangedPath "
+                        + "WHERE repository = ? "
+                        + "AND path LIKE ?"
+                        + "AND type <> ?");
+       
+                // bind starts at 1!
+                String URL = repository.getURL();
+                st.bind(1, URL);
+                // only get the java files
+                String like = "%.java";
+                st.bind(2, like);
+                st.bind(3, DELETED);
+                
+                List<ChangedPath> changedPaths = new ArrayList<ChangedPath>();
+                
+                while (st.step()) {
+                    
+                    long number = st.columnLong(0);
+                    String path = st.columnString(1);
+                    
+                    // TODO: Fix another hack... reading it as a string gets a 
+                    // number.
+                    char type = (char)Integer.parseInt(st.columnString(2));
+                    
+                    int complexity = st.columnInt(3);
+                    String hash = st.columnString(4);
+                    
+                    ChangedPath changedPath = new ChangedPath();
+                    
+                    // TODO: Dirtyhack to prevent extra query to get revision
+                    Revision revision = new Revision();
+                    revision.setNumber(number);                    
+                    changedPath.setRevision(revision);
+                    
+                    changedPath.setPath(path);                    
+                    
+                    // perhaps using an enum was not as elegant as I imagined, 
+                    // should change it when I get the chance
+                    changedPath.setType(type);
+                    
+                    changedPath.setComplexity(complexity);
+                    changedPath.setHash(hash);
+                    
+                    changedPaths.add(changedPath);
+                    
+                }
+                               
+                return changedPaths;
+                
+            }
+            
+        });
+        
+    }
+    
     public static List<ChangedPath> findByRevision(final Revision revision) {
         
         // probably not _the_ way to do this, but good enough for now
@@ -20,7 +88,7 @@ public class ChangedPath {
             @Override
             protected Object job(SQLiteConnection connection) throws Throwable {
                 
-                SQLiteStatement st = connection.prepare("SELECT path, type, complexity FROM ChangedPath WHERE repository = ? AND number = ?");
+                SQLiteStatement st = connection.prepare("SELECT path, type, complexity, hash FROM ChangedPath WHERE repository = ? AND number = ?");
                 
                 // bind starts at 1!
                 String URL = revision.getRepository().getURL();
@@ -39,9 +107,10 @@ public class ChangedPath {
                     
                     // perhaps using an enum was not as elegant as I imagined, 
                     // should change it when I get the chance
-                    changedPath.setType(determineType(st.columnString(1)));
+                    changedPath.setType(st.columnString(1).charAt(0));
                     
                     changedPath.setComplexity(st.columnInt(2));
+                    changedPath.setHash(st.columnString(3));
                     
                     changedPaths.add(changedPath);
                     
@@ -49,26 +118,6 @@ public class ChangedPath {
                                
                 return changedPaths;
                 
-            }
-
-            private Type determineType(String columnString) {
-                if (columnString.equals("A")) {
-                    return Type.ADDED;
-                }
-                else if (columnString.equals("D")) {
-                    return Type.DELETED;
-                }
-                else if (columnString.equals("M")) {
-                    return Type.MODIFIED;
-                }
-                else if (columnString.equals("R")) {
-                    return Type.REPLACED;
-                }
-                else {
-                    // this should never happen, but beware there is not 
-                    // constraint present in the database for this!
-                    return Type.REPLACED;
-                } 
             }
             
         });
@@ -89,37 +138,16 @@ public class ChangedPath {
         this.complexity = complexity;
     }
     
-    /**
-     * Type indicates the type of ChangedPath, these are the values that are 
-     * stored in the database. 
-     */
-    public enum Type {
-        ADDED('A'), 
-        DELETED('D'),
-        MODIFIED('M'),
-        REPLACED('R');
-        
-        private char value;
-        
-        private Type(char value) {
-            
-            this.value = value;
-            
-        }
-        
-        @Override
-        public String toString() {
-            
-            return "" + value;
-            
-        }
-        
-    }
+    private final static char ADDED = 'A';
+    private final static char DELETED = 'D';
+    private final static char MODIFIED = 'M';
     
     private Revision revision; // first part of PK
     private String path; // second part of PK
-    private Type type; // Not null (stored as char in database)
-    private int complexity;
+    // TODO add final static chars with descriptive names for 'A' - added, 'D' - deleted and 'M' - modified
+    private char type; // Not null (stored as char in database)
+    private int complexity; // -1 is when we do not know
+    private String hash;
     
     public Revision getRevision() {
         
@@ -150,14 +178,14 @@ public class ChangedPath {
     /**
      * @return the type
      */
-    public Type getType() {
+    public char getType() {
         return type;
     }
 
     /**
      * @param type the type to set
      */
-    public void setType(Type type) {
+    public void setType(char type) {
         this.type = type;
     }
     
@@ -202,13 +230,14 @@ public class ChangedPath {
             @Override
             protected Repository job(SQLiteConnection connection) throws Throwable {
                 
-                SQLiteStatement st = connection.prepare("INSERT INTO ChangedPath (repository, number, path, type, complexity) VALUES (?, ?, ?, ?, ?)");
+                SQLiteStatement st = connection.prepare("INSERT INTO ChangedPath (repository, number, path, type, complexity, hash) VALUES (?, ?, ?, ?, ?, ?)");
 
                 st.bind(1, revision.getRepository().getURL()); // bind starts at 1...
                 st.bind(2, revision.getNumber());
                 st.bind(3, path);
-                st.bind(4, type.toString());
+                st.bind(4, type);
                 st.bind(5, complexity);
+                st.bind(6, hash);
                 st.step(); // this executes the statement
                 
                 return null;
@@ -220,6 +249,20 @@ public class ChangedPath {
         // TODO: Find a way to determine if save was successfull!
         return true;
         
+    }
+
+    /**
+     * @return the hash
+     */
+    public String getHash() {
+        return hash;
+    }
+
+    /**
+     * @param hash the hash to set
+     */
+    public void setHash(String hash) {
+        this.hash = hash;
     }
     
 }

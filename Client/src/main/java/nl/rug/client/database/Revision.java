@@ -24,7 +24,7 @@ public class Revision {
             @Override
             protected Revision job(SQLiteConnection connection) throws Throwable {
 
-                SQLiteStatement st = connection.prepare("SELECT number, author, date, logMessage FROM Revision WHERE repository = ? ORDER BY number LIMIT 1");
+                SQLiteStatement st = connection.prepare("SELECT number, author, date, logMessage FROM Revision WHERE repository = ? ORDER BY number DESC LIMIT 1");
 
                 // bind starts at 1!
                 String URL = repository.getURL();

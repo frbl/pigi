@@ -98,6 +98,7 @@ public class Database {
             + " complexity INTEGER,"
             + "	number UNSIGNED INTEGER NOT NULL,"
             + "	repository CHARACTER VARYING,"
+            + " hash CHARACTER VARYING,"
             + "	PRIMARY KEY (path, repository, number),"
             + " FOREIGN KEY (repository, number) REFERENCES Revision (repository, number) ON DELETE RESTRICT ON UPDATE RESTRICT"
             + ");"
