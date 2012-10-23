@@ -61,6 +61,7 @@ public class ChordNode implements IChordNode {
                 checkPredecessor();
                 stabalize();
                 fixFingers();
+                System.out.println((predecessor == null ? "null" : predecessor.getAddress()) + " : " + myAddress + " : " + (successor == null ? "null" : successor.getAddress()));
             }
         };
     }
@@ -153,19 +154,20 @@ public class ChordNode implements IChordNode {
         fingers.put(fingerIndex, findSuccessor(lookupIndex.toString(16)));
         
         //Print fingers
-        Iterator<Address> it = fingers.values().iterator();
-        System.out.println("------- Fingers -------");
-        while(it.hasNext()){
-            Address a = it.next();
-            System.out.println(a.toString());
-        }
-        System.out.println("------- End fingers " + fingers.size() + "-------");
+        //Iterator<Address> it = fingers.values().iterator();
+        //System.out.println("------- Fingers -------");
+        //while(it.hasNext()){
+        //    Address a = it.next();
+        //    System.out.println(a.toString());
+        //}
+        //System.out.println("------- End fingers " + fingers.size() + "-------");
     }
     
     @Override
     public void checkPredecessor(){
         if(predecessor != null && !predecessor.isAlive()){
             predecessor = null;
+            
         }
     }
     

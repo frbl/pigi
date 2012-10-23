@@ -205,7 +205,7 @@ public class ChordConnection implements IChordNode, Runnable {
                     alive = false;
                     break;
                 } else {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 }
             }
         } catch (InterruptedException ex) {
