@@ -39,7 +39,7 @@ public class Address implements Serializable {
     }
     
     public boolean equals(Address address){
-        return this.ip.equals(address.ip) && this.port == address.port;
+        return this.hash.equals(address.getHash());
     }
     
     @Override
