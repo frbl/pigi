@@ -29,12 +29,11 @@ public class ChordNode implements IChordNode {
     
     private Map<Integer, Address> fingers = new HashMap<Integer, Address>();
     
-    private int fingerIndex = 1;
+    private int fingerIndex = 0;
     
     private BigInteger myHash;
     private BigInteger maxHash = new BigInteger("ffffffffffffffffffffffffffffffffffffffff", 16);
     private BigInteger onePartHash = maxHash.divide(BigInteger.valueOf(160));
-    //private BigDecimal one = new BigDecimal(1);
     
     public ChordNode(int port) {
         String ip = null;
@@ -133,7 +132,6 @@ public class ChordNode implements IChordNode {
         }
         
         successor.notify(myAddress);
-        System.out.println(myAddress + ". Successor is: " + successor.getAddress());
     }
     
     @Override
@@ -146,7 +144,7 @@ public class ChordNode implements IChordNode {
     @Override
     public void fixFingers(){
         int maxBitLenth = 160; //hex number with length 40
-        
+        fingerIndex++;
         if(Math.pow(2, fingerIndex) > maxBitLenth){
             fingerIndex = 1;
         }
@@ -162,7 +160,6 @@ public class ChordNode implements IChordNode {
             System.out.println(a.toString());
         }
         System.out.println("------- End fingers " + fingers.size() + "-------");
-        fingerIndex++;
     }
     
     @Override

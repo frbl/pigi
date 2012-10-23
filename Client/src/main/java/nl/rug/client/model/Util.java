@@ -43,7 +43,7 @@ public class Util {
         if(compareLow.compareTo(compareHigh) < 0){ //Low is lower then high (expected most of the time)
             return compareTo.compareTo(compareLow) >= 0 && compareTo.compareTo(compareHigh) < 0;
         } else if(compareLow.compareTo(compareHigh) > 0){ //Low is higher then high
-            return compareTo.compareTo(compareHigh) > 0 || compareTo.compareTo(compareLow) < 0;
+            return compareTo.compareTo(compareHigh) >= 0 || compareTo.compareTo(compareLow) < 0;
         }
         
         //low and high are the same. return true
