@@ -47,7 +47,7 @@ public class ChordConnection implements IChordNode, Runnable {
     public void sendMessage(Message message){
         try {
             out.writeObject(message);
-            System.out.println("Message send to " + myAddress.toString());
+            //System.out.println("Message send to " + myAddress.toString());
         } catch (IOException ex) {
             System.out.println("OWNOO! the socket closed!! Do something!!!!");
             alive = false;
@@ -98,6 +98,7 @@ public class ChordConnection implements IChordNode, Runnable {
                 System.out.println("Not needed. STABALIZE at handleRequest - ChordConnection");
                 break;
             case NOTIFY:
+                System.out.println("Recieved notify!!!!!!");
                 address = (Address)request.object;
                 ClientController.getChordNode().notify(address);
                 break;
@@ -115,13 +116,13 @@ public class ChordConnection implements IChordNode, Runnable {
         while(alive){
             try {
                 Message message = (Message)in.readObject();
-                System.out.println("Message received");
+                //System.out.println("Message received");
                 if(message instanceof Request){
-                    System.out.println("Message is an request");
+                    //System.out.println("Message is an request");
                     Request request = (Request)message;
                     handleRequest(request);
                 } else if(message instanceof Response){
-                    System.out.println("Message is an response");
+                    //System.out.println("Message is an response");
                     Response response = (Response)message;
                     responses.put(response.request.UID, response);
                 }

@@ -38,16 +38,46 @@ public class Util {
         return result;
     }
     
-    public static boolean isBetween(String compareTo, String compareLow, String compareHigh){
+    public static boolean isBetween(BigInteger compareTo, BigInteger compareLow, BigInteger compareHigh){
         
         if(compareLow.compareTo(compareHigh) < 0){ //Low is lower then high (expected most of the time)
-            return compareTo.compareTo(compareLow) >= 0 && compareTo.compareTo(compareHigh) < 0;
+            
+            return compareTo.compareTo(compareLow) > 0 && compareTo.compareTo(compareHigh) <= 0;
+            
         } else if(compareLow.compareTo(compareHigh) > 0){ //Low is higher then high
-            return compareTo.compareTo(compareHigh) >= 0 || compareTo.compareTo(compareLow) < 0;
+            
+            return compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0;
+            
+        } else {
+            
+            return compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0;
         }
         
         //low and high are the same. return true
-        return false;
+        //return true;
     }
+    
+    
+    
+    
+    public static boolean isBetween(String valueToCompare, String compareLow, String compareHigh){
+        
+        return isBetween(new BigInteger(valueToCompare,16), new BigInteger(compareLow, 16), new BigInteger(compareHigh, 16));
+    
+    }
+//    
+//     public static boolean isBetweenFindSucTest(BigInteger valueToCompare, BigInteger from, BigInteger to){
+//        
+//        if (from.compareTo(to) < 0) {
+//                        if (valueToCompare.compareTo(from) > 0 && valueToCompare.compareTo(to) < 0) {
+//                                return true;
+//                        }
+//                } else if (from.compareTo(to) > 0) {
+//                        if (valueToCompare.compareTo(to) < 0 || valueToCompare.compareTo(from) > 0) {
+//                                return true;
+//                        }
+//                }
+//                return false;
+//    }
     
 }

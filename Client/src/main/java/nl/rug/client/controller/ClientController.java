@@ -27,6 +27,7 @@ public class ClientController {
     
     public ClientController(int port){
         node = new ChordNode(port);
+        
         node.create();
         startListeningForChildren(port);
         
