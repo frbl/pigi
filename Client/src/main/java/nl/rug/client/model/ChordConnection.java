@@ -204,6 +204,10 @@ public class ChordConnection implements IChordNode, Runnable {
             while(!responses.containsKey(request.UID)) {
                 if(System.currentTimeMillis() > start + timeout * 1000){
                     alive = false;
+                    System.out.println("1TIME OUT!!!!!!");
+                    System.out.println("2TIME OUT!!!!!!");
+                    System.out.println("3TIME OUT!!!!!!");
+                    System.out.println("4TIME OUT!!!!!!");
                     break;
                 } else {
                     Thread.sleep(500);

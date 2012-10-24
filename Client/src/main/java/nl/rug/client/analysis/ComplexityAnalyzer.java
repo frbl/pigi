@@ -5,6 +5,7 @@
 package nl.rug.client.analysis;
 
 import java.io.File;
+import javancss.Javancss;
 
 /**
  *
@@ -17,7 +18,9 @@ public class ComplexityAnalyzer implements Analyzer {
     }
             
     public Integer determineComplexity(File file) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //File file = new File("C:\\Users\\Rene\\Desktop\\DistributedSystems\\pigi\\Client\\src\\main\\java\\nl\\rug\\client\\controller\\ClientController.java");
+        Javancss pJavancss = new Javancss(file);
+        return pJavancss.getNcss();
     }
 
     public void startAnalyzing(String filepath, int revision){

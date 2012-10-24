@@ -49,7 +49,7 @@ public class ChordNode implements IChordNode {
 
     private void scheduleTasks() {
         Timer timer = new Timer();
-        timer.schedule(scheduleFixFingers(), 1000, 100);
+        timer.schedule(scheduleFixFingers(), 1000, 1000);
     }
 
     private TimerTask scheduleFixFingers() {
@@ -66,6 +66,7 @@ public class ChordNode implements IChordNode {
     }
 
     public void addConnection(IChordNode connection) {
+        System.out.println("New connection added: " + connection.getAddress());
         connections.put(connection.getAddress().getHash(), connection);
     }
 
@@ -76,11 +77,9 @@ public class ChordNode implements IChordNode {
             node = connections.get(address.getHash());
         }
 
-        if (node != null) {
-            if (!node.isAlive()) {
-                System.out.println("Removed node: " + node.getAddress().getPort());
-                connections.remove(node.getAddress().getHash());
-            }
+        if (node != null || !node.isAlive()) {
+            System.out.println("Removed node: " + node.getAddress().getPort());
+            connections.remove(node.getAddress().getHash());
         } else {
             ChordConnection connection = null;
             try {
@@ -90,7 +89,7 @@ public class ChordNode implements IChordNode {
             } catch (IOException ex) {
                 Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
             }
-            connections.put(address.getHash(), connection);
+            addConnection(connection);
             node = connection;
         }
         
@@ -188,13 +187,13 @@ public class ChordNode implements IChordNode {
         fingers.put(fingerIndex, findSuccessor(lookupIndex.toString(16)));
 
         //Print fingers
-        Iterator<Address> it = fingers.values().iterator();
+        /*Iterator<Address> it = fingers.values().iterator();
         System.out.println("------- Fingers -------");
         while(it.hasNext()){
             Address a = it.next();
             System.out.println(a);
         }
-        System.out.println("------- End fingers " + fingers.size() + "-------");
+        System.out.println("------- End fingers " + fingers.size() + "-------");*/
     }
 
     @Override
@@ -233,6 +232,7 @@ public class ChordNode implements IChordNode {
     }
 
     public FileComplexity getFileComplexity(String filepath, int revision) {
+        //Search in db for the file. not here, return null
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }
