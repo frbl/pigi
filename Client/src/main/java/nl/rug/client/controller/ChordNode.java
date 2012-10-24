@@ -70,8 +70,17 @@ public class ChordNode implements IChordNode {
     }
 
     public IChordNode getConnection(Address address) {
+        IChordNode node = null;
+
         if (connections.containsKey(address.getHash())) {
-            return connections.get(address.getHash());
+            node = connections.get(address.getHash());
+        }
+
+        if (node != null) {
+            if (!node.isAlive()) {
+                System.out.println("Removed node: " + node.getAddress().getPort());
+                connections.remove(node.getAddress().getHash());
+            }
         } else {
             ChordConnection connection = null;
             try {
@@ -82,8 +91,10 @@ public class ChordNode implements IChordNode {
                 Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
             }
             connections.put(address.getHash(), connection);
-            return connection;
+            node = connection;
         }
+        
+        return node;
     }
 
     public void create() {
@@ -94,10 +105,10 @@ public class ChordNode implements IChordNode {
     @Override
     public Address findSuccessor(String id) {
 
-        if(id.equals(myAddress.getHash())) {
+        if (id.equals(myAddress.getHash())) {
             return myAddress;
         }
-        
+
         if (Util.isBetween(id, myAddress.getHash(), successor.getAddress().getHash())
                 || (id.compareTo(successor.getAddress().getHash()) == 0)
                 || (id.compareTo(getAddress().getHash()) == 0)) {
@@ -139,10 +150,15 @@ public class ChordNode implements IChordNode {
 
     @Override
     public void stabalize() {
+
+        if (!successor.isAlive()) {
+            successor = this;
+        }
+
         Address x = successor.getPredecessor();
 
         if (x != null) {
-            
+
             if (Util.isBetween(x.getHash(), this.getAddress().getHash(), successor.getAddress().getHash())) {
                 successor = getConnection(x);
             }
@@ -163,6 +179,7 @@ public class ChordNode implements IChordNode {
     public void fixFingers() {
         fingerIndex++;
 
+        //TODO magic number
         if (fingerIndex > 160) {
             fingerIndex = 1;
         }
@@ -180,8 +197,6 @@ public class ChordNode implements IChordNode {
     @Override
     public void checkPredecessor() {
         if (predecessor != null && !predecessor.isAlive()) {
-            System.out.println("Removing predecessor " + predecessor.getAddress().getPort());
-            connections.remove(predecessor.getAddress().getHash());
             predecessor = null;
         }
     }
