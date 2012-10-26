@@ -30,7 +30,6 @@ public class WorkingSet {
     // a list of changed paths in order to account for possible collisions
     private Map<String, List<ChangedPath>> jobs = new HashMap<String, List<ChangedPath>>();
     private LinkedList<String> hashes;
-    private String addressHash;
     
     // start out with zero finished jobs, a possible previous run is handled in createJobs()
     private int finishedJobs = 0;
@@ -54,9 +53,7 @@ public class WorkingSet {
         
         Repository repository = Repository.findByURL(repository_address);
         
-        this.addressHash = addressHash;
-        
-        createJobs(repository);
+        createJobs(repository, addressHash);
         
     }
     
@@ -72,31 +69,27 @@ public class WorkingSet {
         
     }
     
-    public int getComplexity(String file, long revision) {
+    public List<ChangedPath> getComplexity(String hash) {
         
-        String hash = Util.getHash(file + revision);
-        
-        List<ChangedPath> list = jobs.get(hash);
-        
-        for (ChangedPath path : list) {
-            
-            if (path.getPath().equals(file)
-                    && path.getRevision().getNumber() == revision) {
-                
-                return path.getComplexity(); // done here
-                
-            }
-            
-        }
-        
-        return -1; // -1 means there is no value
+        return jobs.get(hash);
         
     }
     
-    public void setComplexity(String file, long revision, int complexity) {
+    public void setComplexity(List<ChangedPath> changedPaths) {
         
+        // This is not optimal, now for every changedPath the other method will 
+        // loop through all other jobs. This is a quick fix, this will keep the 
+        // finishedJobs counter correct and was faster to implement.
+        for (ChangedPath changedPath : changedPaths) {
+            
+            setComplexityForFile(changedPath.getPath(), changedPath.getRevision().getNumber(), changedPath.getComplexity());
+            
+        }
         
-        
+    }
+    
+    private void setComplexityForFile(String file, long revision, int complexity) {
+
         String hash = Util.getHash(file + revision);
         
         List<ChangedPath> list = jobs.get(hash);
@@ -106,11 +99,11 @@ public class WorkingSet {
             if (path.getPath().equals(file)
                     && path.getRevision().getNumber() == revision) {
                 
-                path.setComplexity(complexity);
-                path.save();
-                
                 // update finished job count if complexity has been calculated
                 if (complexity != -1) {
+                    
+                    path.setComplexity(complexity);
+                    path.save();
 
                     finishedJobs++;
 
@@ -151,7 +144,7 @@ public class WorkingSet {
      * @param repository The Repository we are working on, needed to get the 
      *  relevant changed paths
      */
-    private void createJobs(Repository repository) {
+    private void createJobs(Repository repository, String addressHash) {
         
         logger.log(Level.INFO, "Retrieving file information to work on from the database");
         

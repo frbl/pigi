@@ -22,3 +22,7 @@ Client/svnfiles/
 
 #do not keep track of the sqlite database
 Client/client.db
+
+# No need to keep track of the intellij stuff
+pigi/.idea/
+pigi/pigi.iml
