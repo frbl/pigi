@@ -89,6 +89,16 @@ public class WorkingSet {
     }
     
     private void setComplexityForFile(String file, long revision, int complexity) {
+        
+        // if this method is called with a complexity of -1 something went wrong
+        // complexity must be calculated locally if a -1 value is returned from
+        // another node!
+        if (complexity == -1) {
+            
+            throw new IllegalArgumentException("Complexity may not be -1 here, "
+                    + "cannot comprimise the job queue.");
+            
+        }
 
         String hash = Util.getHash(file + revision);
         
@@ -98,16 +108,11 @@ public class WorkingSet {
             
             if (path.getPath().equals(file)
                     && path.getRevision().getNumber() == revision) {
-                
-                // update finished job count if complexity has been calculated
-                if (complexity != -1) {
                     
-                    path.setComplexity(complexity);
-                    path.save();
+                path.setComplexity(complexity);
+                path.save();
 
-                    finishedJobs++;
-
-                }
+                finishedJobs++;
                 
                 return; // done here
                 
