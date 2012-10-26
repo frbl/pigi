@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import nl.rug.client.analysis.Analyzer;
+import nl.rug.client.analysis.ComplexityAnalyzer;
 import nl.rug.client.model.Address;
 import nl.rug.client.model.ChordConnection;
 
@@ -25,11 +27,15 @@ public class ClientController {
     
     private static ChordNode node;
     
+    private Analyzer analyzer = new ComplexityAnalyzer();
+    
     public ClientController(int port){
         node = new ChordNode(port);
         
         node.create();
         startListeningForChildren(port);
+        
+        startAnalyzingMyRange();
         
         //TEST!
         if(port != 4040){
@@ -40,6 +46,10 @@ public class ClientController {
     
     public static ChordNode getChordNode(){
         return node;
+    }
+    
+    private void startAnalyzingMyRange(){
+        
     }
     
     private void startListeningForChildren(int port) {
@@ -82,6 +92,6 @@ public class ClientController {
      * @param args
      */
     public static void main(String args[]){
-        new ClientController(4041);
+        new ClientController(4045);
     }
 }

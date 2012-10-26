@@ -77,6 +77,11 @@
       <version>1.1.0</version>
       <type>jar</type>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.javancss</groupId>
+      <artifactId>javancss</artifactId>
+      <version>32.53</version>
+    </dependency>
   </dependencies>
   
   <build>
