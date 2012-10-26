@@ -67,7 +67,7 @@ public class UtilTest extends TestCase {
         compareTo = "3";
         compareLow = "4";
         compareHigh = "4";
-        expResult = false;
+        expResult = true;
         result = Util.isBetween(compareTo, compareLow, compareHigh);
         assertEquals(expResult, result);
         

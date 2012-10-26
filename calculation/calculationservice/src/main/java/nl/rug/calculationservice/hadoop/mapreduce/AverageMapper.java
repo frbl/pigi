@@ -41,8 +41,6 @@ public class AverageMapper extends Mapper<ByteBuffer, SortedMap<ByteBuffer, ICol
                 
                 System.out.println("Key: " + keyString +", Name: " + name + ", Value: " + value);
                 
-                logger.debug("read {}:{}={} from {}",
-                             new Object[] {ByteBufferUtil.string(key), name, value, context.getInputSplit()});
 
 //                StringTokenizer itr = new StringTokenizer(value);
 //                while (itr.hasMoreTokens())

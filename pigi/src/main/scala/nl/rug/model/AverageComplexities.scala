@@ -1,4 +1,5 @@
 package nl.rug
+package model
 
 import me.prettyprint.cassandra.service.StringKeyIterator
 import me.prettyprint.cassandra.service.ColumnSliceIterator
@@ -15,18 +16,19 @@ class AverageComplexities(clusterName: String, clusterAddress: String) {
 
   // get the serializers we need, putting these in all of the calls would make them too long
   private val stringSerializer: Serializer[String] = StringSerializer.get()
+
   // For some reason these need an explicit cast, weird
   private val longSerializer: Serializer[Long] = LongSerializer.get().asInstanceOf[Serializer[Long]]
   private val doubleSerializer: Serializer[Double] = DoubleSerializer.get().asInstanceOf[Serializer[Double]]
 
-  private val columnFamily = "AverageComplexities"
+  private val columnFamily = "Repositories"
 
   private val cluster = HFactory.getOrCreateCluster(clusterName, clusterAddress)
 
-  private val keyspace = HFactory.createKeyspace(columnFamily, cluster)
+  private val keyspace = HFactory.createKeyspace("ComplexityAnalysis", cluster)
 
   // [String, Long] corresponds with key and column name
-  private val template = new ThriftColumnFamilyTemplate[String, Long](keyspace, columnFamily, stringSerializer, longSerializer)
+  private val template = new ThriftColumnFamilyTemplate[String, String](keyspace, columnFamily, stringSerializer, stringSerializer)
 
   def getRepositories: Iterator[String] = {
 

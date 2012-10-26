@@ -23,17 +23,25 @@ object GateFactory extends RestHelper {
 	}
 	
 	serve {
-	    case "simple3" :: "node" :: nodeId :: Nil JsonGet _ =>
-	      for {
-	        // find the item, and if it's not found,
-	        // return a nice message for the 404
-	        node <- PigiNode.getLeader()
-	      } yield node: JValue
-
-	    case "simple3" :: "node" :: nodeId :: Nil XmlGet _ =>
-	      for {
-	        node <- PigiNode.find(nodeId) ?~ "Node Not Found"
-	      } yield node: Node
+		case "entrypoint" :: repository :: Nil JsonGet _ =>
+	  	for {
+	    	// find the item, and if it's not found,
+	    	// return a nice message for the 404
+	    	node <- PigiNode.getNodeInRepository(repository)
+			} yield node: JValue
+	}
+	
+	serve {
+		case "find" :: "node" :: repository :: Nil XmlGet _ =>
+			for {
+				node <- PigiNode.find(repository) ?~ "Node Not Found"
+	    } yield node: Node
+	
+		case "add" :: "node" :: ip :: Nil XmlGet _ => <ip>{ip}</ip>
+		  //for {
+				//println(ip)
+		    //node <- PigiNode.find(nodeId) ?~ "Node Not Found"
+		  //} yield node: Node
 	  }
 }
 

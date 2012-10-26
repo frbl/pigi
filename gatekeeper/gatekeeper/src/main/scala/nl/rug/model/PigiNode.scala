@@ -12,10 +12,9 @@ import scala.xml.Node
 /**
  * Piginode case class
  */
-case class PigiNode(id: String, name: String, 
-                address: String,
+case class PigiNode(ip: String,
                 port: Int,
-								leader: Boolean)
+								repository: String)
 
 /**
  * Piginode companion object
@@ -30,7 +29,7 @@ object PigiNode {
 
   def apply(in: JValue): Box[PigiNode] = Helpers.tryo{in.extract[PigiNode]}
 
-  def unapply(id: String): Option[PigiNode] = PigiNode.find(id)
+  //def unapply(id: String): Option[PigiNode] = PigiNode.find(id)
 
   def unapply(in: JValue): Option[PigiNode] = apply(in)
 
@@ -39,15 +38,13 @@ object PigiNode {
    * We needed to replicate it here because we
    * have overloaded unapply methods
    */
-  def unapply(in: Any): Option[(String, String, 
-                                String,
+  def unapply(in: Any): Option[(String,
                                 Int,
-																Boolean)] = {
+																String)] = {
     in match {
-      case pigiNode: PigiNode => Some((pigiNode.id, pigiNode.name, 
-														pigiNode.address,
+      case pigiNode: PigiNode => Some((pigiNode.ip,
                             pigiNode.port,
-														pigiNode.leader))
+														pigiNode.repository))
       case _ => None
     }
   }
@@ -77,57 +74,49 @@ object PigiNode {
   // The raw data
   private def data = 
 """[
-  {"id": "1", "name": "PC1",
-  "address": "10.0.0.100",
+  {"ip": "10.0.0.100",
   "port": 2414,
-	"leader": false,
+	"repository": "hashofrepository",
   },
-  {"id": "2", "name": "xServe",
-  "address": "92.134.12.32",
+  {"ip": "92.134.12.32",
   "port": 2414,
-	"leader": false,
+	"repository": "hashofrepository",
   },
-  {"id": "3", "name": "Cass1",
-  "address": "145.32.52.1",
+  {"ip": "145.32.52.1",
   "port": 2414,
-	"leader": false,
+	"repository": "hashofrepository",
   },
-  {"id": "4", "name": "Cass2",
-  "address": "145.32.52.1",
+  {"ip": "145.32.52.1",
   "port": 2415,
-	"leader": true,
+	"repository": "hashofrepository",
   },
 ]
 """
 
   // Find a node from the list by id
-  def find(id: String): Box[PigiNode] = synchronized {
-    pigiNodes.find(_.id == id)
+  def find(repository: String): Box[PigiNode] = synchronized {
+    pigiNodes.find(_.repository == repository)
+  }
+
+	// Find a node from the list by id
+  def getNodeInRepository(repository: String): PigiNode = synchronized {
+    pigiNodes.find(_.repository == repository)
   }
 
 	// add a node to the list
   def add(pigiNode: PigiNode): PigiNode = {
     synchronized {
-      pigiNodes = pigiNode :: pigiNodes.filterNot(_.id == pigiNode.id)
+      pigiNodes = pigiNode :: pigiNodes.filterNot(_.ip == pigiNode.ip)
       updateListeners(pigiNode)
     }
   }
 
-	// Get the leader node (maybe use ints and pick the highest)
-  def getLeader(): Box[PigiNode] = {
-    
-		pigiNodes.find(_.leader == true)
-    
-  }
-
   // Delete a node and return it
-  def delete(id: String): Box[PigiNode] = synchronized {
+  def delete(ip: String, port: Int, repository: String): Box[PigiNode] = synchronized {
     var ret: Box[PigiNode] = Empty
 
-    val Id = id // an upper case stable ID for pattern matching
-
     pigiNodes = pigiNodes.filter {
-      case i@PigiNode(Id, _, _, _, _) => 
+      case i@PigiNode(ip, port, repository) => 
         ret = Full(i) // side effect
         false
       case _ => true
@@ -141,7 +130,6 @@ object PigiNode {
     synchronized {
       listeners.foreach(f => 
         Schedule.schedule(() => f(pigiNode), 0 seconds))
-
       listeners = Nil
     }
     pigiNode

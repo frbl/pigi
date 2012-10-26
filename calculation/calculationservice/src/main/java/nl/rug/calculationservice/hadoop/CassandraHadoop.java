@@ -13,6 +13,7 @@ import nl.rug.calculationservice.database.cassandra.CassandraSettings;
 import nl.rug.calculationservice.database.cassandra.Generator;
 import nl.rug.calculationservice.hadoop.mapreduce.AverageMapper;
 import nl.rug.calculationservice.hadoop.mapreduce.AverageReducer;
+import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.hadoop.ColumnFamilyInputFormat;
 import org.apache.cassandra.hadoop.ConfigHelper;
 import org.apache.cassandra.thrift.KeyRange;
@@ -81,14 +82,17 @@ public class CassandraHadoop extends Configured implements IHadoop, Tool {
             FileOutputFormat.setOutputPath(job, new Path(JOB_PATH));
 
             job.setInputFormatClass(ColumnFamilyInputFormat.class);  
-
-            SlicePredicate predicate = new SlicePredicate();//.setColumn_names(Arrays.asList(ByteBufferUtil.bytes(REVISION)));
+            
+            
+            SlicePredicate predicate = new SlicePredicate().setColumn_names(Arrays.asList(ByteBufferUtil.bytes(REVISION)));
             SliceRange range = new SliceRange();
             
-            range.setStart(ByteBufferUtil.EMPTY_BYTE_BUFFER);
-            range.setFinish(ByteBufferUtil.EMPTY_BYTE_BUFFER);
+            String columnkey = "/wx.java";
             
-            predicate.setSlice_range(range);
+            range.setStart(columnkey.getBytes());
+            range.setFinish((columnkey+1).getBytes());
+            
+            //predicate.setSlice_range(range);
            
             
             ConfigHelper.setRpcPort(job.getConfiguration(), CassandraSettings.CLUSTER_RPCPORT);

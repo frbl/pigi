@@ -6,6 +6,7 @@ import _root_.net.liftweb.common._
 import scala.util.Random
 import nl.rug.model.Repository
 import nl.rug.model.Revision
+import nl.rug.model.AverageComplexities
 
 class Entry() {
 	
@@ -28,9 +29,20 @@ class Statistics {
 	
 	var revision = 0;
 	
-	var image = prepareImage(entries);
+	var image = prepareImage(entries)
+	
 	
 	def update() = {
+
+    val am = new AverageComplexities("Pigi Cluster","192.168.10.210:9160")
+
+    val rep: Iterator[String] = am.getRepositories
+    println("Test")
+
+    while(rep.hasNext){
+      rep.next()
+      println("Test Rep.")
+    }
 		
 		val repositories: List[Repository] = Repository.findAll;
 		
