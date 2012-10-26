@@ -40,8 +40,7 @@ class Statistics {
     println("Test")
 
     while(rep.hasNext){
-      rep.next()
-      println("Test Rep.")
+      println("Test Rep." + rep.next() + ".")
     }
 		
 		val repositories: List[Repository] = Repository.findAll;

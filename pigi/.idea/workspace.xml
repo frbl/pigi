@@ -81,7 +81,7 @@
       <file leaf-file-name="Statistics.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/nl/rug/snippet/Statistics.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="50" selection-start="746" selection-end="746" vertical-scroll-proportion="0.47694755">
+            <state line="42" column="38" selection-start="830" selection-end="830" vertical-scroll-proportion="0.6200318">
               <folding />
             </state>
           </provider>
@@ -90,7 +90,7 @@
       <file leaf-file-name="pom.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="73" column="19" selection-start="2544" selection-end="2544" vertical-scroll-proportion="-14.423077">
+            <state line="78" column="19" selection-start="2704" selection-end="2704" vertical-scroll-proportion="-21.923077">
               <folding />
             </state>
           </provider>
@@ -659,13 +659,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="19" selection-start="2544" selection-end="2544" vertical-scroll-proportion="-14.423077">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/nl/rug/model/AverageComplexities.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state line="27" column="68" selection-start="1127" selection-end="1127" vertical-scroll-proportion="0.0">
@@ -675,9 +668,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="78" column="19" selection-start="2704" selection-end="2704" vertical-scroll-proportion="-21.923077">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/nl/rug/snippet/Statistics.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="38" column="50" selection-start="746" selection-end="746" vertical-scroll-proportion="0.47694755">
+        <state line="42" column="38" selection-start="830" selection-end="830" vertical-scroll-proportion="0.6200318">
           <folding />
         </state>
       </provider>
