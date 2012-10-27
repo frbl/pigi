@@ -43,19 +43,20 @@ public class Util {
         
         if(compareLow.compareTo(compareHigh) < 0){ //Low is lower then high (expected most of the time)
             
-            return compareTo.compareTo(compareLow) > 0 && compareTo.compareTo(compareHigh) <= 0;
+            return compareTo.compareTo(compareLow) > 0 && compareTo.compareTo(compareHigh) < 0;
             
         } else if(compareLow.compareTo(compareHigh) > 0){ //Low is higher then high
             
-            return compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0;
+            return !isBetween(compareTo, compareHigh, compareLow);//compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0;
             
         } else {
-            
-            return compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0;
+            System.out.println(compareTo + " : " + compareLow + " : " + compareHigh);
+            System.out.println(compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0);
+            //return compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0;
         }
         
         //low and high are the same. return true
-        //return true;
+        return false;
     }
     
     public static boolean isBetween(String valueToCompare, String compareLow, String compareHigh){
@@ -78,4 +79,17 @@ public class Util {
 //                return false;
 //    }
     
+    public static void main(String[] args){
+        BigInteger test1 = BigInteger.valueOf(10);
+        BigInteger test2 = BigInteger.valueOf(20);
+        BigInteger test3 = BigInteger.valueOf(30);
+        
+        System.out.println(Util.isBetween(test1, test2, test3)); //False
+        System.out.println(Util.isBetween(test2, test3, test1)); //False
+        System.out.println(Util.isBetween(test2, test1, test3)); //True
+        System.out.println(Util.isBetween(test3, test1, test2)); //False
+        System.out.println(Util.isBetween(test3, test1, test3)); //False
+        System.out.println(Util.isBetween(test3, test2, test1)); //True
+        System.out.println(Util.isBetween(test1, test3, test2)); //True
+    }
 }

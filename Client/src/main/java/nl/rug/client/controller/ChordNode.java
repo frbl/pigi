@@ -66,7 +66,7 @@ public class ChordNode implements IChordNode {
                 stabalize();
                 fixFingers();
                 System.out.println((predecessor == null ? "null" : predecessor) + " : " + myAddress + " : " + (successor == null ? "null" : successor));
-                System.out.println("number of connections: " + connections.size());
+                //System.out.println("number of connections: " + connections.size());
             }
         };
     }
@@ -123,34 +123,18 @@ public class ChordNode implements IChordNode {
 
     @Override
     public Address findSuccessor(String id) {
-        Address returnValue = null;
-        //if (id.equals(myAddress.getHash())) {
-        //    returnValue = successor;
-        //}
-
-        if (Util.isBetween(id, myAddress.getHash(), successor.getHash())
-                //|| (id.compareTo(successor.getHash()) == 0)
-                //|| (id.compareTo(myAddress.getHash()) == 0)) {
-                ){
-            returnValue = successor;
+        
+        if (Util.isBetween(id, myAddress.getHash(), successor.getHash()) || id.equals(successor.getHash())){
+            return successor;
         } else {
             Address n0Address = closestPrecedingNode(id);
-            //IChordNode cpn = getConnection(n0Address);
             if (n0Address.getHash().equals(myAddress.getHash())) {
-            //    IChordNode successorConnection = getConnection(successor);
-            //    return successorConnection.findSuccessor(myAddress.getHash());
                 return successor;
             }
             IChordNode cpn = getConnection(n0Address);
-            returnValue = cpn.findSuccessor(id);
+            return cpn.findSuccessor(id);
 
         }
-        
-        if(returnValue == null){
-            System.out.println("ADDRESS IS NULL!!!");
-        }
-        
-        return returnValue;
     }
 
     @Override
@@ -186,19 +170,23 @@ public class ChordNode implements IChordNode {
         Address x = successorConnection.getPredecessor();
 
         if (x != null) {
-            if (Util.isBetween(x.getHash(), this.getAddress().getHash(), successor.getHash())) {
+            if (myAddress.getHash().equals(successor.getHash()) || Util.isBetween(x.getHash(), this.getAddress().getHash(), successor.getHash())
+                    //|| x.getHash().equals(this.getAddress().getHash())
+                    //|| x.getHash().equals(successor.getHash())
+                    ) {
                 System.out.println("change here");
                 successor = x;
             }
         }
-
+        System.out.println("I should be the predecessor of " + successor);
         successorConnection = getConnection(successor);
         successorConnection.notify(this.getAddress());
     }
 
     @Override
     public void notify(Address address) {
-        if (predecessor == null || Util.isBetween(address.getHash(), predecessor.getHash(), this.getAddress().getHash())) {
+        System.out.println("Notify " + address + ". Predecessor now: " + predecessor);
+        if (predecessor == null || Util.isBetween(address.getHash(), predecessor.getHash(), this.getAddress().getHash()) || predecessor.getHash().equals(this.getAddress().getHash())) {
             predecessor = address;
         }
     }
@@ -211,7 +199,7 @@ public class ChordNode implements IChordNode {
         if(Math.pow(2, fingerIndex) > maxBitLenth){
             fingerIndex = 1;
         }
-        BigInteger lookupIndex = myHash.add(onePartHash.multiply(new BigInteger("" + ((int)Math.pow(2, fingerIndex-1)), 10)));
+        BigInteger lookupIndex = myHash.add(onePartHash.multiply(BigInteger.valueOf((int)Math.pow(2, fingerIndex-1))));
         lookupIndex = lookupIndex.mod(maxHash);
         Address indexSuccessor = findSuccessor(lookupIndex.toString(16));
         if(indexSuccessor != null){
@@ -219,13 +207,13 @@ public class ChordNode implements IChordNode {
         }
 
         //Print fingers
-        /*Iterator<Address> it = fingers.values().iterator();
+        Iterator<Address> it = fingers.values().iterator();
         System.out.println("------- Fingers -------");
         while(it.hasNext()){
             Address a = it.next();
             System.out.println(a);
         }
-        System.out.println("------- End fingers " + fingers.size() + "-------");*/
+        System.out.println("------- End fingers " + fingers.size() + "-------");
     }
 
     @Override
@@ -251,9 +239,6 @@ public class ChordNode implements IChordNode {
 
     @Override
     public Address getPredecessor() {
-        if (predecessor == null) {
-            return null;
-        }
         return predecessor;
     }
 

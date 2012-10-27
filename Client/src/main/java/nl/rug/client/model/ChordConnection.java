@@ -89,9 +89,9 @@ public class ChordConnection implements IChordNode, Runnable {
     }
     
     public void handleRequest(Request request){
-        if(waitingFor != null){
-            System.out.println("Waiting for type and already getting new request!! STRESSSS! now waiting for:" + waitingFor.type + " request for: " + request.type);
-        }
+        //if(waitingFor != null){
+        //    System.out.println("Waiting for type and already getting new request!! STRESSSS! now waiting for:" + waitingFor.type + " request for: " + request.type);
+        //}
         ChordNode localNode = ClientController.getChordNode();
         Response response = new Response(request);
         String id = null;
@@ -140,7 +140,6 @@ public class ChordConnection implements IChordNode, Runnable {
                 System.out.println("Not needed. STABALIZE at handleRequest - ChordConnection");
                 break;
             case NOTIFY:
-                //System.out.println("Recieved notify!!!!!!");
                 address = (Address)request.object;
                 localNode.notify(address);
                 break;
@@ -179,7 +178,7 @@ public class ChordConnection implements IChordNode, Runnable {
                 }
             } catch(IOException e){
                 System.out.println("OWNOO! the socket closed!! Do something!!!!");
-                Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, e);
+                //Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, e);
                 kill();
             } catch (Exception ex) {
                 Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
@@ -269,10 +268,10 @@ public class ChordConnection implements IChordNode, Runnable {
                     break;
                 } else {
                     Thread.sleep(500);
-                    System.out.println("Waiting for response for " + request.type + " @ " + myAddress);
+                    //System.out.println("Waiting for response for " + request.type + " @ " + myAddress);
                 }
             }
-            System.out.println("Received response for " + request.type);
+            //System.out.println("Received response for " + request.type);
         } catch (InterruptedException ex) {
             Logger.getLogger(ChordConnection.class.getName()).log(Level.SEVERE, null, ex);
         }
