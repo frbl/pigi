@@ -4,14 +4,17 @@
  */
 package nl.rug.client.controller;
 
+import ccl.servlet.ChangedRequest;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import nl.rug.client.WorkingSet;
+import nl.rug.client.analysis.ComplexityAnalyzer;
+import nl.rug.client.database.ChangedPath;
 import nl.rug.client.model.*;
 
 /**
@@ -21,19 +24,21 @@ import nl.rug.client.model.*;
 public class ChordNode implements IChordNode {
 
     private Map<String, IChordNode> connections = new HashMap<String, IChordNode>();
-    
+    private ComplexityAnalyzer complexityAnalyzer = new ComplexityAnalyzer();
     private Address myAddress;
     private IChordNode predecessor;
     private IChordNode successor;
-    
     private Map<Integer, Address> fingers = new HashMap<Integer, Address>();
     private int fingerIndex = 1;
-    
     private BigInteger myHash;
     private BigInteger maxHash = new BigInteger("ffffffffffffffffffffffffffffffffffffffff", 16);
     private BigInteger onePartHash = maxHash.divide(BigInteger.valueOf(160));
+    private WorkingSet workingSet;
 
-    public ChordNode(int port) {
+    public ChordNode(int port, WorkingSet workingSet) {
+
+        this.workingSet = workingSet;
+
         String ip = null;
         try {
             ip = InetAddress.getLocalHost().getHostAddress();
@@ -73,6 +78,12 @@ public class ChordNode implements IChordNode {
     public IChordNode getConnection(Address address) {
         IChordNode node = null;
 
+        // if the ip address we are looking for equals ours, return this node.
+        //  no connection needs to be created in this case.
+        if (address.equals(myAddress)) {
+            return this;
+        }
+
         if (connections.containsKey(address.getHash())) {
             node = connections.get(address.getHash());
         }
@@ -92,7 +103,7 @@ public class ChordNode implements IChordNode {
             addConnection(connection);
             node = connection;
         }
-        
+
         return node;
     }
 
@@ -104,7 +115,7 @@ public class ChordNode implements IChordNode {
     @Override
     public Address findSuccessor(String id) {
 
-        if (id.equals(myAddress.getHash())) {
+        if (id.equals(myAddress.getHash()) || !workingSet.getComplexity(id).isEmpty()) {
             return myAddress;
         }
 
@@ -178,29 +189,29 @@ public class ChordNode implements IChordNode {
     public void fixFingers() {
         int maxBitLenth = 160; //hex number with length 40
         fingerIndex++;
-        
-        if(Math.pow(2, fingerIndex) > maxBitLenth){
+
+        if (Math.pow(2, fingerIndex) > maxBitLenth) {
             fingerIndex = 1;
         }
-        BigInteger lookupIndex = myHash.add(onePartHash.multiply(new BigInteger("" + ((int)Math.pow(2, fingerIndex-1)), 10)));
-        
+        BigInteger lookupIndex = myHash.add(onePartHash.multiply(new BigInteger("" + ((int) Math.pow(2, fingerIndex - 1)), 10)));
+
         fingers.put(fingerIndex, findSuccessor(lookupIndex.toString(16)));
 
         //Print fingers
         /*Iterator<Address> it = fingers.values().iterator();
-        System.out.println("------- Fingers -------");
-        while(it.hasNext()){
-            Address a = it.next();
-            System.out.println(a);
-        }
-        System.out.println("------- End fingers " + fingers.size() + "-------");*/
+         System.out.println("------- Fingers -------");
+         while(it.hasNext()){
+         Address a = it.next();
+         System.out.println(a);
+         }
+         System.out.println("------- End fingers " + fingers.size() + "-------");*/
     }
 
     @Override
     public void checkPredecessor() {
         if (predecessor != null && !predecessor.isAlive()) {
             predecessor = null;
-            
+
         }
     }
 
@@ -227,12 +238,45 @@ public class ChordNode implements IChordNode {
         System.out.println("Ping not needed here - ChordNode");
     }
 
+    @Override
     public boolean isAlive() {
         return true;
     }
 
-    public FileComplexity getFileComplexity(String filepath, int revision) {
-        //Search in db for the file. not here, return null
+    public FileComplexity calculateFileComplexity(String filepath, long revision) {
+
+        FileComplexity fileComplexity = new FileComplexity(filepath, revision);
+
+        Address address = findSuccessor(fileComplexity.getHash());
+
+        IChordNode node = getConnection(address);
+
+        int complexity = node.findFileComplexity(filepath, revision);
+        
+        if (complexity == -1) {
+
+            complexity=  complexityAnalyzer.startAnalyzing(filepath, revision);
+
+        }
+
+        fileComplexity.setComplexity(complexity);
+        
+        node.updateComplexity(fileComplexity);
+
+        return fileComplexity;
+
+    }
+
+    @Override
+    public Integer findFileComplexity(String filepath, long revision) {
+
+        int complexity = workingSet.getComplexity(filepath, revision);
+
+        return complexity;
+
+    }
+
+    public void updateComplexity(FileComplexity fileComplexity) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

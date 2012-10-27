@@ -23,28 +23,25 @@ import nl.rug.client.controller.ClientController;
  * @author Rene
  */
 public class ChordConnection implements IChordNode, Runnable {
-    
+
     private Address myAddress;
-    
     private ObjectOutputStream out = null;
     private ObjectInputStream in = null;
-    
     private Map<String, Response> responses = new HashMap<String, Response>();
-    
     private boolean alive = true;
     private int timeout = 10; //In seconds
-    
+
     public ChordConnection(Socket socket) throws IOException {
         myAddress = new Address(socket.getInetAddress().getHostAddress(), socket.getPort());
-        out = new ObjectOutputStream(socket.getOutputStream());        
+        out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
     }
-    
+
     public ChordConnection(Address address) throws IOException {
         this(new Socket(address.getIp(), address.getPort()));
     }
-    
-    public void sendMessage(Message message){
+
+    public void sendMessage(Message message) {
         try {
             out.writeObject(message);
             //System.out.println("Message send to " + myAddress.toString());
@@ -53,21 +50,21 @@ public class ChordConnection implements IChordNode, Runnable {
             alive = false;
         }
     }
-    
-    public void handleRequest(Request request){
+
+    public void handleRequest(Request request) {
         IChordNode node = ClientController.getChordNode();
         Response response = new Response(myAddress, node.getAddress(), request);
         String id = null;
         Address address = null;
-        switch(request.type){
+        switch (request.type) {
             case CPN:
-                id = (String)request.object;
+                id = (String) request.object;
                 address = ClientController.getChordNode().closestPrecedingNode(id);
                 response.object = address;
                 sendMessage(response);
                 break;
             case FS:
-                id = (String)request.object;
+                id = (String) request.object;
                 address = ClientController.getChordNode().findSuccessor(id);
                 response.object = address;
                 sendMessage(response);
@@ -91,44 +88,46 @@ public class ChordConnection implements IChordNode, Runnable {
                 sendMessage(response);
                 break;
             case JOIN:
-                address = (Address)request.object;
+                address = (Address) request.object;
                 ClientController.getChordNode().join(address);
                 break;
             case STABALIZE:
                 System.out.println("Not needed. STABALIZE at handleRequest - ChordConnection");
                 break;
             case NOTIFY:
-                System.out.println("Recieved notify!!!!!!");
-                address = (Address)request.object;
+                System.out.println("Recieved notify.");
+                address = (Address) request.object;
                 ClientController.getChordNode().notify(address);
                 break;
             case FILE:
-                FileComplexity file = (FileComplexity)request.object;
-                file = ClientController.getChordNode().getFileComplexity(file.getFilePath(), file.getRevision());
-                response.object = file;
+                FileComplexity calculationfile = (FileComplexity) request.object;
+                Integer complexity = ClientController.getChordNode()
+                        .findFileComplexity(calculationfile.getFilePath(), calculationfile.getRevision());
+                response.object = complexity;
                 sendMessage(response);
                 break;
         }
     }
-    
+
+    @Override
     public void run() {
         System.out.println("Now listening");
-        while(alive){
+        while (alive) {
             try {
-                Message message = (Message)in.readObject();
+                Message message = (Message) in.readObject();
                 //System.out.println("Message received");
-                if(message instanceof Request){
+                if (message instanceof Request) {
                     //System.out.println("Message is an request");
-                    Request request = (Request)message;
+                    Request request = (Request) message;
                     handleRequest(request);
-                } else if(message instanceof Response){
+                } else if (message instanceof Response) {
                     //System.out.println("Message is an response");
-                    Response response = (Response)message;
+                    Response response = (Response) message;
                     responses.put(response.request.UID, response);
                 }
-                
+
                 //MessageController.queueMessage(message);
-            } catch(IOException e){
+            } catch (IOException e) {
                 System.out.println("OWNOO! the socket closed!! Do something!!!!");
                 alive = false;
             } catch (Exception ex) {
@@ -136,73 +135,89 @@ public class ChordConnection implements IChordNode, Runnable {
             }
         }
     }
-    
-    public Address getAddress(){
+
+    @Override
+    public Address getAddress() {
         return myAddress;
     }
-    
-    public Address getSuccessor(){
+
+    @Override
+    public Address getSuccessor() {
         Request request = new Request(myAddress, myAddress, Request.RequestType.SUCCESSOR);
         sendMessage(request);
         Response response = waitForObject(request);
-        if(response == null) return null;
-        return (Address)response.object;
+        if (response == null) {
+            return null;
+        }
+        return (Address) response.object;
     }
-    
-    public Address getPredecessor(){
+
+    @Override
+    public Address getPredecessor() {
         Request request = new Request(myAddress, myAddress, Request.RequestType.PREDECESSOR);
         sendMessage(request);
         Response response = waitForObject(request);
-        if(response == null) return null;
-        return (Address)response.object;
+        if (response == null) {
+            return null;
+        }
+        return (Address) response.object;
     }
 
+    @Override
     public Address findSuccessor(String id) {
         Request request = new Request(myAddress, myAddress, Request.RequestType.FS);
         request.object = id;
         sendMessage(request);
         Response response = waitForObject(request);
-        if(response == null) return null;
-        return (Address)response.object;
+        if (response == null) {
+            return null;
+        }
+        return (Address) response.object;
     }
 
+    @Override
     public Address closestPrecedingNode(String id) {
         Request request = new Request(myAddress, myAddress, Request.RequestType.CPN);
         request.object = id;
         sendMessage(request);
         Response response = waitForObject(request);
-        return (Address)response.object;
+        return (Address) response.object;
     }
 
+    @Override
     public void join(Address node) {
         Request request = new Request(myAddress, myAddress, Request.RequestType.JOIN);
         request.object = node;
         sendMessage(request);
     }
 
+    @Override
     public void stabalize() {
         System.out.println("Implements stabalize in ChordConnection. It's needed after all");
     }
 
+    @Override
     public void notify(Address node) {
         Request request = new Request(myAddress, myAddress, Request.RequestType.NOTIFY);
         request.object = node;
         sendMessage(request);
     }
 
+    @Override
     public void fixFingers() {
         System.out.println("Implements fixFingers in ChordConnection. It's needed after all");
     }
 
+    @Override
     public void checkPredecessor() {
         System.out.println("Implements checkPredecessor in ChordConnection. It's needed after all");
     }
-    
-    public Response waitForObject(Request request){
+
+    public Response waitForObject(Request request) {
         long start = System.currentTimeMillis();
         try {
-            while(!responses.containsKey(request.UID)) {
-                if(System.currentTimeMillis() > start + timeout * 1000){
+            while (!responses.containsKey(request.UID)) {
+                if (System.currentTimeMillis() > start + timeout * 1000) {
                     alive = false;
                     System.out.println("1TIME OUT!!!!!!");
                     System.out.println("2TIME OUT!!!!!!");
@@ -219,21 +234,32 @@ public class ChordConnection implements IChordNode, Runnable {
         return responses.remove(request.UID);
     }
 
-    public FileComplexity getFileComplexity(String filepath, int revision) {
+    @Override
+    public void ping() {
+        Request request = new Request(myAddress, myAddress, Request.RequestType.PING);
+        sendMessage(request);
+    }
+    
+    @Override
+    public boolean isAlive() {
+        return alive;
+    }
+
+    @Override
+    public Integer findFileComplexity(String filepath, long revision) {
         Request request = new Request(myAddress, myAddress, Request.RequestType.FILE);
         request.object = new FileComplexity(filepath, revision);
         sendMessage(request);
         Response response = waitForObject(request);
-        if(response == null) return null;
-        return (FileComplexity)response.object;
-    }
-    
-    public void ping(){
-        Request request = new Request(myAddress, myAddress, Request.RequestType.PING);
-        sendMessage(request);
+        if (response == null) {
+            return null;
+        }
+        return (Integer) response.object;
     }
 
-    public boolean isAlive() {
-        return alive;
+    
+    public void updateComplexity(FileComplexity fileComplexity) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
+
 }

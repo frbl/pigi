@@ -14,16 +14,16 @@ public class FileComplexity implements Serializable {
     
     private String hash;
     private String filepath;
-    private int revision;
-    private double complexity;
+    private long revision;
+    private int complexity;
     
-    public FileComplexity(String filepath, int revision){
+    public FileComplexity(String filepath, long revision){
         hash = Util.getHash(filepath + ":" + revision);
         this.filepath = filepath;
         this.revision = revision;
     }
     
-    public void setComplexity(double complexity){
+    public void setComplexity(int complexity){
         this.complexity = complexity;
     }
     
@@ -35,11 +35,11 @@ public class FileComplexity implements Serializable {
         return filepath;
     }
     
-    public int getRevision(){
+    public long getRevision(){
         return revision;
     }
     
-    public double getComplexity(){
+    public int getComplexity(){
         return complexity;
     }
     
