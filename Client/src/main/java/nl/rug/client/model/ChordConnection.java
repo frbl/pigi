@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.rug.client.controller.ChordNode;
@@ -34,41 +36,81 @@ public class ChordConnection implements IChordNode, Runnable {
     private boolean alive = true;
     private int timeout = 10; //In seconds
     
+    private Request waitingFor = null;
+    
+    private BlockingQueue<Request> toRequest = new LinkedBlockingQueue<Request>();
+    
+    private boolean addressSet = false;
+    //private boolean remoteAddressSet = false;
+    
     public ChordConnection(Socket socket) throws IOException {
-        myAddress = new Address(socket.getInetAddress().getHostAddress(), socket.getPort());
         out = new ObjectOutputStream(socket.getOutputStream());        
         in = new ObjectInputStream(socket.getInputStream());
+        
+        new Thread(sendRequests()).start();
     }
     
     public ChordConnection(Address address) throws IOException {
         this(new Socket(address.getIp(), address.getPort()));
+        setAddress(address);
     }
     
-    public void sendMessage(Message message){
+    public void setAddress(Address address){
+        myAddress = address;
+        addressSet = true;
+    }
+    
+    public void sendMessage(Object message){
         try {
+            if(message == null){
+                System.out.println("Message to send is null, this is likely to cause an error");
+            }
             out.writeObject(message);
             //System.out.println("Message send to " + myAddress.toString());
         } catch (IOException ex) {
             System.out.println("OWNOO! the socket closed!! Do something!!!!");
-            alive = false;
+            kill();
         }
     }
     
+    public Runnable sendRequests(){
+        return new Runnable() {
+
+            public void run() {
+                while(alive){
+                    try {
+                        handleRequest(toRequest.take());
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(ChordConnection.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        };
+    }
+    
     public void handleRequest(Request request){
-        IChordNode node = ClientController.getChordNode();
-        Response response = new Response(myAddress, node.getAddress(), request);
+        if(waitingFor != null){
+            System.out.println("Waiting for type and already getting new request!! STRESSSS! now waiting for:" + waitingFor.type + " request for: " + request.type);
+        }
+        ChordNode localNode = ClientController.getChordNode();
+        Response response = new Response(request);
         String id = null;
         Address address = null;
         switch(request.type){
+            case ADDRESS:
+                response.object = localNode.getAddress();
+                sendMessage(response);
+                //alive = true; //Connection finished at remote node
+                break;
             case CPN:
                 id = (String)request.object;
-                address = ClientController.getChordNode().closestPrecedingNode(id);
+                address = localNode.closestPrecedingNode(id);
                 response.object = address;
                 sendMessage(response);
                 break;
             case FS:
                 id = (String)request.object;
-                address = ClientController.getChordNode().findSuccessor(id);
+                address = localNode.findSuccessor(id);
                 response.object = address;
                 sendMessage(response);
                 break;
@@ -76,35 +118,35 @@ public class ChordConnection implements IChordNode, Runnable {
                 System.out.println("Not needed. CP at handleRequest - ChordConnection");
                 break;
             case PING:
-                boolean alive = ClientController.getChordNode().isAlive();
-                response.object = alive;
+                boolean isAlive = localNode.isAlive();
+                response.object = isAlive;
                 sendMessage(response);
                 break;
             case SUCCESSOR:
-                address = ClientController.getChordNode().getSuccessor();
+                address = localNode.getSuccessor();
                 response.object = address;
                 sendMessage(response);
                 break;
             case PREDECESSOR:
-                address = ClientController.getChordNode().getPredecessor();
+                address = localNode.getPredecessor();
                 response.object = address;
                 sendMessage(response);
                 break;
             case JOIN:
                 address = (Address)request.object;
-                ClientController.getChordNode().join(address);
+                localNode.join(address);
                 break;
             case STABALIZE:
                 System.out.println("Not needed. STABALIZE at handleRequest - ChordConnection");
                 break;
             case NOTIFY:
-                System.out.println("Recieved notify!!!!!!");
+                //System.out.println("Recieved notify!!!!!!");
                 address = (Address)request.object;
-                ClientController.getChordNode().notify(address);
+                localNode.notify(address);
                 break;
             case FILE:
                 FileComplexity file = (FileComplexity)request.object;
-                file = ClientController.getChordNode().getFileComplexity(file.getFilePath(), file.getRevision());
+                file = localNode.getFileComplexity(file.getFilePath(), file.getRevision());
                 response.object = file;
                 sendMessage(response);
                 break;
@@ -112,25 +154,33 @@ public class ChordConnection implements IChordNode, Runnable {
     }
     
     public void run() {
+        //while(!alive){
+        //    try {
+        //        Thread.sleep(500); //Wait for address to be synced
+        //    } catch (InterruptedException ex) {
+        //        Logger.getLogger(ChordConnection.class.getName()).log(Level.SEVERE, null, ex);
+        //    }
+        //}
         System.out.println("Now listening");
         while(alive){
             try {
-                Message message = (Message)in.readObject();
-                //System.out.println("Message received");
+                Object message = in.readObject();
+                //System.out.println(mes + " - " + myAddress);
+                //Message message = (Message)mes;
                 if(message instanceof Request){
-                    //System.out.println("Message is an request");
                     Request request = (Request)message;
-                    handleRequest(request);
+                    //System.out.println("Request received " + request.type);
+                    //handleRequest(request);
+                    toRequest.add(request);
                 } else if(message instanceof Response){
-                    //System.out.println("Message is an response");
                     Response response = (Response)message;
+                    //System.out.println("Response received " + response.request.type);
                     responses.put(response.request.UID, response);
                 }
-                
-                //MessageController.queueMessage(message);
             } catch(IOException e){
                 System.out.println("OWNOO! the socket closed!! Do something!!!!");
-                alive = false;
+                Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, e);
+                kill();
             } catch (Exception ex) {
                 Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -138,11 +188,17 @@ public class ChordConnection implements IChordNode, Runnable {
     }
     
     public Address getAddress(){
-        return myAddress;
+        if(addressSet) return myAddress;
+        
+        Request request = new Request(RequestType.ADDRESS);
+        sendMessage(request);
+        Response response = waitForObject(request);
+        if(response == null) return null;
+        return (Address)response.object;
     }
     
     public Address getSuccessor(){
-        Request request = new Request(myAddress, myAddress, Request.RequestType.SUCCESSOR);
+        Request request = new Request(RequestType.SUCCESSOR);
         sendMessage(request);
         Response response = waitForObject(request);
         if(response == null) return null;
@@ -150,7 +206,7 @@ public class ChordConnection implements IChordNode, Runnable {
     }
     
     public Address getPredecessor(){
-        Request request = new Request(myAddress, myAddress, Request.RequestType.PREDECESSOR);
+        Request request = new Request(RequestType.PREDECESSOR);
         sendMessage(request);
         Response response = waitForObject(request);
         if(response == null) return null;
@@ -158,7 +214,7 @@ public class ChordConnection implements IChordNode, Runnable {
     }
 
     public Address findSuccessor(String id) {
-        Request request = new Request(myAddress, myAddress, Request.RequestType.FS);
+        Request request = new Request(RequestType.FS);
         request.object = id;
         sendMessage(request);
         Response response = waitForObject(request);
@@ -167,7 +223,7 @@ public class ChordConnection implements IChordNode, Runnable {
     }
 
     public Address closestPrecedingNode(String id) {
-        Request request = new Request(myAddress, myAddress, Request.RequestType.CPN);
+        Request request = new Request(RequestType.CPN);
         request.object = id;
         sendMessage(request);
         Response response = waitForObject(request);
@@ -175,7 +231,7 @@ public class ChordConnection implements IChordNode, Runnable {
     }
 
     public void join(Address node) {
-        Request request = new Request(myAddress, myAddress, Request.RequestType.JOIN);
+        Request request = new Request(RequestType.JOIN);
         request.object = node;
         sendMessage(request);
     }
@@ -185,7 +241,7 @@ public class ChordConnection implements IChordNode, Runnable {
     }
 
     public void notify(Address node) {
-        Request request = new Request(myAddress, myAddress, Request.RequestType.NOTIFY);
+        Request request = new Request(RequestType.NOTIFY);
         request.object = node;
         sendMessage(request);
     }
@@ -199,28 +255,33 @@ public class ChordConnection implements IChordNode, Runnable {
     }
     
     public Response waitForObject(Request request){
+        waitingFor = request;
         long start = System.currentTimeMillis();
         try {
-            while(!responses.containsKey(request.UID)) {
+            while(!responses.containsKey(request.UID) && alive) {
                 if(System.currentTimeMillis() > start + timeout * 1000){
-                    alive = false;
+                    kill();
                     System.out.println("1TIME OUT!!!!!!");
                     System.out.println("2TIME OUT!!!!!!");
                     System.out.println("3TIME OUT!!!!!!");
                     System.out.println("4TIME OUT!!!!!!");
+                    System.out.println("requesttype: " + request.type + " @ " + myAddress);
                     break;
                 } else {
                     Thread.sleep(500);
+                    System.out.println("Waiting for response for " + request.type + " @ " + myAddress);
                 }
             }
+            System.out.println("Received response for " + request.type);
         } catch (InterruptedException ex) {
             Logger.getLogger(ChordConnection.class.getName()).log(Level.SEVERE, null, ex);
         }
+        waitingFor = null;
         return responses.remove(request.UID);
     }
 
     public FileComplexity getFileComplexity(String filepath, int revision) {
-        Request request = new Request(myAddress, myAddress, Request.RequestType.FILE);
+        Request request = new Request(RequestType.FILE);
         request.object = new FileComplexity(filepath, revision);
         sendMessage(request);
         Response response = waitForObject(request);
@@ -229,8 +290,17 @@ public class ChordConnection implements IChordNode, Runnable {
     }
     
     public void ping(){
-        Request request = new Request(myAddress, myAddress, Request.RequestType.PING);
+        Request request = new Request(RequestType.PING);
         sendMessage(request);
+    }
+    
+    public void kill(){
+        alive = false;
+        ClientController.getChordNode().removeConnection(this);
+        System.out.println("Connection killed");
+        if(waitingFor != null){
+            System.out.println("Im killed, but i was still waiting on something. " + myAddress);
+        }
     }
 
     public boolean isAlive() {

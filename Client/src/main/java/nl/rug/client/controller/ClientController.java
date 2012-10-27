@@ -69,19 +69,21 @@ public class ClientController {
     private Runnable waitForConnection(){
         return new Runnable() {
             public void run() {
-                try {
-                    while(running){
+                while(running){
+                    try {
                         ChordConnection newChild = new ChordConnection(serverSocket.accept());
-                        
-                        node.addConnection(newChild);
-                        
+                        System.out.println("New incoming connection");
                         Thread thread = new Thread(newChild);
                         thread.start();
                         
-                        System.out.println("New node!");
+                        Address remoteAddress = newChild.getAddress();
+                        newChild.setAddress(remoteAddress);
+                        
+                        node.addConnection(remoteAddress, newChild);
+                                                
+                    } catch (IOException e) {
+                        System.out.println("Accept failed: " + node.getAddress().getPort());
                     }
-                } catch (IOException e) {
-                    System.out.println("Accept failed: " + node.getAddress().getPort());
                 }
             }
         };
@@ -92,6 +94,6 @@ public class ClientController {
      * @param args
      */
     public static void main(String args[]){
-        new ClientController(4045);
+        new ClientController(4048);
     }
 }

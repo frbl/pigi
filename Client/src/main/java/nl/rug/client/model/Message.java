@@ -10,14 +10,20 @@ import java.io.Serializable;
  *
  * @author Rene
  */
-public abstract class Message implements Serializable {
+/*public abstract class Message implements Serializable {
     
-    private Address senderAddress;
+    public Object object = null; //Object to use when transporting things
+    
+    /*private Address senderAddress;
     private Address targetAddress;
     
     public Message(Address targetAddress, Address senderAddress){
         setTargetAddress(targetAddress);
         setSenderAddress(senderAddress);
+    }
+    
+    public Message(){
+        
     }
     
     public Address getTargetAddress(){
@@ -36,4 +42,4 @@ public abstract class Message implements Serializable {
         senderAddress = address;
     }
     
-}
+}*/

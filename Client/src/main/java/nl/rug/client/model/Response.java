@@ -10,13 +10,14 @@ import java.io.Serializable;
  *
  * @author Rene
  */
-public class Response extends Message implements Serializable {
+public class Response implements Serializable {
     
-    public Request request;
+    public Request request = null;
     public Object object;
     
-    public Response(Address target, Address sender, Request request){
-        super(target, sender);
+    //public Response(Address target, Address sender, Request request){
+    public Response(Request request){
+        //super(target, sender);
         this.request = request;
     }
 }
