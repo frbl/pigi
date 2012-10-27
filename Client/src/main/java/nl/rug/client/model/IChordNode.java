@@ -25,6 +25,7 @@ public interface IChordNode {
     public void fixFingers();
     public void checkPredecessor();
     
+    public void kill();
     public void ping();
     public boolean isAlive();
     

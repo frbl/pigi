@@ -11,9 +11,9 @@ import java.util.UUID;
  *
  * @author Rene
  */
-public class Request extends Message implements Serializable {
+public class Request implements Serializable {
     
-    public RequestType type;
+    public RequestType type = null;
     public Object object;
     
     public String UID = UUID.randomUUID().toString();
@@ -21,10 +21,10 @@ public class Request extends Message implements Serializable {
     //CPN = Closest Preceding Node
     //FS = Find Successor
     //CP = Check predecessor
-    public static enum RequestType {CPN, FS, CP, PING, SUCCESSOR, PREDECESSOR, JOIN, STABALIZE, NOTIFY, FILE }
     
-    public Request(Address target, Address sender, RequestType type){
-        super(target, sender);
+    //public Request(Address target, Address sender, RequestType type){
+    public Request(RequestType type){
+        //super(target, sender);
         this.type = type;
     }
 }

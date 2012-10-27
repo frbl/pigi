@@ -4,6 +4,7 @@
  */
 package nl.rug.client.model;
 
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -56,9 +57,6 @@ public class Util {
         //low and high are the same. return true
         //return true;
     }
-    
-    
-    
     
     public static boolean isBetween(String valueToCompare, String compareLow, String compareHigh){
         
