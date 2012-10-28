@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import nl.rug.client.controller.ClientController;
 import nl.rug.client.database.ChangedPath;
 import nl.rug.client.database.Database;
+import nl.rug.client.model.Address;
 import nl.rug.client.model.FileComplexity;
 import nl.rug.client.model.Util;
 import org.tmatesoft.svn.core.SVNException;
@@ -120,18 +121,18 @@ public class App {
         // connect to the Chord network (fetch address from webservice and initilize network)
         ClientController clientController = null;
         
-        if (address.equals("") && port ==0) {
+        Address localAddress = new Address(address, port);
+        
+        
+        if (chordSeedAddress.equals("") && chordSeedPort == 0) {
             // this is the first node
-            clientController = new ClientController(port, workingSet);
+            clientController = new ClientController(localAddress, workingSet);
             
         } else {
             // connect to existing node
-            
-            
+            Address remoteAddress = new Address(chordSeedAddress, chordSeedPort);
+            clientController = new ClientController(localAddress, remoteAddress, workingSet);          
         }
-          
-                
-                
 
         // start working (get next item from working set and retrieve from chord)
         int numberOfJobs = workingSet.getNumberOfJobs();
