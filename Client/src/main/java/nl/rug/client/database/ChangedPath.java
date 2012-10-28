@@ -56,7 +56,8 @@ public class ChangedPath {
                     
                     // TODO: Dirtyhack to prevent extra query to get revision
                     Revision revision = new Revision();
-                    revision.setNumber(number);                    
+                    revision.setNumber(number);       
+                    revision.setRepository(repository);
                     changedPath.setRevision(revision);
                     
                     changedPath.setPath(path);                    
