@@ -80,6 +80,8 @@ public class WorkingSet {
         
         String hash = Util.getHash(file + revision);
         
+        System.out.println("Looking up file:" + file + " revision "+ revision + " having hash: " + hash);
+        
         List<ChangedPath> list = getComplexity(hash);
         
         for (ChangedPath path : list) {

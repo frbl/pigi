@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import nl.rug.client.analysis.Analyzer;
+import nl.rug.client.analysis.ComplexityAnalyzer;
 import nl.rug.client.controller.ClientController;
 import nl.rug.client.database.ChangedPath;
 import nl.rug.client.database.Database;
@@ -34,8 +36,8 @@ public class App {
         // work. This is needed because of the Maven/JNI comination.
         SQLite.setLibraryPath("target/lib/");
 
-        if (args.length != 7 || args.length != 5) {
-
+        if (args.length != 7 && args.length != 5) {
+            
             logger.log(Level.SEVERE, "No repository specified. Usage: java -jar App.jar repository_address username password address port [chord_seed_address chord_seed_port]");
 
             System.exit(1);
@@ -116,6 +118,7 @@ public class App {
 
         // load working set information (file/revision hashes and complexity values)
         String nodeHash = Util.getHash(address + port);
+        
         WorkingSet workingSet = new WorkingSet(repositoryAddress, nodeHash);
 
         // connect to the Chord network (fetch address from webservice and initilize network)
@@ -123,15 +126,18 @@ public class App {
         
         Address localAddress = new Address(address, port);
         
+        // Create the analyzer which should perform the actual complexity calculation.
+        Analyzer complexityAnalyzer = new ComplexityAnalyzer(repositoryModel);
+        
         
         if (chordSeedAddress.equals("") && chordSeedPort == 0) {
             // this is the first node
-            clientController = new ClientController(localAddress, workingSet);
+            clientController = new ClientController(localAddress, workingSet, complexityAnalyzer);
             
         } else {
             // connect to existing node
             Address remoteAddress = new Address(chordSeedAddress, chordSeedPort);
-            clientController = new ClientController(localAddress, remoteAddress, workingSet);          
+            clientController = new ClientController(localAddress, remoteAddress, workingSet, complexityAnalyzer);          
         }
 
         // start working (get next item from working set and retrieve from chord)

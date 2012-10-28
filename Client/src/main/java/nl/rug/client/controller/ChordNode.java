@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.rug.client.WorkingSet;
+import nl.rug.client.analysis.Analyzer;
 import nl.rug.client.analysis.ComplexityAnalyzer;
 import nl.rug.client.model.*;
 
@@ -24,7 +25,6 @@ public class ChordNode implements IChordNode {
 
     private final static int m = 160; // max bit length
     private Map<String, IChordNode> connections = new ConcurrentHashMap<String, IChordNode>();
-    private ComplexityAnalyzer complexityAnalyzer = new ComplexityAnalyzer();
     private Address myAddress;
     private Address predecessor;
     private Address successor;
@@ -39,7 +39,6 @@ public class ChordNode implements IChordNode {
     public ChordNode(Address address, WorkingSet workingSet) {
 
         this.workingSet = workingSet;
-
         String ip = address.getIp();
         if (ip == null || ip.equals("")) {
             try {
@@ -302,7 +301,7 @@ public class ChordNode implements IChordNode {
 
         if (fileComplexity.getComplexity() == -1) {
 
-            fileComplexity.setComplexity(complexityAnalyzer.startAnalyzing(filepath, revision));
+            fileComplexity.setComplexity(ClientController.getAnalyzer().startAnalyzing(fileComplexity));
 
         }
 

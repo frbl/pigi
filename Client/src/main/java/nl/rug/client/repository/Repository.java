@@ -11,6 +11,6 @@ package nl.rug.client.repository;
 public interface Repository {
         
     
-    public void retrieveFile(String path, int revision);
+    public String retrieveFile(String path, long revision);
     
 }

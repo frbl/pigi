@@ -30,18 +30,18 @@ import org.tmatesoft.svn.core.wc.SVNWCUtil;
  * @author Rene
  */
 public final class MySVNRepository implements Repository {
-    
+
     SVNRepository repository;
-    
-    public MySVNRepository(String svnUrl, String path){
+
+    public MySVNRepository(String svnUrl, String path) {
         this(svnUrl, path, "anonymous", "anonymous");
     }
-    
-    public MySVNRepository(String svnUrl, String path, String username, String password){
+
+    public MySVNRepository(String svnUrl, String path, String username, String password) {
         initRepository(svnUrl, path, username, password);
     }
 
-    public void initRepository(String svnUrl, String path, String username, String password){
+    public void initRepository(String svnUrl, String path, String username, String password) {
         DAVRepositoryFactory.setup();
         //String url = "https://subversion.assembla.com/svn/ReneZ";
         //String path = "src/";
@@ -56,8 +56,8 @@ public final class MySVNRepository implements Repository {
 
             //System.out.println("Repository Root: " + repository.getRepositoryRoot(true));
             //System.out.println("Repository UUID: " + repository.getRepositoryUUID(true));
-            
-            
+
+
             SVNNodeKind nodeKind = repository.checkPath("", -1);
             if (nodeKind == SVNNodeKind.NONE) {
                 System.err.println("There is no entry at '" + svnUrl + "'.");
@@ -66,7 +66,7 @@ public final class MySVNRepository implements Repository {
                 System.err.println("The entry at '" + svnUrl + "' is a file while a directory was expected.");
                 System.exit(1);
             }
-            
+
             //for(int i = 1; i <= repository.getLatestRevision(); i++){
             //    retrieveFile(path, i);
             //    System.out.println("Retrieved revision " + i + " of " + path);
@@ -76,39 +76,122 @@ public final class MySVNRepository implements Repository {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void retrieveFile(String path, int revision) {
+
+    @Override
+    public String retrieveFile(String path, long revision) {
+
+        String localpath = "";
+        
+        if(true)
+            return testFunc(path, revision);
+
         try {
             final String FILE_SEPARATOR = System.getProperty("file.separator");
-            
-            if(repository.checkPath(path, revision) == SVNNodeKind.NONE) return;
-            Collection entries = repository.getDir(repository.getRepositoryPath(path), revision, null, (Collection) null);
-            Iterator iterator = entries.iterator();
-            String localpath = "svnfiles" + FILE_SEPARATOR + "ReneZ" + FILE_SEPARATOR + revision + FILE_SEPARATOR + path;
-            File svnpath = new File(localpath);
-            svnpath.mkdirs();
-            while (iterator.hasNext()) {
-                SVNDirEntry entry = (SVNDirEntry) iterator.next();
-                String filePath = (path.equals("") || path.endsWith("/") ? path : path + "/") + entry.getName();
-                if (entry.getKind() == SVNNodeKind.DIR) {
-                    System.out.println("Going into " + filePath);
-                    retrieveFile(filePath, revision);
-                } else if (entry.getKind() == SVNNodeKind.FILE && entry.getRevision() == revision) {
-                    File localsvnfile = new File(localpath + FILE_SEPARATOR + entry.getName());
-                    localsvnfile.createNewFile();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    OutputStream outputStream = new FileOutputStream(localsvnfile);
-                    repository.getFile(filePath, entry.getRevision(), new SVNProperties(), baos);
-                    baos.writeTo(outputStream);
-                    System.out.println("/" + filePath
-                        + " ( author: '" + entry.getAuthor() + "'; revision: " + entry.getRevision()
-                        + "; date: " + entry.getDate() + ")");
-                }
+
+            if (repository.checkPath(path, revision) == SVNNodeKind.FILE) {
+
+                return localpath;
+
             }
+
+
+            Collection entries = repository.getDir(repository.getRepositoryPath(path), revision, null, (Collection) null);
+
+            Iterator iterator = entries.iterator();
+
+            localpath = "svnfiles" + FILE_SEPARATOR + "TEST" + FILE_SEPARATOR + revision + FILE_SEPARATOR + path;
+
+            File svnpath = new File(localpath);
+
+            svnpath.mkdirs();
+
+            while (iterator.hasNext()) {
+
+                SVNDirEntry entry = (SVNDirEntry) iterator.next();
+
+                String filePath = (path.equals("") || path.endsWith(FILE_SEPARATOR) ? path : path + FILE_SEPARATOR) + entry.getName();
+
+                if (entry.getKind() == SVNNodeKind.DIR) {
+
+                    System.out.println("Going into " + filePath);
+
+                    retrieveFile(filePath, revision);
+
+                } else if (entry.getKind() == SVNNodeKind.FILE && entry.getRevision() == revision) {
+
+                    File localsvnfile = new File(localpath + FILE_SEPARATOR + entry.getName());
+
+                    localsvnfile.createNewFile();
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    OutputStream outputStream = new FileOutputStream(localsvnfile);
+
+                    repository.getFile(filePath, entry.getRevision(), new SVNProperties(), baos);
+
+                    baos.writeTo(outputStream);
+
+                    System.out.println("/" + filePath
+                            + " ( author: '" + entry.getAuthor() + "'; revision: " + entry.getRevision()
+                            + "; date: " + entry.getDate() + ")");
+
+                }
+
+            }
+
         } catch (Exception ex) {
+
             Logger.getLogger(MySVNRepository.class.getName()).log(Level.SEVERE, null, ex);
+
         }
+
+        return localpath;
+
     }
-    
-    
+
+    private String testFunc(String path, long revision) {
+        
+        final String FILE_SEPARATOR = System.getProperty("file.separator");
+        
+        String[] splitted = path.split("/");
+        
+        String fileName = splitted[splitted.length - 1];
+        
+        String localpath = "svnfiles" + FILE_SEPARATOR + "TEST" + FILE_SEPARATOR + revision + path.replace(fileName,"");
+        
+        System.out.println("Path: " + localpath + ", file:" + fileName);
+        
+        File dir = new File(localpath);
+        
+        dir.mkdirs();
+        try {
+
+            if (repository.checkPath(path, revision) == SVNNodeKind.FILE) {
+
+                File localsvnfile = new File(localpath + FILE_SEPARATOR + fileName);
+                
+                localsvnfile.createNewFile();
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                OutputStream outputStream = new FileOutputStream(localsvnfile);
+
+                repository.getFile(path, revision, new SVNProperties(), baos);
+
+                baos.writeTo(outputStream);
+
+                System.out.println(localpath);
+
+            }
+
+
+        } catch (Exception ex) {
+
+            Logger.getLogger(MySVNRepository.class.getName()).log(Level.SEVERE, null, ex);
+
+        }
+
+        return localpath;
+
+    }
 }

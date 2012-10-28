@@ -63,14 +63,14 @@ public class RepositoryModel {
         // this one first since we want to know as soon as possible if we can connect to the repository
         initializeRepositoryConnection();
 
-        repository = Repository.findByURL(address);
+        repository = Repository.findByURL(getAddress());
 
         if (repository == null) {
             
-            logger.log(Level.INFO, "Repository {0} did not exist, creating", address);
+            logger.log(Level.INFO, "Repository {0} did not exist, creating", getAddress());
 
             repository = new Repository();
-            repository.setURL(address);
+            repository.setURL(getAddress());
             /* 
              * originally this would be done somewhere in a GUI, but we don't 
              * need it, so we just put something there 
@@ -91,7 +91,7 @@ public class RepositoryModel {
     
     private void initializeRepositoryConnection() throws SVNException {
         
-        if (address.startsWith("svn://")) {
+        if (getAddress().startsWith("svn://")) {
             
             SVNRepositoryFactoryImpl.setup();
             
@@ -101,9 +101,9 @@ public class RepositoryModel {
             
         }
         
-        repositoryConnection = SVNRepositoryFactory.create(SVNURL.parseURIEncoded(address));
+        repositoryConnection = SVNRepositoryFactory.create(SVNURL.parseURIEncoded(getAddress()));
         
-        ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager(username, password);
+        ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager(getUsername(), getPassword());
         
         repositoryConnection.setAuthenticationManager(authManager);
         
@@ -137,7 +137,7 @@ public class RepositoryModel {
             
         }
         
-        logger.log(Level.INFO, "Updating database information for {0} from revision {1} to {2}", new Object[]{address, startRevision, endRevision});
+        logger.log(Level.INFO, "Updating database information for {0} from revision {1} to {2}", new Object[]{getAddress(), startRevision, endRevision});
         
         Collection logEntries = repositoryConnection.log(new String[]{""}, null, startRevision, endRevision, true, true);
 
@@ -179,8 +179,9 @@ public class RepositoryModel {
                     
                     String path = entryPath.getPath();
                     char type = entryPath.getType();
-                    String hash = Util.getHash(path + revision);
+                    String hash = Util.getHash(path + revision.getNumber());
                     
+                    if(path.equals("/encryption/test/encryption/CeasarEncryptionTest.java"))
                     logger.log(Level.INFO, "Saving changed path {0} which had type {1} with hash {2}", new Object[]{path, type, hash});
                     
                     ChangedPath changedPath = new ChangedPath();
@@ -197,6 +198,27 @@ public class RepositoryModel {
             
         }
         
+    }
+
+    /**
+     * @return the address
+     */
+    public String getAddress() {
+        return address;
+    }
+
+    /**
+     * @return the username
+     */
+    public String getUsername() {
+        return username;
+    }
+
+    /**
+     * @return the password
+     */
+    public String getPassword() {
+        return password;
     }
     
 }

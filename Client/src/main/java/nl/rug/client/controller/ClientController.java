@@ -9,6 +9,7 @@ import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.rug.client.WorkingSet;
+import nl.rug.client.analysis.Analyzer;
 import nl.rug.client.database.Revision;
 import nl.rug.client.model.Address;
 import nl.rug.client.model.ChordConnection;
@@ -24,19 +25,22 @@ public class ClientController {
     private boolean running = true;
     private ServerSocket serverSocket; //For new connections
     private static ChordNode node;
+    private static Analyzer complexityAnalyzer;
 
-    public ClientController(Address localAddress, Address remoteAddress, WorkingSet workingSet) {
-        this(localAddress, workingSet);
+    public ClientController(Address localAddress, Address remoteAddress, WorkingSet workingSet, Analyzer complexityAnalyzer) {
+        this(localAddress, workingSet, complexityAnalyzer);
         //TEST!
         if (remoteAddress != null) {
             node.join(remoteAddress);
         }
     }
 
-    public ClientController(Address localAddress, WorkingSet workingSet) {
+    public ClientController(Address localAddress, WorkingSet workingSet, Analyzer complexityAnalyzer) {
+        
+        this.complexityAnalyzer = complexityAnalyzer;
         
         node = new ChordNode(localAddress, workingSet);
-
+        
         node.create();
         
         startListeningForChildren(localAddress.getPort());
@@ -51,6 +55,11 @@ public class ClientController {
 
     public static ChordNode getChordNode() {
         return node;
+    }
+    
+    //TODO this static stuff is pretty ugly, better pass it.
+    public static Analyzer getAnalyzer() {
+        return complexityAnalyzer;
     }
 
     private void startListeningForChildren(int port) {
@@ -101,14 +110,14 @@ public class ClientController {
              try {
                 String ip = InetAddress.getLocalHost().getHostAddress();
                 Address remoteAddress = new Address(ip, 4040);
-                new ClientController(localAddress, remoteAddress, null);
+                new ClientController(localAddress, remoteAddress, null, null);
             } catch (UnknownHostException ex) {
                 Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, "Cannot determine host (ip address)", ex);
 
                 System.exit(1);
             }
         } else {
-            new ClientController(localAddress, null);
+            new ClientController(localAddress, null, null);
         }
     }
 }

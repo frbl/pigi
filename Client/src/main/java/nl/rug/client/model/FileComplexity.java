@@ -18,7 +18,7 @@ public class FileComplexity implements Serializable {
     private int complexity;
     
     public FileComplexity(String filepath, long revision){
-        hash = Util.getHash(filepath + ":" + revision);
+        hash = Util.getHash(filepath + revision);
         this.filepath = filepath;
         this.revision = revision;
     }
