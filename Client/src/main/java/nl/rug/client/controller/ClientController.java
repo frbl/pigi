@@ -93,13 +93,12 @@ public class ClientController {
      * @param args
      */
     public static void main(String args[]) {
-        
-        Address localAddress = new Address(null, 4047);
+        Address localAddress = new Address(null, 4045);
         
         if(localAddress.getPort() != 4040) {
             Address remoteAddress = new Address("192.168.1.4", 4040);
             new ClientController(localAddress, remoteAddress, null);
-        }else {
+        } else {
             new ClientController(localAddress, null);
         }
     }

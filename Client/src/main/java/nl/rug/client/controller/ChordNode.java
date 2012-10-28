@@ -20,16 +20,14 @@ import nl.rug.client.model.*;
  * @author Rene
  */
 public class ChordNode implements IChordNode {
-    
-    private final static int m = 160; // max bit length
 
+    private final static int m = 160; // max bit length
     private Map<String, IChordNode> connections = new HashMap<String, IChordNode>();
     private ComplexityAnalyzer complexityAnalyzer = new ComplexityAnalyzer();
     private Address myAddress;
     private Address predecessor;
     private Address successor;
     private Address[] finger = new Address[m];
-
     private int next = 0;
     private BigInteger myHash;
     private BigInteger maxHash = new BigInteger("ffffffffffffffffffffffffffffffffffffffff", 16);
@@ -128,20 +126,20 @@ public class ChordNode implements IChordNode {
         }
 
         if (!connections.containsKey(address.getHash())) {
-            
+
             ChordConnection connection = null;
-            
+
             try {
                 connection = new ChordConnection(address);
             } catch (IOException ex) {
                 Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            Thread thread = new Thread(connection);            
+
+            Thread thread = new Thread(connection);
             thread.start();
-            
+
             addConnection(address, connection);
-            
+
         }
 
         return connections.get(address.getHash());
@@ -181,14 +179,13 @@ public class ChordNode implements IChordNode {
 
     @Override
     public Address closestPrecedingNode(String id) {
-        
+
         for (int i = m; i > 0; i--) {
             if (finger[i - 1] != null && Util.isBetween(id, this.getAddress().getHash(), finger[i - 1].getHash())) {
                 return finger[i - 1];
-            }            
-            
+            }
         }
-        
+
         return this.getAddress();
     }
 
@@ -237,15 +234,15 @@ public class ChordNode implements IChordNode {
     public void fixFingers() {
 
         next++;
-        
+
         if (next > m) {
-            
+
             next = 1;
-            
+
         }
-        
+
         finger[next - 1] = findSuccessor(Util.addPowerOfTwo(this.getAddress(), next - 1));
-        
+
     }
 
     @Override
