@@ -95,7 +95,7 @@ public class ClientController {
     public static void main(String args[]) {
         
         
-        Address localAddress = new Address(null, 4044);
+        Address localAddress = new Address(null, 4040);
         
         if(localAddress.getPort() != 4040) {
             Address remoteAddress = new Address("10.0.0.4", 4040);

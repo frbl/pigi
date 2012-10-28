@@ -171,7 +171,7 @@ public class ChordNode implements IChordNode {
     @Override
     public Address closestPrecedingNode(String id) {
         
-        for (int i = m; i <= 1; i--) {
+        for (int i = m; i > 0; i--) {
             
             if (Util.isBetween(id, this.getAddress().getHash(), finger[i - 1].getHash())) {
                 
