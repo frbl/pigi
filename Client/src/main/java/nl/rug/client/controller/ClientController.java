@@ -39,8 +39,8 @@ public class ClientController {
         startListeningForChildren(port);
         
         //TEST!
-        if(port != 4040){
-            Address address = new Address("192.168.1.4", 4040);
+        if(port != 4050){
+            Address address = new Address("192.168.1.4", 4050);
             node.join(address);
         }
     }
@@ -90,5 +90,13 @@ public class ClientController {
                 }
             }
         };
+    }
+    
+    /**
+     * 
+     * @param args
+     */
+    public static void main(String args[]){
+        new ClientController(4053, null);
     }
 }
