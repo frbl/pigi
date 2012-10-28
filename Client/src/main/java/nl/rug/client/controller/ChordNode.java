@@ -9,6 +9,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.rug.client.WorkingSet;
@@ -22,7 +23,7 @@ import nl.rug.client.model.*;
 public class ChordNode implements IChordNode {
 
     private final static int m = 160; // max bit length
-    private Map<String, IChordNode> connections = new HashMap<String, IChordNode>();
+    private Map<String, IChordNode> connections = new ConcurrentHashMap<String, IChordNode>();
     private ComplexityAnalyzer complexityAnalyzer = new ComplexityAnalyzer();
     private Address myAddress;
     private Address predecessor;
@@ -40,11 +41,13 @@ public class ChordNode implements IChordNode {
         this.workingSet = workingSet;
 
         String ip = address.getIp();
-        if (ip == null || ip.equals(address)) {
+        if (ip == null || ip.equals("")) {
             try {
                 ip = InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException ex) {
-                Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, "Cannot determine host (ip address)", ex);
+
+                System.exit(1);
             }
         }
         myAddress = new Address(ip, address.getPort());
@@ -79,14 +82,14 @@ public class ChordNode implements IChordNode {
     }
 
     public void removeConnection(IChordNode node) {
-        if(successor.getHash().equals(node.getAddress().getHash())){
+        if(successor.equals(node.getAddress())){
             successor = myAddress;
         }
-        if(predecessor.getHash().equals(node.getAddress().getHash())){
+        if(predecessor.equals(node.getAddress())){
             predecessor = null;
         }
         for(int i = 0; i < finger.length; i++){
-            if(finger[i] != null && finger[i].getHash().equals(node.getAddress())){
+            if(finger[i] != null && finger[i].equals(node.getAddress())){
                 finger[i] = null;
             }
         }
