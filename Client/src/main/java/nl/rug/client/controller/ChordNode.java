@@ -138,6 +138,17 @@ public class ChordNode implements IChordNode {
     @Override
     public Address findSuccessor(String id) {
         
+        //if (id.equals(myAddress.getHash())) {
+        //    returnValue = successor;
+        //}
+        //TODO Check here if the data is in de database?
+        // Ie:
+        /*
+         * if(!workingSet.getComplexity(id).isEmpty()) {
+         *  return myaddress;
+         * }
+         */
+        
         if (Util.isBetween(id, myAddress.getHash(), successor.getHash()) || id.equals(successor.getHash())){
             return successor;
         } else {
@@ -289,15 +300,13 @@ public class ChordNode implements IChordNode {
 
         IChordNode node = getConnection(address);
 
-        int complexity = node.findFileComplexity(filepath, revision);
+        fileComplexity = node.getFileComplexity(filepath, revision);
         
-        if (complexity == -1) {
+        if (fileComplexity.getComplexity() == -1) {
 
-            complexity=  complexityAnalyzer.startAnalyzing(filepath, revision);
+            fileComplexity.setComplexity(complexityAnalyzer.startAnalyzing(filepath, revision));
 
         }
-
-        fileComplexity.setComplexity(complexity);
         
         node.updateComplexity(fileComplexity);
 
@@ -306,15 +315,22 @@ public class ChordNode implements IChordNode {
     }
 
     @Override
-    public Integer findFileComplexity(String filepath, long revision) {
+    public FileComplexity getFileComplexity(String filepath, long revision) {
 
         int complexity = workingSet.getComplexity(filepath, revision);
-
-        return complexity;
+        
+        FileComplexity fileComplexity = new FileComplexity(filepath, revision);
+        
+        fileComplexity.setComplexity(complexity);
+        
+        return fileComplexity;
 
     }
 
+    @Override
     public void updateComplexity(FileComplexity fileComplexity) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        
+        workingSet.setComplexity(fileComplexity);
+        
     }
 }

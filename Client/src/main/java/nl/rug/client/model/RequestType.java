@@ -11,5 +11,5 @@ import java.io.Serializable;
  * @author Rene
  */
 public enum RequestType implements Serializable {
-     ADDRESS, CPN, FS, CP, PING, SUCCESSOR, PREDECESSOR, JOIN, STABALIZE, NOTIFY, FILE
+     ADDRESS, CPN, FS, CP, PING, SUCCESSOR, PREDECESSOR, JOIN, STABALIZE, NOTIFY, FILE, UPDATE
 }

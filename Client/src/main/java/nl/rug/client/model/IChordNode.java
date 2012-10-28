@@ -4,9 +4,6 @@
  */
 package nl.rug.client.model;
 
-import java.util.List;
-import nl.rug.client.database.ChangedPath;
-
 /**
  *
  * @author Rene
@@ -29,6 +26,6 @@ public interface IChordNode {
     public void ping();
     public boolean isAlive();
     
-    public Integer findFileComplexity(String filepath, long revision);
+    public FileComplexity getFileComplexity(String filepath, long revision);
     public void updateComplexity(FileComplexity fileComplexity);
 }

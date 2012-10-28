@@ -146,9 +146,12 @@ public class ChordConnection implements IChordNode, Runnable {
                 break;
             case FILE:
                 FileComplexity file = (FileComplexity)request.object;
-                file.setComplexity(localNode.findFileComplexity(file.getFilePath(), file.getRevision()));
-                response.object = file;
+                response.object = localNode.getFileComplexity(file.getFilePath(), file.getRevision());
                 sendMessage(response);
+                break;
+            case UPDATE:
+                FileComplexity fileComplexityUpdate = (FileComplexity)request.object;
+                localNode.updateComplexity(fileComplexityUpdate);
                 break;
         }
     }
@@ -298,13 +301,13 @@ public class ChordConnection implements IChordNode, Runnable {
     }
     
     @Override
-    public Integer findFileComplexity(String filepath, long revision) {
+    public FileComplexity getFileComplexity(String filepath, long revision) {
         Request request = new Request(RequestType.FILE);
         request.object = new FileComplexity(filepath, revision);
         sendMessage(request);
         Response response = waitForObject(request);
         if(response == null) return null;
-        return (Integer)response.object;
+        return (FileComplexity)response.object;
     }
     
     @Override
@@ -325,7 +328,9 @@ public class ChordConnection implements IChordNode, Runnable {
 
     @Override
     public void updateComplexity(FileComplexity fileComplexity) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Request request = new Request(RequestType.UPDATE);
+        request.object = fileComplexity;
+        sendMessage(request);
     }
 
     @Override
