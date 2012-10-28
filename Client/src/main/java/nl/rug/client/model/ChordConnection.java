@@ -40,6 +40,8 @@ public class ChordConnection implements IChordNode, Runnable {
     private boolean addressSet = false;
     //private boolean remoteAddressSet = false;
     
+    private final static Logger logger = Logger.getLogger(ChordConnection.class.getName());
+    
     public ChordConnection(Socket socket) throws IOException {
         out = new ObjectOutputStream(socket.getOutputStream());        
         in = new ObjectInputStream(socket.getInputStream());
@@ -48,7 +50,11 @@ public class ChordConnection implements IChordNode, Runnable {
     }
 
     public ChordConnection(Address address) throws IOException {
+        
         this(new Socket(address.getIp(), address.getPort()));
+        
+        logger.log(Level.INFO, "Initializing connection for address {0}:{1}, with id {2}", new Object[]{address.getIp(), address.getPort(), address.getHash()});
+        
         setAddress(address);
     }
     

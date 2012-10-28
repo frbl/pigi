@@ -117,14 +117,20 @@ public class ChordNode implements IChordNode {
         }
 
         if (!connections.containsKey(address.getHash())) {
+            
+            ChordConnection connection = null;
+            
             try {
-                ChordConnection connection = new ChordConnection(address);
-                Thread thread = new Thread(connection);
-                thread.start();
-                addConnection(address, connection);
+                connection = new ChordConnection(address);
             } catch (IOException ex) {
                 Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
             }
+            
+            Thread thread = new Thread(connection);            
+            thread.start();
+            
+            addConnection(address, connection);
+            
         }
 
         return connections.get(address.getHash());
