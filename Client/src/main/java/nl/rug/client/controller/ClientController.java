@@ -32,17 +32,20 @@ public class ClientController {
     
     private Analyzer analyzer = new ComplexityAnalyzer();
     
-    public ClientController(int port, WorkingSet workingSet){
-        node = new ChordNode(port, workingSet);
+    public ClientController(Address localAddress, Address remoteAddress, WorkingSet workingSet){
+        this(localAddress,workingSet);
+        //TEST!
+        if(remoteAddress != null){
+            node.join(remoteAddress);
+        }
+    }
+    
+    public ClientController(Address localAddress, WorkingSet workingSet){
+        node = new ChordNode(localAddress, workingSet);
         
         node.create();
-        startListeningForChildren(port);
+        startListeningForChildren(localAddress.getPort());
         
-        //TEST!
-        if(port != 4050){
-            Address address = new Address("192.168.1.4", 4050);
-            node.join(address);
-        }
     }
     
     public FileComplexity getComplexity(String file, Revision revision) {
@@ -97,6 +100,8 @@ public class ClientController {
      * @param args
      */
     public static void main(String args[]){
-        new ClientController(4053, null);
+        Address localAddress = new Address(null, 4040);
+        Address remoteAddress = new Address("10.0.0.4", 4040);
+        new ClientController(localAddress, remoteAddress, null);
     }
 }
