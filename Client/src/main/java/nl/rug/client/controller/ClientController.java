@@ -34,9 +34,11 @@ public class ClientController {
     }
 
     public ClientController(Address localAddress, WorkingSet workingSet) {
+        
         node = new ChordNode(localAddress, workingSet);
 
         node.create();
+        
         startListeningForChildren(localAddress.getPort());
 
     }
