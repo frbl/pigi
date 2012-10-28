@@ -25,14 +25,11 @@ import nl.rug.client.controller.ClientController;
  * @author Rene
  */
 public class ChordConnection implements IChordNode, Runnable {
-    
+
     private Address myAddress;
-    
     private ObjectOutputStream out = null;
     private ObjectInputStream in = null;
-    
     private Map<String, Response> responses = new HashMap<String, Response>();
-    
     private boolean alive = true;
     private int timeout = 10; //In seconds
     
@@ -49,10 +46,14 @@ public class ChordConnection implements IChordNode, Runnable {
         
         new Thread(sendRequests()).start();
     }
-    
+
     public ChordConnection(Address address) throws IOException {
         this(new Socket(address.getIp(), address.getPort()));
         setAddress(address);
+    }
+    
+    public boolean isAddressSet(){
+        return addressSet;
     }
     
     public void setAddress(Address address){
@@ -145,13 +146,14 @@ public class ChordConnection implements IChordNode, Runnable {
                 break;
             case FILE:
                 FileComplexity file = (FileComplexity)request.object;
-                file = localNode.getFileComplexity(file.getFilePath(), file.getRevision());
+                file.setComplexity(localNode.findFileComplexity(file.getFilePath(), file.getRevision()));
                 response.object = file;
                 sendMessage(response);
                 break;
         }
     }
-    
+
+    @Override
     public void run() {
         //while(!alive){
         //    try {
@@ -161,7 +163,7 @@ public class ChordConnection implements IChordNode, Runnable {
         //    }
         //}
         System.out.println("Now listening");
-        while(alive){
+        while (alive) {
             try {
                 Object message = in.readObject();
                 //System.out.println(mes + " - " + myAddress);
@@ -200,55 +202,68 @@ public class ChordConnection implements IChordNode, Runnable {
         Request request = new Request(RequestType.SUCCESSOR);
         sendMessage(request);
         Response response = waitForObject(request);
-        if(response == null) return null;
-        return (Address)response.object;
+        if (response == null) {
+            return null;
+        }
+        return (Address) response.object;
     }
     
     public Address getPredecessor(){
         Request request = new Request(RequestType.PREDECESSOR);
         sendMessage(request);
         Response response = waitForObject(request);
-        if(response == null) return null;
-        return (Address)response.object;
+        if (response == null) {
+            return null;
+        }
+        return (Address) response.object;
     }
 
+    @Override
     public Address findSuccessor(String id) {
         Request request = new Request(RequestType.FS);
         request.object = id;
         sendMessage(request);
         Response response = waitForObject(request);
-        if(response == null) return null;
-        return (Address)response.object;
+        if (response == null) {
+            return null;
+        }
+        return (Address) response.object;
     }
 
+    @Override
     public Address closestPrecedingNode(String id) {
         Request request = new Request(RequestType.CPN);
         request.object = id;
         sendMessage(request);
         Response response = waitForObject(request);
-        return (Address)response.object;
+        return (Address) response.object;
     }
 
+    @Override
     public void join(Address node) {
         Request request = new Request(RequestType.JOIN);
         request.object = node;
         sendMessage(request);
     }
 
+    @Override
     public void stabalize() {
         System.out.println("Implements stabalize in ChordConnection. It's needed after all");
     }
 
+    @Override
     public void notify(Address node) {
         Request request = new Request(RequestType.NOTIFY);
         request.object = node;
         sendMessage(request);
     }
 
+    @Override
     public void fixFingers() {
         System.out.println("Implements fixFingers in ChordConnection. It's needed after all");
     }
 
+    @Override
     public void checkPredecessor() {
         System.out.println("Implements checkPredecessor in ChordConnection. It's needed after all");
     }
@@ -302,7 +317,17 @@ public class ChordConnection implements IChordNode, Runnable {
         }
     }
 
+    
+    public void updateComplexity(FileComplexity fileComplexity) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     public boolean isAlive() {
         return alive;
     }
+
+    public Integer findFileComplexity(String filepath, long revision) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

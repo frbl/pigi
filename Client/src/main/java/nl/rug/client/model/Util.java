@@ -40,7 +40,7 @@ public class Util {
     }
     
     public static boolean isBetween(BigInteger compareTo, BigInteger compareLow, BigInteger compareHigh){
-        
+               
         if(compareLow.compareTo(compareHigh) < 0){ //Low is lower then high (expected most of the time)
             
             return compareTo.compareTo(compareLow) > 0 && compareTo.compareTo(compareHigh) < 0;
@@ -50,8 +50,8 @@ public class Util {
             return !isBetween(compareTo, compareHigh, compareLow);//compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0;
             
         } else {
-            System.out.println(compareTo + " : " + compareLow + " : " + compareHigh);
-            System.out.println(compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0);
+            //System.out.println(compareTo + " : " + compareLow + " : " + compareHigh);
+            //System.out.println(compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0);
             //return compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0;
         }
         

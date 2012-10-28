@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.rug.client.database.ChangedPath;
 import nl.rug.client.database.Repository;
+import nl.rug.client.model.FileComplexity;
 import nl.rug.client.model.Util;
 
 /**
@@ -72,6 +73,56 @@ public class WorkingSet {
     public List<ChangedPath> getComplexity(String hash) {
         
         return jobs.get(hash);
+        
+    }
+    
+    public int getComplexity(String file, long revision) {
+        
+        String hash = Util.getHash(file + revision);
+        
+        List<ChangedPath> list = getComplexity(hash);
+        
+        for (ChangedPath path : list) {
+            
+            if (path.getPath().equals(file)
+                    && path.getRevision().getNumber() == revision) {
+                
+                return path.getComplexity(); // done here
+                
+            }
+            
+        }
+        
+        return -1; // -1 means there is no value
+        
+    }
+    
+    
+     public void setComplexity(FileComplexity fileComplexity) {
+        
+        
+        List<ChangedPath> list = jobs.get(fileComplexity.getHash());
+        
+        for (ChangedPath path : list) {
+            
+            if (path.getPath().equals(fileComplexity.getFilePath())
+                    && path.getRevision().getNumber() == fileComplexity.getRevision()) {
+                
+                path.setComplexity(fileComplexity.getComplexity());
+                path.save();
+                
+                // update finished job count if complexity has been calculated
+                if (fileComplexity.getComplexity() != -1) {
+
+                    finishedJobs++;
+
+                }
+                
+                return; // done here
+                
+            }
+            
+        }
         
     }
     

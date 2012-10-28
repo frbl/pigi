@@ -23,7 +23,7 @@ public class ComplexityAnalyzer implements Analyzer {
         return pJavancss.getNcss();
     }
 
-    public void startAnalyzing(String filepath, int revision){
+    public int startAnalyzing(String filepath, long revision){
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

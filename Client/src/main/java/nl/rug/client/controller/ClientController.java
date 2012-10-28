@@ -9,10 +9,13 @@ import java.io.IOException;
 import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import nl.rug.client.WorkingSet;
 import nl.rug.client.analysis.Analyzer;
 import nl.rug.client.analysis.ComplexityAnalyzer;
+import nl.rug.client.database.Revision;
 import nl.rug.client.model.Address;
 import nl.rug.client.model.ChordConnection;
+import nl.rug.client.model.FileComplexity;
 
 /**
  *
@@ -29,13 +32,11 @@ public class ClientController {
     
     private Analyzer analyzer = new ComplexityAnalyzer();
     
-    public ClientController(int port){
-        node = new ChordNode(port);
+    public ClientController(int port, WorkingSet workingSet){
+        node = new ChordNode(port, workingSet);
         
         node.create();
         startListeningForChildren(port);
-        
-        startAnalyzingMyRange();
         
         //TEST!
         if(port != 4050){
@@ -44,12 +45,14 @@ public class ClientController {
         }
     }
     
-    public static ChordNode getChordNode(){
-        return node;
+    public FileComplexity getComplexity(String file, Revision revision) {
+        
+        return node.calculateFileComplexity(file, revision.getNumber());
+        
     }
     
-    private void startAnalyzingMyRange(){
-        
+    public static ChordNode getChordNode(){
+        return node;
     }
     
     private void startListeningForChildren(int port) {
@@ -94,6 +97,6 @@ public class ClientController {
      * @param args
      */
     public static void main(String args[]){
-        new ClientController(4050);
+        new ClientController(4053, null);
     }
 }
