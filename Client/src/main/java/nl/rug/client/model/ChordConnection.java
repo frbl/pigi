@@ -62,14 +62,13 @@ public class ChordConnection implements IChordNode, Runnable {
     }
     
     public void sendMessage(Object message){
+        if(message == null){
+            System.out.println("Message to send is null, this is likely to cause an error");
+        }
         try {
-            if(message == null){
-                System.out.println("Message to send is null, this is likely to cause an error");
-            }
             out.writeObject(message);
-            //System.out.println("Message send to " + myAddress.toString());
         } catch (IOException ex) {
-            System.out.println("OWNOO! the socket closed!! Do something!!!!");
+            Logger.getLogger(ChordConnection.class.getName()).log(Level.SEVERE, null, ex);
             kill();
         }
     }
