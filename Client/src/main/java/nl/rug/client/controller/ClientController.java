@@ -93,14 +93,23 @@ public class ClientController {
      * @param args
      */
     public static void main(String args[]) {
-        
-        
-        Address localAddress = new Address(null, 4040);
-        
-        if(localAddress.getPort() != 4040) {
-            Address remoteAddress = new Address("10.0.0.4", 4040);
+
+
+        Address localAddress = new Address(null, 4059);
+
+        String ip = "";
+
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+
+        if (localAddress.getPort() != 4040) {
+            Address remoteAddress = new Address(ip, 4040);
             new ClientController(localAddress, remoteAddress, null);
-        }else {
+        } else {
             new ClientController(localAddress, null);
         }
     }
