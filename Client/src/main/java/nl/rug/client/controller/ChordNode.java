@@ -20,14 +20,17 @@ import nl.rug.client.model.*;
  * @author Rene
  */
 public class ChordNode implements IChordNode {
+    
+    private final static int m = 160; // max bit length
 
     private Map<String, IChordNode> connections = new HashMap<String, IChordNode>();
     private ComplexityAnalyzer complexityAnalyzer = new ComplexityAnalyzer();
     private Address myAddress;
     private Address predecessor;
     private Address successor;
-    private Map<Integer, Address> fingers = new HashMap<Integer, Address>();
-    private int fingerIndex = 1;
+    private Address[] finger = new Address[m];
+
+    private int next = 0;
     private BigInteger myHash;
     private BigInteger maxHash = new BigInteger("ffffffffffffffffffffffffffffffffffffffff", 16);
     private BigInteger onePartHash = maxHash.divide(BigInteger.valueOf(160));
@@ -39,7 +42,7 @@ public class ChordNode implements IChordNode {
         this.workingSet = workingSet;
 
         String ip = address.getIp();
-        if (ip == null || ip == "") {
+        if (ip == null || ip.equals(address)) {
             try {
                 ip = InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException ex) {
@@ -161,21 +164,17 @@ public class ChordNode implements IChordNode {
 
     @Override
     public Address closestPrecedingNode(String id) {
-        Iterator<Address> it = fingers.values().iterator();
-        while (it.hasNext()) {
-            Address a = it.next();
-            if (Util.isBetween(a.getHash(), myAddress.getHash(), id)) {
-                return a;
-            }
+        
+        for (int i = m; i <= 1; i--) {
+            
+            if (Util.isBetween(id, this.getAddress().getHash(), finger[i - 1].getHash())) {
+                
+                return finger[i - 1];
+                
+            }            
+            
         }
-        //Collection<Address> fingerCol = fingers.values();
-        //Address[] addresses = fingerCol.toArray(new Address[fingers.size()]);
-        //for (int i = addresses.length - 1; i >= 0; i--) {
-        //    if (Util.isBetween(addresses[i].getHash(), myAddress.getHash(), id)) {
-        //        return addresses[i];
-        //    }
-        //}
-
+        
         return this.getAddress();
     }
 
@@ -222,30 +221,17 @@ public class ChordNode implements IChordNode {
 
     @Override
     public void fixFingers() {
-        int maxBitLenth = 160; //hex number with length 40
-        fingerIndex++;
 
-        if (Math.pow(2, fingerIndex) > maxBitLenth) {
-            fingerIndex = 1;
+        next++;
+        
+        if (next > m) {
+            
+            next = 1;
+            
         }
-        BigInteger lookupIndex = myHash.add(onePartHash.multiply(BigInteger.valueOf((int) Math.pow(2, fingerIndex - 1))));
-        lookupIndex = lookupIndex.mod(maxHash);
-        System.out.println("Find finger for: " + lookupIndex);
-        Address indexSuccessor = findSuccessor(lookupIndex.toString(16));
-        if (indexSuccessor != null) {
-            fingers.put(fingerIndex, indexSuccessor);
-        } else {
-            System.out.println("finger is null!");
-        }
-
-        //Print fingers
-        Iterator<Address> it = fingers.values().iterator();
-        System.out.println("------- Fingers -------");
-        while (it.hasNext()) {
-            Address a = it.next();
-            System.out.println(a);
-        }
-        System.out.println("------- End fingers " + fingers.size() + "-------");
+        
+        finger[next - 1] = findSuccessor(Util.addPowerOfTwo(this.getAddress(), next - 1));
+        
     }
 
     @Override
