@@ -66,8 +66,6 @@ public class App {
             chordSeedAddress = args[5];
             
             try {
-            
-                logger.log(Level.INFO, "Chord seed port should be a number.");
 
                 chordSeedPort = Integer.parseInt(args[6]);
 
