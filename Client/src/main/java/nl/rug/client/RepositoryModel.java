@@ -181,7 +181,6 @@ public class RepositoryModel {
                     char type = entryPath.getType();
                     String hash = Util.getHash(path + revision.getNumber());
                     
-                    if(path.equals("/encryption/test/encryption/CeasarEncryptionTest.java"))
                     logger.log(Level.INFO, "Saving changed path {0} which had type {1} with hash {2}", new Object[]{path, type, hash});
                     
                     ChangedPath changedPath = new ChangedPath();

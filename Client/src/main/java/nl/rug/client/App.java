@@ -4,6 +4,7 @@ import com.almworks.sqlite4java.SQLite;
 import com.almworks.sqlite4java.SQLiteException;
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.rug.client.analysis.Analyzer;
@@ -150,7 +151,9 @@ public class App {
         while (remaining != 0) {
 
             // get next job from working set
-            List<ChangedPath> jobs = workingSet.nextJob();
+            try{
+                List<ChangedPath> jobs = workingSet.nextJob();
+            
 
             // give job to chord network and retrieve value
             for (ChangedPath job : jobs) {
@@ -170,8 +173,13 @@ public class App {
 
             remaining = numberOfJobs - finishedNumberOfJobs;
 
-            logger.log(Level.INFO, "Finished job, {0} of {1} remaining.", new Object[]{remaining, numberOfJobs});
+            logger.log(Level.INFO, "Finished job, {0} of {1} "
+                    + "remaining.", new Object[]{remaining, numberOfJobs});
 
+            }catch (NoSuchElementException ex){
+                logger.log(Level.INFO, "Finished jobs all jobs on the queue.", (Object[]) null);
+                break;
+            }
         }
 
         logger.log(Level.INFO, "Finished retrieving complexity values for {0}.", repositoryAddress);

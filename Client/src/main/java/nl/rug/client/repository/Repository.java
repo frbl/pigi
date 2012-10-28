@@ -10,6 +10,7 @@ package nl.rug.client.repository;
  */
 public interface Repository {
         
+    public String retrieveDirectoryWithFiles(String path, long revision);
     
     public String retrieveFile(String path, long revision);
     

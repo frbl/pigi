@@ -78,13 +78,10 @@ public final class MySVNRepository implements Repository {
     }
 
     @Override
-    public String retrieveFile(String path, long revision) {
+    public String retrieveDirectoryWithFiles(String path, long revision) {
 
         String localpath = "";
         
-        if(true)
-            return testFunc(path, revision);
-
         try {
             final String FILE_SEPARATOR = System.getProperty("file.separator");
 
@@ -149,7 +146,8 @@ public final class MySVNRepository implements Repository {
 
     }
 
-    private String testFunc(String path, long revision) {
+    @Override
+    public String retrieveFile(String path, long revision) {
         
         final String FILE_SEPARATOR = System.getProperty("file.separator");
         
@@ -158,8 +156,6 @@ public final class MySVNRepository implements Repository {
         String fileName = splitted[splitted.length - 1];
         
         String localpath = "svnfiles" + FILE_SEPARATOR + "TEST" + FILE_SEPARATOR + revision + path.replace(fileName,"");
-        
-        System.out.println("Path: " + localpath + ", file:" + fileName);
         
         File dir = new File(localpath);
         
@@ -179,8 +175,6 @@ public final class MySVNRepository implements Repository {
                 repository.getFile(path, revision, new SVNProperties(), baos);
 
                 baos.writeTo(outputStream);
-
-                System.out.println(localpath);
 
             }
 

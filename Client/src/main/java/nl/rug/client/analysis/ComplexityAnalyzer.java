@@ -4,8 +4,11 @@
  */
 package nl.rug.client.analysis;
 
+import com.trilead.ssh2.log.Logger;
 import java.io.File;
+import java.util.logging.Level;
 import javancss.Javancss;
+import nl.rug.client.App;
 import nl.rug.client.RepositoryModel;
 import nl.rug.client.model.FileComplexity;
 import nl.rug.client.repository.MySVNRepository;
@@ -18,7 +21,10 @@ import nl.rug.client.repository.Repository;
 public class ComplexityAnalyzer implements Analyzer {
 
     private final String DIRECTORY = "svnfiles";
+    
     private Repository repository;
+    
+    private final static java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ComplexityAnalyzer.class.getName());
 
     public ComplexityAnalyzer(RepositoryModel repositoryModel) {
 
@@ -30,9 +36,11 @@ public class ComplexityAnalyzer implements Analyzer {
     }
 
     private Integer determineComplexity(File file) {
-        //File file = new File("C:\\Users\\Rene\\Desktop\\DistributedSystems\\pigi\\Client\\src\\main\\java\\nl\\rug\\client\\controller\\ClientController.java");
+        
         Javancss pJavancss = new Javancss(file);
+        
         return pJavancss.getNcss();
+        
     }
 
     @Override
@@ -59,11 +67,10 @@ public class ComplexityAnalyzer implements Analyzer {
         
         File file = new File(sb.toString());
         
-        System.out.println(file.getAbsolutePath());
-        
         int complexity = determineComplexity(file);
         
-        System.out.println("Complexity of " + file.getAbsolutePath() + " is " + complexity);
+        logger.log(Level.INFO, "Complexity calculated for {0} is {1} "
+                    , new Object[]{file.getAbsolutePath(), complexity});
         
         return complexity;
     }
