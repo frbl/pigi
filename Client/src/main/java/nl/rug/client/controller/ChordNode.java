@@ -4,7 +4,6 @@
  */
 package nl.rug.client.controller;
 
-import ccl.servlet.ChangedRequest;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -14,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.rug.client.WorkingSet;
 import nl.rug.client.analysis.ComplexityAnalyzer;
-import nl.rug.client.database.ChangedPath;
 import nl.rug.client.model.*;
 
 /**
