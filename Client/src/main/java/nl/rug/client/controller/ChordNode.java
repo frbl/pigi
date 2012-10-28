@@ -81,6 +81,17 @@ public class ChordNode implements IChordNode {
     }
 
     public void removeConnection(IChordNode node) {
+        if(successor.getHash().equals(node.getAddress().getHash())){
+            successor = myAddress;
+        }
+        if(predecessor.getHash().equals(node.getAddress().getHash())){
+            predecessor = null;
+        }
+        for(int i = 0; i < finger.length; i++){
+            if(finger[i] != null && finger[i].getHash().equals(node.getAddress())){
+                finger[i] = null;
+            }
+        }
         connections.remove(node.getAddress().getHash());
     }
 
@@ -171,12 +182,9 @@ public class ChordNode implements IChordNode {
     @Override
     public Address closestPrecedingNode(String id) {
         
-        for (int i = m; i <= 1; i--) {
-            
-            if (Util.isBetween(id, this.getAddress().getHash(), finger[i - 1].getHash())) {
-                
+        for (int i = m; i > 0; i--) {
+            if (finger[i - 1] != null && Util.isBetween(id, this.getAddress().getHash(), finger[i - 1].getHash())) {
                 return finger[i - 1];
-                
             }            
             
         }
