@@ -104,9 +104,14 @@ public class ChordNode implements IChordNode {
     }
 
     public IChordNode getConnection(Address address) {
+        
         if(address == null){
             System.out.println("Address is null @ " + myAddress);
         }
+        
+        if (address.equals(myAddress)) {
+            return this;
+        }        
         
         if(!connections.containsKey(address.getHash())) {
             try {
@@ -133,7 +138,14 @@ public class ChordNode implements IChordNode {
         //if (id.equals(myAddress.getHash())) {
         //    returnValue = successor;
         //}
-
+        //TODO Check here if the data is in de database?
+        // Ie:
+        /*
+         * if(!workingSet.getComplexity(id).isEmpty()) {
+         *  return myaddress;
+         * }
+         */
+        
         if (Util.isBetween(id, myAddress.getHash(), successor.getHash())
                 //|| (id.compareTo(successor.getHash()) == 0)
                 //|| (id.compareTo(myAddress.getHash()) == 0)) {

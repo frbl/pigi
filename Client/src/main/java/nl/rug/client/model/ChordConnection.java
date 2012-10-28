@@ -143,8 +143,8 @@ public class ChordConnection implements IChordNode, Runnable {
                 break;
             case FILE:
                 FileComplexity file = (FileComplexity)request.object;
-                file = localNode.getFileComplexity(file.getFilePath(), file.getRevision());
-                response.object = file;
+                Integer complexity = localNode.findFileComplexity(file.getFilePath(), file.getRevision());
+                response.object = complexity;
                 sendMessage(response);
                 break;
         }
@@ -185,6 +185,7 @@ public class ChordConnection implements IChordNode, Runnable {
         }
     }
     
+    @Override
     public Address getAddress(){
         if(addressSet) return myAddress;
         
@@ -195,6 +196,7 @@ public class ChordConnection implements IChordNode, Runnable {
         return (Address)response.object;
     }
     
+    @Override
     public Address getSuccessor(){
         Request request = new Request(RequestType.SUCCESSOR);
         sendMessage(request);
@@ -205,6 +207,7 @@ public class ChordConnection implements IChordNode, Runnable {
         return (Address) response.object;
     }
     
+    @Override
     public Address getPredecessor(){
         Request request = new Request(RequestType.PREDECESSOR);
         sendMessage(request);
@@ -290,21 +293,24 @@ public class ChordConnection implements IChordNode, Runnable {
         waitingFor = null;
         return responses.remove(request.UID);
     }
-
-    public FileComplexity getFileComplexity(String filepath, int revision) {
+    
+    @Override
+    public Integer findFileComplexity(String filepath, long revision) {
         Request request = new Request(RequestType.FILE);
         request.object = new FileComplexity(filepath, revision);
         sendMessage(request);
         Response response = waitForObject(request);
         if(response == null) return null;
-        return (FileComplexity)response.object;
+        return (Integer)response.object;
     }
     
+    @Override
     public void ping(){
         Request request = new Request(RequestType.PING);
         sendMessage(request);
     }
     
+    @Override
     public void kill(){
         alive = false;
         ClientController.getChordNode().removeConnection(this);
@@ -314,9 +320,14 @@ public class ChordConnection implements IChordNode, Runnable {
         }
     }
 
-    
+    @Override
     public void updateComplexity(FileComplexity fileComplexity) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean isAlive() {
+        return alive;
     }
 
 }
