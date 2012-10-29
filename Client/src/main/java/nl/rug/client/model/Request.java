@@ -32,6 +32,7 @@ public class Request implements Serializable {
         if(object == null){
             System.out.println("Object is null @ type: " + type);
         }
+        this.object = object;
     }
     
     public Object getObject(){
