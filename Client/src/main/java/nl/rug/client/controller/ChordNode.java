@@ -84,10 +84,10 @@ public class ChordNode implements IChordNode {
         if(node.getAddress() == null){
             return;
         }
-        if(successor.equals(node.getAddress())){
+        if(successor != null && successor.equals(node.getAddress())){
             successor = myAddress;
         }
-        if(predecessor.equals(node.getAddress())){
+        if(predecessor != null && predecessor.equals(node.getAddress())){
             predecessor = null;
         }
         for(int i = 0; i < finger.length; i++){
