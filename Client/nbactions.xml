@@ -10,7 +10,7 @@
                 <exec.args>-classpath %classpath nl.rug.client.App svn://devided.nl/wesenfrank wes xbox360 127.0.0.1 5000</exec.args>
                 <exec.executable>java</exec.executable>
                 <exec.classpathScope>runtime</exec.classpathScope>
-                <exec.workingdir>/home/wesschuitema/Development/pigi/Client</exec.workingdir>
+                <exec.workingdir></exec.workingdir>
             </properties>
         </action>
         <action>
@@ -24,7 +24,7 @@
                 <exec.executable>java</exec.executable>
                 <exec.classpathScope>runtime</exec.classpathScope>
                 <jpda.listen>true</jpda.listen>
-                <exec.workingdir>/home/wesschuitema/Development/pigi/Client</exec.workingdir>
+                <exec.workingdir></exec.workingdir>
             </properties>
         </action>
         <action>
@@ -36,7 +36,7 @@
             <properties>
                 <exec.args>${profiler.args} -classpath %classpath nl.rug.client.App svn://devided.nl/wesenfrank wes xbox360 127.0.0.1 5000</exec.args>
                 <exec.executable>${profiler.java}</exec.executable>
-                <exec.workingdir>/home/wesschuitema/Development/pigi/Client</exec.workingdir>
+                <exec.workingdir></exec.workingdir>
             </properties>
         </action>
     </actions>
