@@ -65,7 +65,9 @@ public class Database {
      * if the required tables are present in the database and creates them if
      * not present
      */
-    public void initialize() throws SQLiteException {
+    public void initialize(File fileLocation) throws SQLiteException {
+        
+        this.databaseFileLocation = fileLocation;
         
         SQLiteConnection db = new SQLiteConnection(databaseFileLocation);
 

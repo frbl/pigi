@@ -2,6 +2,7 @@ package nl.rug.client;
 
 import com.almworks.sqlite4java.SQLite;
 import com.almworks.sqlite4java.SQLiteException;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -37,9 +38,11 @@ public class App {
         // work. This is needed because of the Maven/JNI comination.
         SQLite.setLibraryPath("target/lib/");
 
-        if (args.length != 7 && args.length != 5) {
+        if (args.length != 8 && args.length != 6) {
             
-            logger.log(Level.SEVERE, "No repository specified. Usage: java -jar App.jar repository_address username password address port [chord_seed_address chord_seed_port]");
+            logger.log(Level.SEVERE, "No repository specified. Usage: java -jar "
+                    + "App.jar repository_address username password address port database_location"
+                    + " [chord_seed_address chord_seed_port]");
 
             System.exit(1);
 
@@ -61,17 +64,18 @@ public class App {
             System.exit(1);
             
         }
+        String databaseLocation = args[5];
         
         // if we need to connect to an existing node
         String chordSeedAddress = "";
         int chordSeedPort = 0;
-        if (args.length == 7) {
+        if (args.length == 8) {
             
-            chordSeedAddress = args[5];
+            chordSeedAddress = args[6];
             
             try {
 
-                chordSeedPort = Integer.parseInt(args[6]);
+                chordSeedPort = Integer.parseInt(args[7]);
 
             } catch (NumberFormatException ex) {
 
@@ -93,7 +97,7 @@ public class App {
 
             Database db = Database.getInstance();
 
-            db.initialize();
+            db.initialize(new File(databaseLocation));
 
         } catch (SQLiteException ex) {
 
