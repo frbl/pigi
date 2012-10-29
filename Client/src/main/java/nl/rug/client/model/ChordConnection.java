@@ -48,7 +48,7 @@ public class ChordConnection implements IChordNode, Runnable {
         in = new ObjectInputStream(socket.getInputStream());
         
         //REMOVE?
-        new Thread(sendRequests()).start();
+        new Thread(processRequests()).start();
     }
 
     public ChordConnection(Address address) throws IOException {
@@ -82,7 +82,7 @@ public class ChordConnection implements IChordNode, Runnable {
     }
 
     //REMOVE??
-    public Runnable sendRequests() {
+    public Runnable processRequests() {
         return new Runnable() {
             public void run() {
                 while (alive) {
@@ -111,13 +111,13 @@ public class ChordConnection implements IChordNode, Runnable {
                 //alive = true; //Connection finished at remote node
                 break;
             case CPN:
-                id = (String) request.object;
+                id = (String) request.getObject();
                 address = localNode.closestPrecedingNode(id);
                 response.object = address;
                 sendMessage(response);
                 break;
             case FS:
-                id = (String) request.object;
+                id = (String) request.getObject();
                 address = localNode.findSuccessor(id);
                 response.object = address;
                 sendMessage(response);
@@ -141,23 +141,23 @@ public class ChordConnection implements IChordNode, Runnable {
                 sendMessage(response);
                 break;
             case JOIN:
-                address = (Address) request.object;
+                address = (Address) request.getObject();
                 localNode.join(address);
                 break;
             case STABALIZE:
                 System.out.println("Not needed. STABALIZE at handleRequest - ChordConnection");
                 break;
             case NOTIFY:
-                address = (Address) request.object;
+                address = (Address) request.getObject();
                 localNode.notify(address);
                 break;
             case FILE:
-                FileComplexity file = (FileComplexity) request.object;
+                FileComplexity file = (FileComplexity) request.getObject();
                 response.object = localNode.getFileComplexity(file.getFilePath(), file.getRevision());
                 sendMessage(response);
                 break;
             case UPDATE:
-                FileComplexity fileComplexityUpdate = (FileComplexity) request.object;
+                FileComplexity fileComplexityUpdate = (FileComplexity) request.getObject();
                 localNode.updateComplexity(fileComplexityUpdate);
                 break;
         }
@@ -240,7 +240,7 @@ public class ChordConnection implements IChordNode, Runnable {
     @Override
     public Address findSuccessor(String id) {
         Request request = new Request(RequestType.FS);
-        request.object = id;
+        request.setObject(id);
         sendMessage(request);
         Response response = waitForObject(request);
         if (response == null) {
@@ -252,7 +252,7 @@ public class ChordConnection implements IChordNode, Runnable {
     @Override
     public Address closestPrecedingNode(String id) {
         Request request = new Request(RequestType.CPN);
-        request.object = id;
+        request.setObject(id);
         sendMessage(request);
         Response response = waitForObject(request);
         return (Address) response.object;
@@ -261,7 +261,7 @@ public class ChordConnection implements IChordNode, Runnable {
     @Override
     public void join(Address node) {
         Request request = new Request(RequestType.JOIN);
-        request.object = node;
+        request.setObject(node);
         sendMessage(request);
     }
 
@@ -273,7 +273,7 @@ public class ChordConnection implements IChordNode, Runnable {
     @Override
     public void notify(Address node) {
         Request request = new Request(RequestType.NOTIFY);
-        request.object = node;
+        request.setObject(node);
         sendMessage(request);
     }
 
@@ -316,7 +316,7 @@ public class ChordConnection implements IChordNode, Runnable {
     @Override
     public FileComplexity getFileComplexity(String filepath, long revision) {
         Request request = new Request(RequestType.FILE);
-        request.object = new FileComplexity(filepath, revision);
+        request.setObject(new FileComplexity(filepath, revision));
         sendMessage(request);
         Response response = waitForObject(request);
         if (response == null) {
@@ -344,7 +344,7 @@ public class ChordConnection implements IChordNode, Runnable {
     @Override
     public void updateComplexity(FileComplexity fileComplexity) {
         Request request = new Request(RequestType.UPDATE);
-        request.object = fileComplexity;
+        request.setObject(fileComplexity);
         sendMessage(request);
     }
 
