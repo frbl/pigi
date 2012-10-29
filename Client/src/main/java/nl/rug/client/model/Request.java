@@ -13,7 +13,7 @@ import java.util.UUID;
  */
 public class Request implements Serializable {
     
-    public RequestType type = null;
+    private RequestType type = null;
     private Object object = null;
     
     public String UID = UUID.randomUUID().toString();
@@ -25,7 +25,15 @@ public class Request implements Serializable {
     //public Request(Address target, Address sender, RequestType type){
     public Request(RequestType type){
         //super(target, sender);
+        setType(type);
+    }
+    
+    public void setType(RequestType type){
         this.type = type;
+    }
+    
+    public RequestType getType(){
+        return type;
     }
     
     public void setObject(Object object){

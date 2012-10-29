@@ -105,7 +105,7 @@ public class ChordConnection implements IChordNode, Runnable {
         Response response = new Response(request);
         String id = null;
         Address address = null;
-        switch (request.type) {
+        switch (request.getType()) {
             case ADDRESS:
                 response.object = localNode.getAddress();
                 sendMessage(response);
@@ -199,7 +199,7 @@ public class ChordConnection implements IChordNode, Runnable {
             } catch (Exception ex) {
                 kill();
                 Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
-                System.out.println("!!!!" + ((Request) message).type);
+                System.out.println("!!!!" + ((Request) message).getType());
             }
         }
     }
@@ -303,7 +303,7 @@ public class ChordConnection implements IChordNode, Runnable {
                     System.out.println("2TIME OUT!!!!!!");
                     System.out.println("3TIME OUT!!!!!!");
                     System.out.println("4TIME OUT!!!!!!");
-                    System.out.println("requesttype: " + request.type + " @ " + myAddress);
+                    System.out.println("requesttype: " + request.getType() + " @ " + myAddress);
                     break;
                 } else {
                     Thread.sleep(500);
