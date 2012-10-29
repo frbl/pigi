@@ -81,7 +81,7 @@ public class WorkingSet {
         String hash = Util.getHash(file + revision);
         
         List<ChangedPath> list = getComplexity(hash);
-        
+        System.out.println(file + " - " + revision + " - " + hash);
         for (ChangedPath path : list) {
             
             if (path.getPath().equals(file)

@@ -35,7 +35,7 @@ public class ChordConnection implements IChordNode, Runnable {
     private Request waitingFor = null;
     
     //REMOVE??
-    //private BlockingQueue<Request> toRequest = new LinkedBlockingQueue<Request>();
+    private BlockingQueue<Request> toRequest = new LinkedBlockingQueue<Request>();
     private boolean addressSet = false;
     //private boolean remoteAddressSet = false;
     private final static Logger logger = Logger.getLogger(ChordConnection.class.getName());
@@ -82,19 +82,19 @@ public class ChordConnection implements IChordNode, Runnable {
     }
 
     //REMOVE??
-//    public Runnable sendRequests() {
-//        return new Runnable() {
-//            public void run() {
-//                while (alive) {
-//                    try {
-//                        handleRequest(toRequest.take());
-//                    } catch (InterruptedException ex) {
-//                        Logger.getLogger(ChordConnection.class.getName()).log(Level.SEVERE, null, ex);
-//                    }
-//                }
-//            }
-//        };
-//    }
+    public Runnable sendRequests() {
+        return new Runnable() {
+            public void run() {
+                while (alive) {
+                    try {
+                        handleRequest(toRequest.take());
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(ChordConnection.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        };
+    }
 
     public void handleRequest(Request request) {
         //if(waitingFor != null){
@@ -182,9 +182,9 @@ public class ChordConnection implements IChordNode, Runnable {
                 if (message instanceof Request) {
                     Request request = (Request) message;
                     //System.out.println("Request received " + request.type);
-                    handleRequest(request);
+                    //handleRequest(request);
                     //REMOVE??
-                    //toRequest.add(request);
+                    toRequest.add(request);
                 } else if (message instanceof Response) {
                     Response response = (Response) message;
                     //System.out.println("Response received " + response.request.type);
