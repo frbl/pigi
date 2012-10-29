@@ -11,7 +11,9 @@ import junit.framework.TestCase;
  * @author frbl
  */
 public class UtilTest extends TestCase {
-    
+    String compareTo = "";
+    String compareLow = "";
+    String compareHigh = "";
     public UtilTest(String testName) {
         super(testName);
     }
@@ -19,6 +21,7 @@ public class UtilTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        
     }
     
     @Override
@@ -50,32 +53,42 @@ public class UtilTest extends TestCase {
         boolean result = Util.isBetween(compareTo, compareLow, compareHigh);
         assertEquals(expResult, result);
         
+    }
+    
+    public void testIs3Between25(){
         compareTo = "3";
         compareLow = "2";
         compareHigh = "4";
-        expResult = true;
-        result = Util.isBetween(compareTo, compareLow, compareHigh);
+        boolean expResult = true;
+        boolean result = Util.isBetween(compareTo, compareLow, compareHigh);
         assertEquals(expResult, result);
-        
+    }
+    
+    public void testIs5Between24(){
         compareTo = "5";
         compareLow = "2";
         compareHigh = "4";
-        expResult = false;
-        result = Util.isBetween(compareTo, compareLow, compareHigh);
+        boolean expResult = false;
+        boolean result = Util.isBetween(compareTo, compareLow, compareHigh);
         assertEquals(expResult, result);
-        
+    }
+    
+    public void testIs3Between44() {   
         compareTo = "3";
         compareLow = "4";
         compareHigh = "4";
-        expResult = false;//TODO should this be true or false?
-        result = Util.isBetween(compareTo, compareLow, compareHigh);
+        boolean expResult = true;//TODO should this be true or false?
+        boolean result = Util.isBetween(compareTo, compareLow, compareHigh);
         assertEquals(expResult, result);
-        
+    }
+    
+    public void testIs4Between44(){
         compareTo = "4";
         compareLow = "4";
         compareHigh = "4";
-        expResult = false;//TODO should this be true or false?
-        result = Util.isBetween(compareTo, compareLow, compareHigh);
+        boolean expResult = true;//TODO should this be true or false?
+        boolean result = Util.isBetween(compareTo, compareLow, compareHigh);
         assertEquals(expResult, result);
+        
     }
 }
