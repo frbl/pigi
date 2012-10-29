@@ -210,6 +210,7 @@ public class ChordConnection implements IChordNode, Runnable {
         sendMessage(request);
         Response response = waitForObject(request);
         if (response == null) {
+            System.out.println("Address is null :o");
             return null;
         }
         return (Address) response.object;
