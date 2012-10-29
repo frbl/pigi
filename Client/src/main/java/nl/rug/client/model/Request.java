@@ -14,7 +14,7 @@ import java.util.UUID;
 public class Request implements Serializable {
     
     public RequestType type = null;
-    private Object object;
+    private Object object = null;
     
     public String UID = UUID.randomUUID().toString();
     
