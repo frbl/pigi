@@ -67,14 +67,14 @@ public class UtilTest extends TestCase {
         compareTo = "3";
         compareLow = "4";
         compareHigh = "4";
-        expResult = true;
+        expResult = false;//TODO should this be true or false?
         result = Util.isBetween(compareTo, compareLow, compareHigh);
         assertEquals(expResult, result);
         
         compareTo = "4";
         compareLow = "4";
         compareHigh = "4";
-        expResult = true;
+        expResult = false;//TODO should this be true or false?
         result = Util.isBetween(compareTo, compareLow, compareHigh);
         assertEquals(expResult, result);
     }
