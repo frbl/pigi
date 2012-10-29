@@ -193,10 +193,11 @@ public class ChordConnection implements IChordNode, Runnable {
                     responses.put(response.request.UID, response);
                 }
             } catch (IOException e) {
+                kill();
                 System.out.println("OWNOO! the socket closed!! Do something!!!!");
                 //Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, e);
-                kill();
             } catch (Exception ex) {
+                kill();
                 Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
                 System.out.println("!!!!" + ((Request) message).type);
             }
