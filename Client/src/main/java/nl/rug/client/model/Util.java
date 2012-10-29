@@ -39,27 +39,27 @@ public class Util {
         return result;
     }
     
-//    public static boolean isBetween(BigInteger compareTo, BigInteger compareLow, BigInteger compareHigh){
-//               
-//        if(compareLow.compareTo(compareHigh) < 0){ //Low is lower then high (expected most of the time)
-//            
-//            return compareTo.compareTo(compareLow) > 0 && compareTo.compareTo(compareHigh) < 0;
-//            
-//        } else if(compareLow.compareTo(compareHigh) > 0){ //Low is higher then high
-//            
-//            return !isBetween(compareTo, compareHigh, compareLow);//compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0;
-//            
-//        } else {
-//            //System.out.println(compareTo + " : " + compareLow + " : " + compareHigh);
-//            //System.out.println(compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0);
-//            //return compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0;
-//        }
-//        
-//        //low and high are the same. return true
-//        return false;
-//    }
+    public static boolean isBetween(BigInteger compareTo, BigInteger compareLow, BigInteger compareHigh){
+               
+        if(compareLow.compareTo(compareHigh) < 0){ //Low is lower then high (expected most of the time)
+            
+            return compareTo.compareTo(compareLow) > 0 && compareTo.compareTo(compareHigh) < 0;
+            
+        } else if(compareLow.compareTo(compareHigh) > 0){ //Low is higher then high
+            
+            return !isBetween(compareTo, compareHigh, compareLow);//compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0;
+            
+        } else {
+            //System.out.println(compareTo + " : " + compareLow + " : " + compareHigh);
+            //System.out.println(compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0);
+            //return compareTo.compareTo(compareLow) > 0 || compareTo.compareTo(compareHigh) <= 0;
+        }
+        
+        //low and high are the same. return true
+        return false;
+    }
     
-    public static boolean isBetween(String id, String start, String end) {
+/*    public static boolean isBetween(String id, String start, String end) {
         
         boolean afterStart = id.compareTo(start) > 0;
         boolean beforeEnd = id.compareTo(end) <= 0;
@@ -74,13 +74,13 @@ public class Util {
             
         }
         
-    }
+    }*/
     
-//    public static boolean isBetween(String valueToCompare, String compareLow, String compareHigh){
-//        
-//        return isBetween(new BigInteger(valueToCompare,16), new BigInteger(compareLow, 16), new BigInteger(compareHigh, 16));
-//    
-//    }
+    public static boolean isBetween(String valueToCompare, String compareLow, String compareHigh){
+        
+        return isBetween(new BigInteger(valueToCompare,16), new BigInteger(compareLow, 16), new BigInteger(compareHigh, 16));
+    
+    }
     
     
     

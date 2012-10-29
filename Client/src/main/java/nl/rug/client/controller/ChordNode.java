@@ -81,6 +81,9 @@ public class ChordNode implements IChordNode {
     }
 
     public void removeConnection(IChordNode node) {
+        if(node.getAddress() == null){
+            return;
+        }
         if(successor.equals(node.getAddress())){
             successor = myAddress;
         }
@@ -299,6 +302,10 @@ public class ChordNode implements IChordNode {
 
         fileComplexity = node.getFileComplexity(filepath, revision);
 
+        if(fileComplexity == null){
+            return fileComplexity;
+        }
+        
         if (fileComplexity.getComplexity() == -1) {
 
             fileComplexity.setComplexity(ClientController.getAnalyzer().startAnalyzing(fileComplexity));

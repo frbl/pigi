@@ -104,18 +104,11 @@ public class ClientController {
      * @param args
      */
     public static void main(String args[]) {
-        Address localAddress = new Address(null, 4042);
+        Address localAddress = new Address("192.168.1.4", 4041);
         
         if(localAddress.getPort() != 4040) {
-             try {
-                String ip = InetAddress.getLocalHost().getHostAddress();
-                Address remoteAddress = new Address(ip, 4040);
-                new ClientController(localAddress, remoteAddress, null, null);
-            } catch (UnknownHostException ex) {
-                Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, "Cannot determine host (ip address)", ex);
-
-                System.exit(1);
-            }
+            Address remoteAddress = new Address("192.168.1.4", 4040);
+            new ClientController(localAddress, remoteAddress, null, null);
         } else {
             new ClientController(localAddress, null, null);
         }

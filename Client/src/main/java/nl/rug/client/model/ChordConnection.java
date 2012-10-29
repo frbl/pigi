@@ -31,7 +31,7 @@ public class ChordConnection implements IChordNode, Runnable {
     private ObjectInputStream in = null;
     private Map<String, Response> responses = new HashMap<String, Response>();
     private boolean alive = true;
-    private int timeout = 10; //In seconds
+    private int timeout = 30; //In seconds
     private Request waitingFor = null;
     
     //REMOVE??
@@ -48,7 +48,7 @@ public class ChordConnection implements IChordNode, Runnable {
         in = new ObjectInputStream(socket.getInputStream());
         
         //REMOVE?
-        //new Thread(sendRequests()).start();
+        new Thread(sendRequests()).start();
     }
 
     public ChordConnection(Address address) throws IOException {
