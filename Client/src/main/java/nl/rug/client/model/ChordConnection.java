@@ -33,7 +33,6 @@ public class ChordConnection implements IChordNode, Runnable {
     private boolean alive = true;
     private int timeout = 30; //In seconds
     private Request waitingFor = null;
-    
     //REMOVE??
     private BlockingQueue<Request> toRequest = new LinkedBlockingQueue<Request>();
     private boolean addressSet = false;
@@ -44,9 +43,10 @@ public class ChordConnection implements IChordNode, Runnable {
         out = new ObjectOutputStream(socket.getOutputStream());
 
         out.flush();
-        
+
         in = new ObjectInputStream(socket.getInputStream());
-        
+
+
         //REMOVE?
         new Thread(processRequests()).start();
     }
@@ -75,6 +75,7 @@ public class ChordConnection implements IChordNode, Runnable {
         }
         try {
             out.writeObject(message);
+            out.flush();
         } catch (IOException ex) {
             Logger.getLogger(ChordConnection.class.getName()).log(Level.SEVERE, null, ex);
             kill();
@@ -173,10 +174,11 @@ public class ChordConnection implements IChordNode, Runnable {
         //    }
         //}
         System.out.println("Now listening");
+        Object message = null;
         while (alive) {
             try {
 
-                Object message = in.readObject();
+                message = in.readObject();
                 //System.out.println(mes + " - " + myAddress);
                 //Message message = (Message)mes;
                 if (message instanceof Request) {
@@ -196,6 +198,7 @@ public class ChordConnection implements IChordNode, Runnable {
                 kill();
             } catch (Exception ex) {
                 Logger.getLogger(ChordNode.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("!!!!" + ((Request) message).type);
             }
         }
     }
