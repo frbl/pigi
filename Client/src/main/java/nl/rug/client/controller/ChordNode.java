@@ -62,7 +62,7 @@ public class ChordNode implements IChordNode {
     //}
     private void scheduleTasks() {
         Timer timer = new Timer();
-        timer.schedule(scheduleFixFingers(), 1000, 3000);
+        timer.schedule(scheduleFixFingers(), 1000, 10000);
     }
 
     private TimerTask scheduleFixFingers() {

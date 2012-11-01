@@ -132,7 +132,7 @@ public class App {
         Address localAddress = new Address(address, port);
         
         // Create the analyzer which should perform the actual complexity calculation.
-        Analyzer complexityAnalyzer = new ComplexityAnalyzer(repositoryModel);
+        Analyzer complexityAnalyzer = new ComplexityAnalyzer(port+"",repositoryModel);
         
         
         if (chordSeedAddress.equals("") && chordSeedPort == 0) {

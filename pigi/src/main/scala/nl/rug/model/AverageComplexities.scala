@@ -30,12 +30,32 @@ class AverageComplexities(clusterName: String, clusterAddress: String) {
   // [String, Long] corresponds with key and column name
   private val template = new ThriftColumnFamilyTemplate[String, String](keyspace, columnFamily, stringSerializer, stringSerializer)
 
-  def getRepositories: Iterator[String] = {
+  def getRepositories: List[RepositoryCassandra] = {
 
     val javaIterable = new StringKeyIterator(keyspace, columnFamily)
 
-    javaIterable.asScala.iterator
+    val rep: Iterator[String] = javaIterable.asScala.iterator
+		
+		var repositories :List[RepositoryCassandra] = List[RepositoryCassandra]()
+	
+		while(rep.hasNext) repositories ::= findByUrl(rep.next)
+		
+		return repositories
+		
+  }
 
+  def findByUrl(url :String): RepositoryCassandra = {
+
+      var repository = new RepositoryCassandra
+
+      val result = template.queryColumns(url)
+
+      repository.url = result.getKey()
+      repository.name = result.getString("name")
+      repository.description = result.getString("description")
+
+			return repository
+      
   }
 
   def getAverageComplexities(repository: String, from: Long, to: Long): Iterator[HColumn[Long, Double]] = {

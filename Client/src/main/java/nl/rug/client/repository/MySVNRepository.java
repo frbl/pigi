@@ -32,12 +32,16 @@ import org.tmatesoft.svn.core.wc.SVNWCUtil;
 public final class MySVNRepository implements Repository {
 
     SVNRepository repository;
+    
+    private String nodename = "";
 
-    public MySVNRepository(String svnUrl, String path) {
-        this(svnUrl, path, "anonymous", "anonymous");
-    }
+//    public MySVNRepository(String svnUrl, String path) {
+//        this(svnUrl, path, "anonymous", "anonymous");
+//    }
 
-    public MySVNRepository(String svnUrl, String path, String username, String password) {
+    public MySVNRepository(String nodename, String svnUrl, String path, String username, String password) {
+        this.nodename = nodename;
+        
         initRepository(svnUrl, path, username, password);
     }
 
@@ -96,7 +100,7 @@ public final class MySVNRepository implements Repository {
 
             Iterator iterator = entries.iterator();
 
-            localpath = "svnfiles" + FILE_SEPARATOR + "TEST" + FILE_SEPARATOR + revision + FILE_SEPARATOR + path;
+            localpath = "svnfiles" + FILE_SEPARATOR + nodename + FILE_SEPARATOR + revision + FILE_SEPARATOR + path;
 
             File svnpath = new File(localpath);
 
@@ -155,7 +159,7 @@ public final class MySVNRepository implements Repository {
         
         String fileName = splitted[splitted.length - 1];
         
-        String localpath = "svnfiles" + FILE_SEPARATOR + "TEST" + FILE_SEPARATOR + revision + path.replace(fileName,"");
+        String localpath = "svnfiles" + FILE_SEPARATOR + nodename + FILE_SEPARATOR + revision + path.replace(fileName,"");
         
         File dir = new File(localpath);
         

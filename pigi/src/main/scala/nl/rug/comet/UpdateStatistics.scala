@@ -7,6 +7,7 @@ import net.liftweb.util._
 import net.liftweb.http.js.JsCmds.SetHtml
 import nl.rug.snippet._
 import net.liftweb._
+import common.Full
 import net.liftweb.http.js._
 import JsCmds._
 import JE._
@@ -16,6 +17,8 @@ case object Tick
 
 class UpdateStatistics extends CometActor {
 
+  override def defaultPrefix = Full("clk")
+
   Schedule.schedule(this, Tick, 3 seconds) 
 	
 	var statistics: Statistics = new Statistics;
@@ -24,7 +27,7 @@ class UpdateStatistics extends CometActor {
 	
   def render = {
 		val entries = statistics.entries
-	
+
 		".instance" #> entries.map { entry => {
 				".instance [onclick]" #> ("document.location='statistics/repository/"+entry.id+"';") &
 	      ".index *" #> entry.id &
@@ -41,7 +44,7 @@ class UpdateStatistics extends CometActor {
   override def lowPriority = {
     case Tick =>
 			println("Recieved Tick!")
-			reRender(true)
+			reRender(false)
 			
 			statistics.update()
 			

@@ -24,11 +24,15 @@ public class ComplexityAnalyzer implements Analyzer {
     
     private Repository repository;
     
+    private String nodename = "";
+    
     private final static java.util.logging.Logger logger = java.util.logging.Logger.getLogger(ComplexityAnalyzer.class.getName());
 
-    public ComplexityAnalyzer(RepositoryModel repositoryModel) {
-
-        this.repository = new MySVNRepository(repositoryModel.getAddress(),
+    public ComplexityAnalyzer(String nodename, RepositoryModel repositoryModel) {
+        
+        this.nodename = nodename;
+        
+        this.repository = new MySVNRepository(nodename, repositoryModel.getAddress(),
                                                 "",
                                                 repositoryModel.getUsername(),
                                                 repositoryModel.getPassword());
@@ -57,7 +61,7 @@ public class ComplexityAnalyzer implements Analyzer {
         sb.append(FILE_SEPARATOR);
         
         //TODO This is now hardcoded both here and in MySvnrepository, update it.
-        sb.append("TEST");
+        sb.append(nodename);
         
         sb.append(FILE_SEPARATOR);
         

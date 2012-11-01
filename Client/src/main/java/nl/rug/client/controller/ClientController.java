@@ -104,10 +104,10 @@ public class ClientController {
      * @param args
      */
     public static void main(String args[]) {
-        Address localAddress = new Address("192.168.1.4", 4050);
+        Address localAddress = new Address("127.0.0.1", 4042);
         
         if(localAddress.getPort() != 4040) {
-            Address remoteAddress = new Address("192.168.1.4", 4040);
+            Address remoteAddress = new Address("127.0.0.1", 4040);
             new ClientController(localAddress, remoteAddress, null, null);
         } else {
             new ClientController(localAddress, null, null);

@@ -4,6 +4,8 @@
  */
 package nl.rug.client.model;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -25,26 +27,27 @@ import nl.rug.client.controller.ClientController;
  * @author Rene
  */
 public class ChordConnection implements IChordNode, Runnable {
+    
+    private final static Logger logger = Logger.getLogger(ChordConnection.class.getName());
 
     private Address myAddress;
     private ObjectOutputStream out = null;
     private ObjectInputStream in = null;
     private Map<String, Response> responses = new HashMap<String, Response>();
     private boolean alive = true;
-    private int timeout = 30; //In seconds
+    private int timeout = 10; //In seconds
     private Request waitingFor = null;
     //REMOVE??
     private BlockingQueue<Request> toRequest = new LinkedBlockingQueue<Request>();
     private boolean addressSet = false;
     //private boolean remoteAddressSet = false;
-    private final static Logger logger = Logger.getLogger(ChordConnection.class.getName());
 
     public ChordConnection(Socket socket) throws IOException {
-        out = new ObjectOutputStream(socket.getOutputStream());
+        out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
         out.flush();
 
-        in = new ObjectInputStream(socket.getInputStream());
+        in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 
 
         //REMOVE?
@@ -213,10 +216,11 @@ public class ChordConnection implements IChordNode, Runnable {
         Request request = new Request(RequestType.ADDRESS);
         sendMessage(request);
         Response response = waitForObject(request);
-        if (response == null) {
-            System.out.println("Address is null :o");
+        logger.log(Level.INFO, "Response {0}", response);
+        if(response == null) {
             return null;
         }
+        
         return (Address) response.object;
     }
 
@@ -225,9 +229,7 @@ public class ChordConnection implements IChordNode, Runnable {
         Request request = new Request(RequestType.SUCCESSOR);
         sendMessage(request);
         Response response = waitForObject(request);
-        if (response == null) {
-            return null;
-        }
+        
         return (Address) response.object;
     }
 
@@ -236,9 +238,7 @@ public class ChordConnection implements IChordNode, Runnable {
         Request request = new Request(RequestType.PREDECESSOR);
         sendMessage(request);
         Response response = waitForObject(request);
-        if (response == null) {
-            return null;
-        }
+        
         return (Address) response.object;
     }
 
@@ -248,9 +248,7 @@ public class ChordConnection implements IChordNode, Runnable {
         request.setObject(id);
         sendMessage(request);
         Response response = waitForObject(request);
-        if (response == null) {
-            return null;
-        }
+        
         return (Address) response.object;
     }
 
@@ -320,12 +318,15 @@ public class ChordConnection implements IChordNode, Runnable {
 
     @Override
     public FileComplexity getFileComplexity(String filepath, long revision) {
+        
+        logger.log(Level.INFO, "File:{0} revision {1}", new Object[]{filepath, revision});
         Request request = new Request(RequestType.FILE);
         request.setObject(new FileComplexity(filepath, revision));
         sendMessage(request);
         Response response = waitForObject(request);
         if (response == null) {
-            return null;
+            logger.log(Level.SEVERE, "Response is null");
+            //return null;
         }
         return (FileComplexity) response.object;
     }

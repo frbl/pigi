@@ -4,6 +4,7 @@ import _root_.scala.xml.{NodeSeq, Text}
 import _root_.net.liftweb.util._
 import _root_.net.liftweb.common._
 import scala.util.Random
+import nl.rug.model.RepositoryCassandra
 import nl.rug.model.Repository
 import nl.rug.model.Revision
 import nl.rug.model.AverageComplexities
@@ -31,19 +32,19 @@ class Statistics {
 	
 	var image = prepareImage(entries)
 	
+	val am = new AverageComplexities("Pigi Cluster","192.168.10.210:9160")
 	
 	def update() = {
+    
+    val repositories: List[RepositoryCassandra] = am.getRepositories
 
-    val am = new AverageComplexities("Pigi Cluster","192.168.10.210:9160")
-
-    val rep: Iterator[String] = am.getRepositories
-    println("Test")
-
-    while(rep.hasNext){
-      println("Test Rep." + rep.next() + ".")
-    }
+    repositories.foreach(repository => {
+			println(repository.url)
+			println(repository.name)
+			println(repository.description)
+		})
 		
-		val repositories: List[Repository] = Repository.findAll;
+		//val repositories: List[Repository] = Repository.findAll;
 		
 		// Empty the list by creating a new object?
 		entries = List[Entry]();
@@ -57,23 +58,22 @@ class Statistics {
 		repositories.foreach(repository=> {
 			// Create random complexities
 			var entry = new Entry
-			entry.id = repository.id.toInt;
+			entry.id = 0;
 			entry.name = repository.name;
 			entry.url = repository.url;
 			entry.complexity = r.nextInt(40);
 			
 			// Check if it has more revisions
-			revisions = repository.revisions.toList;
-			if(revisions.length > 0) {
-				entry.complexity = revisions.last.averageComplexity;
-				entry.lastRevision = revisions.last.revisionNumber.toInt;
-			}
-			
+			//revisions = repository.revisions.toList;
+			//if(revisions.length > 0) {
+			//	entry.complexity = revisions.last.averageComplexity;
+			//	entry.lastRevision = revisions.last.revisionNumber.toInt;
+			//}
+			entry.lastRevision = revision;
 			entries ::= entry;
 			average += (entry.complexity / repositories.length);
 			
 		})
-		
 		
 		revision += 1;
 		
