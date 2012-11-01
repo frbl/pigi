@@ -12,7 +12,8 @@ pigi/lift_proto.db.*
 default.props
 lift_proto.db.h2.db
 lift_proto.db.trace.db
-.idea
+.idea/
+
 
 # Scala-IDE specific
 .scala_dependencies
