@@ -58,7 +58,7 @@ class Boot {
     // Build SiteMap
     def sitemap() = SiteMap(
       Menu("Home") / "index" >> LocGroup("main"), 
-			Menu("Statistics") / "statistics" /*>> MustBeLoggedIn*/ >> LocGroup("main"), //Must be loggedin disabled for testing purposes
+			Menu("Statistics") / "statistics" >> MustBeLoggedIn >> LocGroup("main"), //Must be loggedin disabled for testing purposes
 			User.loginMenuLoc.open_!,
 			User.createUserMenuLoc.open_!,
 			Menu("user",userLinkText)  / "" >> MustBeLoggedIn >> LocGroup("user"), 

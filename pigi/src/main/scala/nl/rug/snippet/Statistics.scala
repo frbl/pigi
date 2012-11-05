@@ -32,12 +32,18 @@ class Statistics {
 	
 	var image = prepareImage(entries)
 	
-	val am = new AverageComplexities("Pigi Cluster","192.168.10.210:9160")
+	val averageComplexities = new AverageComplexities
 	
 	def update() = {
     
-    val repositories: List[RepositoryCassandra] = am.getRepositories
-
+    val repositories: List[RepositoryCassandra] = averageComplexities.getRepositories
+		
+		val complexities = averageComplexities.getAverageComplexities("svn://wxwidgets.com/repo/trunk", 0, 100)
+		
+		while(complexities.hasNext) {
+			println(complexities.next.getValue)
+		}
+		
     repositories.foreach(repository => {
 			println(repository.url)
 			println(repository.name)

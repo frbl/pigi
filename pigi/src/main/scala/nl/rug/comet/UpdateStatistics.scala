@@ -30,7 +30,6 @@ class UpdateStatistics extends CometActor {
 
 		".instance" #> entries.map { entry => {
 				".instance [onclick]" #> ("document.location='statistics/repository/"+entry.id+"';") &
-	      ".index *" #> entry.id &
 				".name *" #> entry.name &
 	      ".url *"  #> entry.url &
 				".revision *" #> entry.lastRevision &
