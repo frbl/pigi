@@ -12,10 +12,9 @@
 				<table class="table table-striped table-hover">
 					<thead>
 			  		<tr>
-							<th>ID</th>
 							<th>Repository</th>
 							<th>URL</th>
-							<th>Revision</th>
+							<th>Revisions</th>
 							<th>Average Complexity</th>
 						</tr>
 					</thead>
@@ -32,13 +31,14 @@
 				</table>
 			</div>
 			<div class="span3">
-				<img id="chart" alt="Complexity pie chart"></img>
+				<img id="chart" alt="Complexity pie chart" ></img>
 			</div>
 		</div>
 		<div class="pagination-centered">
 	 		<small class="muted">Last update was at: <span id="time">The current time</span></small>
 		</div>
 	</div>
-	<div id="chart_div" class="span12" style="height: 500px; width=100px;"></div>
+	<div id="chart_div" class="span12" style="height: 500px; width=100px;">
+		<div class="waiting pagination-centered">Loading graph..</div></div>
 </div>
 

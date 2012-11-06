@@ -14,21 +14,17 @@ class Entry() {
 	var id: Int = 0
 	var name: String = "Name";
 	var url: String = "Url";
-	var complexity: Int = 0;
+	var averageComplexity: Long = 0;
 	var lastRevision: Int = 0;
+	var revisions: List[Long] = List[Long]();
 
 }
 
 class Statistics {
-	
-	private val r = new Random()
-	
-	// Fake data from the database
-	var entries = List[Entry]()
-	
-	var average = 0;
-	
-	var revision = 0;
+
+	// place to store the entries from the database
+	private var _entries = List[Entry]()
+	def entries = _entries
 	
 	var image = prepareImage(entries)
 	
@@ -38,36 +34,28 @@ class Statistics {
     
     val repositories: List[RepositoryCassandra] = averageComplexities.getRepositories
 		
-		val complexities = averageComplexities.getAverageComplexities("svn://wxwidgets.com/repo/trunk", 0, 100)
-		
-		while(complexities.hasNext) {
-			println(complexities.next.getValue)
-		}
-		
-    repositories.foreach(repository => {
-			println(repository.url)
-			println(repository.name)
-			println(repository.description)
-		})
-		
-		//val repositories: List[Repository] = Repository.findAll;
-		
 		// Empty the list by creating a new object?
-		entries = List[Entry]();
-		
-		average = 0;
-		
-		var tempComplexity: Int = 0;
-		
-		var revisions = List[Revision]();
+		_entries = List[Entry]();
 		
 		repositories.foreach(repository=> {
+			
+			val complexities = averageComplexities.getAverageComplexities(repository.url, 0, 100)
+			
+			var revisions: List[Long] = List[Long]();
+			
+			while(complexities.hasNext) {
+				revisions ::= complexities.next.getValue
+			}
+			
+			//Revisions are added at the beginning for some reason
+			revisions = revisions.reverse
+			
 			// Create random complexities
 			var entry = new Entry
 			entry.id = 0;
 			entry.name = repository.name;
 			entry.url = repository.url;
-			entry.complexity = r.nextInt(40);
+			
 			
 			// Check if it has more revisions
 			//revisions = repository.revisions.toList;
@@ -75,24 +63,34 @@ class Statistics {
 			//	entry.complexity = revisions.last.averageComplexity;
 			//	entry.lastRevision = revisions.last.revisionNumber.toInt;
 			//}
-			entry.lastRevision = revision;
-			entries ::= entry;
-			average += (entry.complexity / repositories.length);
+			entry.lastRevision = revisions.length;
+			_entries ::= entry;
+			entry.revisions = revisions;
+			
+			entry.averageComplexity = getAverage(revisions);
 			
 		})
-		
-		revision += 1;
 		
 	  image = prepareImage(entries);
 	
 	}
 	
-
+	def getAverage(revisions :List[Long]) :Long = {
+		var avg :Long = 0;
+		var n :Long = 0;
+		revisions.foreach(r => {
+			avg += r
+		  n +=1
+		})
+		return avg/n;
+	}
+	
 	def prepareImage(entries:List[Entry]):String = {
 		var imageurl = "https://chart.googleapis.com/chart?cht=p3&amp;chd=t:";
-		
-		entries.foreach(x => {
-			imageurl += x.complexity + ","
+		var append = "";
+		entries.foreach(entry => {
+			imageurl += entry.averageComplexity + ","
+			append += entry.name + "|"
 			}
 		)
 		
@@ -100,11 +98,10 @@ class Statistics {
 		
 		imageurl +="&amp;chs=250x100&amp;chl=";
 		
-		entries.foreach(x => {
-			imageurl += x.name + "|"
-			}
-		)
+		imageurl += append
+		
 		return imageurl.dropRight(1);
+		
 	}
 	
 }

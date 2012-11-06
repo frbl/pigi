@@ -17,13 +17,11 @@ case object Tick
 
 class UpdateStatistics extends CometActor {
 
-  override def defaultPrefix = Full("clk")
-
-  Schedule.schedule(this, Tick, 3 seconds) 
-	
 	var statistics: Statistics = new Statistics;
 	
 	statistics.update()
+	
+	Schedule.schedule(this, Tick, 1 seconds) 
 	
   def render = {
 		val entries = statistics.entries
@@ -33,21 +31,51 @@ class UpdateStatistics extends CometActor {
 				".name *" #> entry.name &
 	      ".url *"  #> entry.url &
 				".revision *" #> entry.lastRevision &
-				".complexity *" #> entry.complexity
+				".complexity *" #> entry.averageComplexity
 	    }
 	  } &
 		"#time *" #> timeNow.toString &
 		"#chart [src]" #> statistics.image
 	}
-	
+
   override def lowPriority = {
+	
     case Tick =>
-			println("Recieved Tick!")
-			reRender(false)
+
+			println("[Debug] Recieved Tick!")
+			
+			reRender(true)
 			
 			statistics.update()
-			
-			partialUpdate(Call("addComplexity", statistics.revision, statistics.average));
-      Schedule.schedule(this, Tick, 3 seconds)
+
+			partialUpdate(encode() & JsRaw("drawMe();"))
+
+      Schedule.schedule(this, Tick, 5 seconds)
+
   }
+
+	private def encode(): JsCmd = {
+		
+		val entries = statistics.entries
+		
+		var jsRaw :JsCmd = JsRaw("");
+		
+		entries.foreach { entry => {
+			
+			var i = 1;
+			
+			entry.revisions.foreach { revision => {
+				
+				jsRaw = jsRaw & JsRaw("addComplexity(\""+entry.url+"\", " + i+ ", " + revision +");")
+				
+				i+=1
+				
+			}}
+			
+		}}
+		
+		return jsRaw
+		
+	}
+
 }
