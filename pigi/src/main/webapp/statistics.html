@@ -1,44 +1,62 @@
+<!-- This is included in the content part of default.html -->
 <div class="lift:surround?with=default;at=content">
+	<title class="lift:head">
+		Pigi - Statistics
+	</title>
 	
-	<title class="lift:head">Pigi - Statistics </title>
 	<script class="lift:head" type="text/javascript" src="https://www.google.com/jsapi"></script>	
 	<script class="lift:head" type="text/javascript" src="/ui/google/chart/linechart.js"></script>
 	
+	<!-- Header of the page -->
   <h2>Statistics</h2>
 	<p class="lead">A world with no statistics, would not have a <em>chance</em> to survive.</p>
-   <div class="lift:comet?type=UpdateStatistics">
-		<div class="row-fluid span12">
-			<div class="span9">
-				<table class="table table-striped table-hover">
-					<thead>
-			  		<tr>
-							<th>Repository</th>
-							<th>URL</th>
-							<th>Revisions</th>
-							<th>Average Complexity</th>
-						</tr>
-					</thead>
-					<tbody>
-                    <clk>
-						<tr class="instance">
-            	<td class="name">WebKit</td>
-           		<td class="url">svn://webkit.org</td>
-							<td class="revision">1</td>
-           		<td class="complexity">23</td>
-         		</tr>
-                    </clk>
-       		</tbody>
-				</table>
+		
+		<!-- Call the comet code -->
+  	<div class="lift:comet?type=UpdateStatistics">
+			<div class="row-fluid span12">
+				<div class="span9">
+					
+					<!-- Table to show the information of the repositories-->
+					<table class="table table-striped table-hover">
+						<thead>
+			  			<tr>
+								<th>Repository</th>
+								<th>URL</th>
+								<th>Revisions</th>
+								<th>Average Complexity</th>
+							</tr>
+						</thead>
+						
+						<!-- Table body filled by backend-->
+						<tbody>
+							<tr class="instance">
+	            	<td class="name">WebKit</td>
+	           		<td class="url">svn://webkit.org</td>
+								<td class="revision">1</td>
+	           		<td class="complexity">23</td>
+	         		</tr>
+	       		</tbody>
+					</table>
+				</div>
+				
+				<!-- Piechart is inserted here-->
+				<div class="span3">
+					<img id="chart" alt="Complexity pie chart" src="/ui/images/ajax-loader.gif"></img>
+				</div>
 			</div>
-			<div class="span3">
-				<img id="chart" alt="Complexity pie chart" ></img>
+			
+			<!-- Last update time is inserted here -->
+			<div class="pagination-centered">
+		 		<small class="muted">
+					Last update was at: <span id="time">The current time</span>
+				</small>
 			</div>
 		</div>
-		<div class="pagination-centered">
-	 		<small class="muted">Last update was at: <span id="time">The current time</span></small>
+		
+		<!-- Line chart is inserted here -->
+		<div id="chart_div" class="span12" style="height: 500px; width=100px;">
+			<div class="waiting pagination-centered">
+				Loading graph..
+			</div>
 		</div>
-	</div>
-	<div id="chart_div" class="span12" style="height: 500px; width=100px;">
-		<div class="waiting pagination-centered">Loading graph..</div></div>
 </div>
-

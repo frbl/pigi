@@ -14,20 +14,22 @@ import JE._
 
 case object Tick
 
-
+/**
+	Class to manage comet communication with the Front end
+ */
 class UpdateStatistics extends CometActor {
+	
+	// Use the statistics class as data provisioner
+	private var statistics: Statistics = new Statistics;
 
-	var statistics: Statistics = new Statistics;
-	
-	statistics.update()
-	
+	// Schedule the first tick after 1 second
 	Schedule.schedule(this, Tick, 1 seconds) 
 	
   def render = {
 		val entries = statistics.entries
 
 		".instance" #> entries.map { entry => {
-				".instance [onclick]" #> ("document.location='statistics/repository/"+entry.id+"';") &
+				".instance [onclick]" #> ("document.location='statistics/repository/"+entry.name+"';") &
 				".name *" #> entry.name &
 	      ".url *"  #> entry.url &
 				".revision *" #> entry.lastRevision &
@@ -38,6 +40,9 @@ class UpdateStatistics extends CometActor {
 		"#chart [src]" #> statistics.image
 	}
 
+	/**
+		This function is called whenever the scheduler 'rings'
+	 */
   override def lowPriority = {
 	
     case Tick =>
@@ -46,14 +51,20 @@ class UpdateStatistics extends CometActor {
 			
 			reRender(true)
 			
+			if(statistics == null) statistics = new Statistics
+			
 			statistics.update()
 
+			// Update the data in the javascript function, and redraw
 			partialUpdate(encode() & JsRaw("drawMe();"))
 
       Schedule.schedule(this, Tick, 5 seconds)
 
   }
 
+	/**
+		Function to call the javascript addComplexity function
+		*/
 	private def encode(): JsCmd = {
 		
 		val entries = statistics.entries

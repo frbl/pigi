@@ -25,7 +25,7 @@ package nl.rug {
 			// [String, Long] corresponds with key and column name
 	  
 
-		  private val cassandra = new Cassandra("Pigi Cluster","192.168.10.210:9160")
+		  private val cassandra = new Cassandra("Pigi Cluster","127.0.0.1:9160")
 
 		  def getRepositories: List[RepositoryCassandra] = {
 		

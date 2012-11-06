@@ -17,9 +17,10 @@ package nl.rug {
 
 		  // For some reason these need an explicit cast, weird
 		  private val longSerializer: Serializer[Long] = LongSerializer.get().asInstanceOf[Serializer[Long]]
-		  private val doubleSerializer: Serializer[Double] = DoubleSerializer.get().asInstanceOf[Serializer[Double]]
+		  
+			private val doubleSerializer: Serializer[Double] = DoubleSerializer.get().asInstanceOf[Serializer[Double]]
 
-		  private val keyspace_name = "ComplexityAnalysis"
+		  private val keyspace_name = "Pigi"
 
 		  private val cluster = HFactory.getOrCreateCluster(clusterName, clusterAddress)
 

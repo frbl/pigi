@@ -1,7 +1,11 @@
+body {
+	padding-top: 0em;
+}
+
 .waiting {
-      background-image: url(/ui/images/ajax-loader-bar.gif);
-      background-repeat: no-repeat;
-      background-position: center;
-      padding-top:68px;
-      margin-bottom:50px;
-   }
+	background-image: url(/ui/images/ajax-loader-bar.gif);
+	background-repeat: no-repeat;
+	background-position: center;
+  padding-top:68px;
+  margin-bottom:50px;
+}

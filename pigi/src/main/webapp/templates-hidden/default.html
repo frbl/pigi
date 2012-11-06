@@ -4,29 +4,28 @@
     <meta name="description" content="" />
     <meta name="keywords" content="" />
 		
-		<!-- bootstrap -->
-
-    <script id="jquery" src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+		<!-- Javascript -->
+    <script id="jquery" src="/ui/jquery/jquery.min.js" type="text/javascript"></script>
     <script id="json" src="/classpath/json.js" type="text/javascript"></script>
 		<script src="/ui/bootstrap/js/bootstrap.min.js"></script>
 		
-		<link href="/ui/css/extras.css" rel="stylesheet"/>
+		<!-- Stylesheets / css -->
 		<link href="/ui/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
 		<link href="/ui/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet"/>
-		<link href="http://twitter.github.com/bootstrap/assets/css/docs.css" rel="stylesheet"/>
-   	
-		<style>
-	    body { padding-top: 0em; }
-	  </style>
-
+		<link href="/ui/bootstrap/css/docs.css" rel="stylesheet"/>
+		<link href="/ui/css/extras.css" rel="stylesheet"/>
+		
   </head>
   <body>
+		<!-- header -->
 		<header class="jumbotron subhead" id="overview">
 		  <div class="container">
 		    <h1>pigi</h1>
 		    <p class="lead">Distributed repository analysis</p>
 		  </div>
 		</header>
+		
+		<!-- navbar -->
 		<div class="navbar navbar-top">
 			<div class="navbar-inner">
 				<div class="container">
@@ -45,13 +44,14 @@
 						expandAll=true;
 						group=user">
 					</span>
-					<!--<span data-lift="lift:Menu.builder?top:class=nav pull-right;li_item:class=active;linkToSelf=true;expandAll=true;group=user"></span>
-				  <span class="lift:Menu.builder?linkToSelf=true&li_item:class=active&ul:class=nav;"></span>
-					<span class="lift:Menu.builder?top:class=nav pull-right;li_item:class=active;linkToSelf=true;expandAll=true;group=user"></span>-->
 				</div>			
 			</div>
 		</div>
+		
+		<!-- Content -->
    	<div class="container span12">
+			
+			<!-- Error messages -->
 			<div class="lift:msgs">
 		  	<lift:error_msg>Error:</lift:error_msg>
 		  	<lift:error_class>alert alert-error</lift:error_class>
@@ -60,9 +60,13 @@
 			 	<lift:notice_msg>Note:</lift:notice_msg>
 			 	<lift:notice_class>noticeBox</lift:notice_class>
 			</div>
+			
+			<!-- The actual content -->
       <div id="content" class="span12">
-	  	<!-- The HTML content will go here -->
+				<!-- The HTML content will be inserted here -->
 			</div>
+			
+			<!-- Footer showing the copyright -->
 			<footer style="padding-right: 10px;"class="navbar navbar-fixed-bottom pagination-right">
 				<small>Copyright &copy; 2012 University of Groningen and pigi</small>
 			</footer>
